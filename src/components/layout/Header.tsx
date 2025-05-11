@@ -1,9 +1,9 @@
+import { Link } from 'react-router-dom';
 import { Bell, Menu, MessageSquare, Globe2, ChevronDown } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { Link } from 'react-router-dom';
 import { User } from '../../types/user';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -15,15 +15,39 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
   const { language, setLanguage, t } = useLanguage();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
+        setIsLanguageOpen(false);
+        setIsNotificationsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const toggleProfileMenu = () => {
     setIsProfileOpen(!isProfileOpen);
     if (isLanguageOpen) setIsLanguageOpen(false);
+    if (isNotificationsOpen) setIsNotificationsOpen(false);
   };
 
   const toggleLanguageMenu = () => {
     setIsLanguageOpen(!isLanguageOpen);
     if (isProfileOpen) setIsProfileOpen(false);
+    if (isNotificationsOpen) setIsNotificationsOpen(false);
+  };
+
+  const toggleNotifications = () => {
+    setIsNotificationsOpen(!isNotificationsOpen);
+    if (isProfileOpen) setIsProfileOpen(false);
+    if (isLanguageOpen) setIsLanguageOpen(false);
   };
 
   const handleLanguageChange = (lang: 'en' | 'fr') => {
@@ -31,10 +55,56 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
     setIsLanguageOpen(false);
   };
 
+  // Mock notifications for demo
+  const notifications = [
+    {
+      id: 1,
+      title: 'Shipment Status Update',
+      message: 'Your shipment HT-10001 has arrived at the warehouse',
+      time: '5 minutes ago',
+      unread: true
+    },
+    {
+      id: 2,
+      title: 'Document Required',
+      message: 'Please upload customs declaration for shipment HT-10002',
+      time: '1 hour ago',
+      unread: true
+    },
+    {
+      id: 3,
+      title: 'Payment Received',
+      message: 'Payment for invoice #INV-2023-001 has been processed',
+      time: '2 hours ago',
+      unread: false
+    },
+    {
+      id: 4,
+      title: 'New Message',
+      message: 'You have a new message from your logistics agent',
+      time: '3 hours ago',
+      unread: false
+    },
+    {
+      id: 5,
+      title: 'Shipment Delivered',
+      message: 'Shipment HT-10003 has been successfully delivered',
+      time: '1 day ago',
+      unread: false
+    },
+    {
+      id: 6,
+      title: 'Price Update',
+      message: 'New shipping rates will be effective from next month',
+      time: '2 days ago',
+      unread: false
+    }
+  ];
+
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-gray-200">
       <div className="px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-16" ref={headerRef}>
           <div className="flex items-center">
             <button 
               onClick={toggleSidebar}
@@ -80,11 +150,60 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
               )}
             </div>
 
+            {/* Notifications */}
             <div className="flex-shrink-0 relative">
-              <button className="p-1 text-gray-400 rounded-full hover:bg-gray-100 relative">
+              <button 
+                onClick={toggleNotifications}
+                className="p-1 text-gray-400 rounded-full hover:bg-gray-100 relative focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
                 <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
                 <Bell size={20} />
               </button>
+
+              {isNotificationsOpen && (
+                <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg py-1 z-10 border border-gray-200">
+                  <div className="px-4 py-3 border-b border-gray-200">
+                    <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
+                    <p className="text-xs text-gray-500 mt-1">You have {notifications.filter(n => n.unread).length} unread notifications</p>
+                  </div>
+                  <div className="max-h-[calc(100vh-200px)] overflow-y-auto">
+                    {notifications.map((notification) => (
+                      <div 
+                        key={notification.id}
+                        className={`px-4 py-3 hover:bg-gray-50 cursor-pointer ${notification.unread ? 'bg-blue-50' : ''}`}
+                      >
+                        <div className="flex items-start">
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm font-medium ${notification.unread ? 'text-blue-900' : 'text-gray-900'}`}>
+                              {notification.title}
+                            </p>
+                            <p className="text-sm text-gray-500 mt-0.5">
+                              {notification.message}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              {notification.time}
+                            </p>
+                          </div>
+                          {notification.unread && (
+                            <div className="ml-3 flex-shrink-0">
+                              <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
+                    <Link
+                      to="/notifications"
+                      className="block text-sm text-center text-blue-600 hover:text-blue-800 font-medium"
+                      onClick={() => setIsNotificationsOpen(false)}
+                    >
+                      View all notifications
+                    </Link>
+                  </div>
+                </div>
+              )}
             </div>
             
             <div className="flex-shrink-0 relative">
