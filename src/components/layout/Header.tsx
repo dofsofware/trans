@@ -115,7 +115,7 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
             </button>
             <div className="ml-4 lg:ml-0">
               <Link to="/" className="flex items-center">
-                <span className="text-xl font-bold text-blue-900">Holly<span className="text-blue-600">Trans</span></span>
+                <span className="text-xl font-bold text-blue-900">GOUY<span className="text-blue-600">GUI</span></span>
               </Link>
             </div>
           </div>

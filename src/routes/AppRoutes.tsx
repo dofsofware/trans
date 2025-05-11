@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import LoginPage from '../pages/LoginPage';
 import ClientDashboard from '../pages/client/Dashboard';
+import ClientShipments from '../pages/client/Shipments';
 import ShipmentDetails from '../pages/client/ShipmentDetails';
 import DocumentsPage from '../pages/client/Documents';
 import MessagesPage from '../pages/client/Messages';
@@ -33,6 +34,7 @@ const AppRoutes = () => {
           {user?.role === 'client' ? (
             <Route element={<Layout />}>
               <Route path="/" element={<ClientDashboard />} />
+              <Route path="/shipments" element={<ClientShipments />} />
               <Route path="/shipments/:id" element={<ShipmentDetails />} />
               <Route path="/documents" element={<DocumentsPage />} />
               <Route path="/messages" element={<MessagesPage />} />
@@ -55,4 +57,4 @@ const AppRoutes = () => {
   );
 };
 
-export default AppRoutes;
+export default AppRoutes

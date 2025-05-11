@@ -34,7 +34,7 @@ const LoginPage = () => {
             <Ship size={40} className="text-blue-600" />
           </div>
           <h2 className="mt-5 text-center text-3xl font-extrabold text-gray-900">
-            Holly<span className="text-blue-600">Trans</span>
+            GOUY<span className="text-blue-600">GUI</span>
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Sign in to your logistics portal
