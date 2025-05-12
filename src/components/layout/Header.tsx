@@ -116,7 +116,7 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
             </button>
             <div className="ml-4 lg:ml-0">
               <Link to="/" className="flex items-center">
-                <span className="text-xl font-bold text-blue-900 dark:text-blue-100">GOUY<span className="text-blue-600">GUI</span></span>
+                <span className="text-xl font-bold text-blue-900 dark:text-blue-100">Ship<span className="text-blue-600">Track</span></span>
               </Link>
             </div>
           </div>
@@ -218,8 +218,9 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
             <div className="flex-shrink-0 relative">
               <Link to="/messages" className="p-1 text-gray-400 dark:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 relative">
                 <MessageSquare size={20} />
-                <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
               </Link>
+
+                <span className="absolute top-4 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
             </div>
 
             <div className="relative flex-shrink-0">

@@ -93,7 +93,7 @@ const Sidebar = ({ role }: SidebarProps) => {
     <div className="h-full w-64 bg-blue-900 dark:bg-gray-800 text-white flex flex-col">
       <div className="flex items-center justify-center h-16 border-b border-blue-800 dark:border-gray-700">
         <Link to="/" className="text-xl font-bold">
-          GOUY<span className="text-blue-400">GUI</span>
+          Ship<span className="text-blue-400">Track</span>
         </Link>
       </div>
 
