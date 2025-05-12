@@ -90,8 +90,8 @@ const Sidebar = ({ role }: SidebarProps) => {
   }
 
   return (
-    <div className="h-full w-64 bg-blue-900 text-white flex flex-col">
-      <div className="flex items-center justify-center h-16 border-b border-blue-800">
+    <div className="h-full w-64 bg-blue-900 dark:bg-gray-800 text-white flex flex-col">
+      <div className="flex items-center justify-center h-16 border-b border-blue-800 dark:border-gray-700">
         <Link to="/" className="text-xl font-bold">
           GOUY<span className="text-blue-400">GUI</span>
         </Link>
@@ -108,16 +108,16 @@ const Sidebar = ({ role }: SidebarProps) => {
                 className={cn(
                   "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
                   isActive(link.to)
-                    ? "bg-blue-800 text-white"
-                    : "text-blue-100 hover:bg-blue-700"
+                    ? "bg-blue-800 dark:bg-gray-700 text-white"
+                    : "text-blue-100 dark:text-gray-300 hover:bg-blue-700 dark:hover:bg-gray-700"
                 )}
               >
                 <Icon 
                   className={cn(
                     "mr-3 flex-shrink-0 h-5 w-5",
                     isActive(link.to)
-                      ? "text-blue-200"
-                      : "text-blue-300 group-hover:text-blue-200"
+                      ? "text-blue-200 dark:text-gray-300"
+                      : "text-blue-300 dark:text-gray-400 group-hover:text-blue-200 dark:group-hover:text-gray-300"
                   )}
                 />
                 {link.name}
@@ -127,7 +127,7 @@ const Sidebar = ({ role }: SidebarProps) => {
         </div>
       </div>
 
-      <div className="p-4 bg-blue-800 text-xs text-blue-300">
+      <div className="p-4 bg-blue-800 dark:bg-gray-700 text-xs text-blue-300 dark:text-gray-400">
         <p>{role.charAt(0).toUpperCase() + role.slice(1)} Portal • v0.1.0</p>
       </div>
     </div>
