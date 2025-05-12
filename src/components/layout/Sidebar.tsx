@@ -30,7 +30,7 @@ const Sidebar = ({ role }: SidebarProps) => {
     { name: t('shipments'), to: '/shipments', icon: Package },
     { name: t('documents'), to: '/documents', icon: FileText },
     { name: t('messages'), to: '/messages', icon: MessageSquare },
-    { name: t('payments'), to: '/payments', icon: CreditCard },
+//     { name: t('payments'), to: '/payments', icon: CreditCard },
   ];
 
   const agentLinks = [
