@@ -6,11 +6,13 @@ import Status from '../../components/common/Status';
 import ShipmentTimeline from '../../components/shipments/ShipmentTimeline';
 import { ArrowLeft, FileText, MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const ShipmentDetails = () => {
   const { id } = useParams<{ id: string }>();
   const [shipment, setShipment] = useState<Shipment | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const fetchShipment = async () => {
@@ -71,7 +73,7 @@ const ShipmentDetails = () => {
               Shipment {shipment.reference}
             </h3>
             <p className="mt-1 max-w-2xl text-sm text-gray-500">
-              Created on {format(new Date(shipment.createdAt), 'MMMM d, yyyy')}
+              {t('created_at')} {format(new Date(shipment.createdAt), 'MMMM d, yyyy')}
             </p>
           </div>
           <Status status={shipment.status} size="lg" />
@@ -80,19 +82,19 @@ const ShipmentDetails = () => {
         <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4">
             <div>
-              <dt className="text-sm font-medium text-gray-500">Origin</dt>
+              <dt className="text-sm font-medium text-gray-500">{t('origin')}</dt>
               <dd className="mt-1 text-sm text-gray-900">{shipment.origin}</dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-gray-500">Destination</dt>
+              <dt className="text-sm font-medium text-gray-500">{t('destination')}</dt>
               <dd className="mt-1 text-sm text-gray-900">{shipment.destination}</dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-gray-500">Description</dt>
+              <dt className="text-sm font-medium text-gray-500">{t('description')}</dt>
               <dd className="mt-1 text-sm text-gray-900">{shipment.description}</dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-gray-500">Estimated Delivery</dt>
+              <dt className="text-sm font-medium text-gray-500">{t('estimatedDelivery')}</dt>
               <dd className="mt-1 text-sm text-gray-900">
                 {shipment.estimatedDelivery ? 
                   format(new Date(shipment.estimatedDelivery), 'MMMM d, yyyy') : 
@@ -101,11 +103,11 @@ const ShipmentDetails = () => {
               </dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-gray-500">Weight</dt>
+              <dt className="text-sm font-medium text-gray-500">{t('weight')}</dt>
               <dd className="mt-1 text-sm text-gray-900">{shipment.weight.toLocaleString()} kg</dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-gray-500">Volume</dt>
+              <dt className="text-sm font-medium text-gray-500">{t('volume')}</dt>
               <dd className="mt-1 text-sm text-gray-900">{shipment.volume.toLocaleString()} m³</dd>
             </div>
           </dl>
@@ -117,10 +119,10 @@ const ShipmentDetails = () => {
         <div className="lg:col-span-2 bg-white shadow sm:rounded-lg">
           <div className="px-4 py-5 sm:px-6">
             <h3 className="text-lg leading-6 font-medium text-gray-900">
-              Shipment Timeline
+              {t('shipment_timeLine')}
             </h3>
             <p className="mt-1 max-w-2xl text-sm text-gray-500">
-              Track the progress of your shipment
+              {t('track_the_progress')}
             </p>
           </div>
           <div className="border-t border-gray-200 px-4 py-5 sm:p-6">
@@ -150,14 +152,14 @@ const ShipmentDetails = () => {
                         href="#"
                         className="text-xs font-medium text-blue-600 hover:text-blue-800"
                       >
-                        Download
+                        {t('download')}
                       </a>
                     </li>
                   ))}
                 </ul>
               ) : (
                 <div className="px-4 py-5 sm:px-6 text-sm text-gray-500">
-                  No documents available yet.
+                  {t('no_documents_yet')}
                 </div>
               )}
             </div>
@@ -167,7 +169,7 @@ const ShipmentDetails = () => {
           <div className="bg-white shadow sm:rounded-lg">
             <div className="px-4 py-5 sm:px-6">
               <h3 className="text-lg leading-6 font-medium text-gray-900">
-                Quick Actions
+                {t('quick_actions')}
               </h3>
             </div>
             <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
@@ -177,7 +179,7 @@ const ShipmentDetails = () => {
                   className="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   <MessageSquare size={16} className="mr-2" />
-                  Contact Agent
+                  {t('contact_agent')}
                 </button>
                 {/*<button
                   type="button"

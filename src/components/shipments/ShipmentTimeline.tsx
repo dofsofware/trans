@@ -1,5 +1,6 @@
 import { ShipmentEvent } from '../../types/shipment';
 import { format } from 'date-fns';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { 
   FileEdit, 
   PackageOpen, 
@@ -37,7 +38,8 @@ const statusColorMap = {
 
 const ShipmentTimeline = ({ events }: ShipmentTimelineProps) => {
   const [showAll, setShowAll] = useState(false);
-  
+  const { t } = useLanguage();
+
   const sortedEvents = [...events].sort((a, b) => 
     new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   );
@@ -66,13 +68,13 @@ const ShipmentTimeline = ({ events }: ShipmentTimelineProps) => {
                   <div className="min-w-0 flex-1 py-1.5">
                     <div className="text-sm text-gray-500">
                       <div className="font-medium text-gray-900">
-                        {event.status === 'draft' && 'Shipment Created'}
-                        {event.status === 'processing' && 'Processing Started'}
-                        {event.status === 'warehouse' && 'Arrived at Warehouse'}
-                        {event.status === 'customs' && 'In Customs Clearance'}
-                        {event.status === 'in_transit' && 'In Transit'}
-                        {event.status === 'delivered' && 'Delivered Successfully'}
-                        {event.status === 'issue' && 'Issue Reported'}
+                        {event.status === 'draft' && 'Shipment Created'  && t('shipment_created')}
+                        {event.status === 'processing' && t('processing_started')}
+                        {event.status === 'warehouse' && t('arrived_at_warehouse')}
+                        {event.status === 'customs' && t('in_customs_clearance')}
+                        {event.status === 'in_transit' && t('in_transit')}
+                        {event.status === 'delivered' && t('delivered_successfully')}
+                        {event.status === 'issue' && t('issue_reported')}
                       </div>
                       <span className="whitespace-nowrap text-sm">
                         {format(new Date(event.timestamp), 'MMM d, yyyy • h:mm a')}

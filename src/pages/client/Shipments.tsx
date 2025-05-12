@@ -4,6 +4,7 @@ import { Shipment } from '../../types/shipment';
 import { useAuth } from '../../contexts/AuthContext';
 import ShipmentCard from '../../components/shipments/ShipmentCard';
 import { Filter, Plus, Search } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const ShipmentsPage = () => {
   const { user } = useAuth();
@@ -63,13 +64,13 @@ const ShipmentsPage = () => {
         s.description.toLowerCase().includes(searchLower)
       );
     });
-
+    const { t } = useLanguage();
   return (
     <div>
       <div className="mb-6 flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Shipments</h1>
-          <p className="mt-1 text-gray-600">View and manage all your shipments</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('my_shipments')}</h1>
+          <p className="mt-1 text-gray-600">{t('hereIsOverview')}</p>
         </div>
         {/*<button
           type="button"
@@ -89,7 +90,7 @@ const ShipmentsPage = () => {
           </div>
           <input
             type="text"
-            placeholder="Search shipments..."
+            placeholder= {t('search_shipments')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
@@ -98,20 +99,20 @@ const ShipmentsPage = () => {
         <div className="relative">
           <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
             <Filter size={16} className="mr-2" />
-            <span>Filter by Status</span>
+            <span>{t('filter_by_status')}</span>
             <select
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
-              <option value="all">All Shipments</option>
-              <option value="draft">Draft</option>
-              <option value="processing">Processing</option>
-              <option value="warehouse">In Warehouse</option>
-              <option value="customs">Customs Clearance</option>
-              <option value="in_transit">In Transit</option>
-              <option value="delivered">Delivered</option>
-              <option value="issue">Issues</option>
+              <option value="all">{t('all')}</option>
+              <option value="draft">{t('draft')}</option>
+              <option value="processing">{t('processing')}</option>
+              <option value="warehouse">{t('warehouse')}</option>
+              <option value="customs">{t('customs')}</option>
+              <option value="in_transit">{t('in_transit')}</option>
+              <option value="delivered">{t('delivered')}</option>
+              <option value="issue">{t('issue')}</option>
             </select>
           </button>
         </div>
