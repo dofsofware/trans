@@ -18,9 +18,10 @@ import { cn } from '../../utils/cn';
 
 interface SidebarProps {
   role: UserRole;
+  onNavigate?: () => void;
 }
 
-const Sidebar = ({ role }: SidebarProps) => {
+const Sidebar = ({ role, onNavigate }: SidebarProps) => {
   const location = useLocation();
   const { t } = useLanguage();
   const isActive = (path: string) => location.pathname === path;
@@ -92,7 +93,7 @@ const Sidebar = ({ role }: SidebarProps) => {
   return (
     <div className="h-full w-64 bg-blue-900 dark:bg-gray-800 text-white flex flex-col">
       <div className="flex items-center justify-center h-16 border-b border-blue-800 dark:border-gray-700">
-        <Link to="/" className="text-xl font-bold">
+        <Link to="/" className="text-xl font-bold" onClick={onNavigate}>
           Ship<span className="text-blue-400">Track</span>
         </Link>
       </div>
@@ -105,6 +106,7 @@ const Sidebar = ({ role }: SidebarProps) => {
               <Link
                 key={link.to}
                 to={link.to}
+                onClick={onNavigate}
                 className={cn(
                   "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
                   isActive(link.to)

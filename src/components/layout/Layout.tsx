@@ -2,15 +2,37 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import { useAuth } from '../../contexts/AuthContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft } from 'lucide-react';
 
 const Layout = () => {
   const { user } = useAuth();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Set initial state based on screen size
+  useEffect(() => {
+    const handleResize = () => {
+      setSidebarOpen(window.innerWidth >= 1024);
+    };
+    
+    // Set initial state
+    handleResize();
+    
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const toggleSidebar = () => {
     setSidebarOpen(prev => !prev);
+  };
+
+  const closeSidebarOnMobile = () => {
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
   };
 
   if (!user) return null;
@@ -38,7 +60,7 @@ const Layout = () => {
       {sidebarOpen && (
         <div 
           className="fixed inset-0 bg-gray-600 bg-opacity-50 backdrop-blur-sm z-20 lg:hidden"
-          onClick={toggleSidebar}
+          onClick={closeSidebarOnMobile}
         />
       )}
 
