@@ -20,6 +20,7 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   const headerRef = useRef<HTMLDivElement>(null);
+  const notificationsButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -162,6 +163,7 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
             {/* Notifications */}
             <div className="flex-shrink-0 relative flex items-center">
               <button 
+                ref={notificationsButtonRef}
                 onClick={toggleNotifications}
                 className="inline-flex items-center justify-center w-8 h-8 text-gray-400 dark:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 relative focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
@@ -170,7 +172,13 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
               </button>
 
               {isNotificationsOpen && (
-                <div className="md:absolute md:right-0 fixed inset-x-0 mx-auto md:mx-0 md:inset-x-auto top-16 md:top-auto mt-2 w-[95%] md:w-96 bg-white dark:bg-gray-700 rounded-lg shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-600">
+                <div 
+                  className="fixed md:absolute inset-x-0 md:inset-auto md:right-0 top-16 md:top-full mt-2 w-[95%] md:w-96 bg-white dark:bg-gray-700 rounded-lg shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-600 mx-auto md:mx-0"
+                  style={{
+                    maxHeight: 'calc(100vh - 80px)',
+                    overflowY: 'auto'
+                  }}
+                >
                   <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-600">
                     <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Notifications</h3>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">You have {notifications.filter(n => n.unread).length} unread notifications</p>
