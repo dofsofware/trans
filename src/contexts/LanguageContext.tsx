@@ -5,7 +5,7 @@ type Language = 'en' | 'fr';
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, any>) => string;
 }
 
 const translations = {
@@ -46,7 +46,6 @@ const translations = {
     customs: 'Customs Clearance',
     delivered: 'Delivered',
     issue: 'Issue',
-    // Dashboard stats
     statsInTransit: 'In Transit',
     statsInWarehouse: 'In Warehouse',
     statsTotalShipments: 'Total Shipments',
@@ -70,7 +69,14 @@ const translations = {
     download: 'Download',
     no_documents_yet: 'No documents available yet.',
     quick_actions: 'Quick Actions',
-    contact_agent: 'Contact Agent'
+    contact_agent: 'Contact Agent',
+    notifications_description: 'Stay updated with your shipment status and important alerts',
+    all_notifications: 'All Notifications',
+    unread_count: (params: { count: number }) => `You have ${params.count} unread notifications`,
+    mark_all_as_read: 'Mark all as read',
+    no_notifications: 'No notifications',
+    no_notifications_description: 'You\'re all caught up! No new notifications at the moment.',
+    view_all_notifications: 'View all notifications'
   },
   fr: {
     dashboard: 'Tableau de bord',
@@ -109,7 +115,6 @@ const translations = {
     customs: 'Dédouanement',
     delivered: 'Livré',
     issue: 'Problème',
-    // Dashboard stats
     statsInTransit: 'En Transit',
     statsInWarehouse: 'En Entrepôt',
     statsTotalShipments: 'Total des Expéditions',
@@ -133,7 +138,14 @@ const translations = {
     download: 'Télécharger',
     no_documents_yet: 'Aucun document disponible pour le moment.',
     quick_actions: 'Actions rapide',
-    contact_agent: 'Contacter un agent'
+    contact_agent: 'Contacter un agent',
+    notifications_description: 'Restez informé de l\'état de vos expéditions et des alertes importantes',
+    all_notifications: 'Toutes les notifications',
+    unread_count: (params: { count: number }) => `Vous avez ${params.count} notifications non lues`,
+    mark_all_as_read: 'Tout marquer comme lu',
+    no_notifications: 'Aucune notification',
+    no_notifications_description: 'Vous êtes à jour ! Aucune nouvelle notification pour le moment.',
+    view_all_notifications: 'Voir toutes les notifications'
   },
 };
 
@@ -150,8 +162,12 @@ export const useLanguage = () => {
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<Language>('fr');
 
-  const t = (key: string): string => {
-    return translations[language][key as keyof typeof translations['fr']] || key;
+  const t = (key: string, params?: Record<string, any>): string => {
+    const translation = translations[language][key as keyof typeof translations['fr']];
+    if (typeof translation === 'function' && params) {
+      return translation(params);
+    }
+    return translation || key;
   };
 
   return (

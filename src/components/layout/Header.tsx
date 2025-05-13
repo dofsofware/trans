@@ -180,8 +180,10 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
                   }}
                 >
                   <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-600">
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Notifications</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">You have {notifications.filter(n => n.unread).length} unread notifications</p>
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{t('notifications')}</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      {t('unread_count', { count: notifications.filter(n => n.unread).length })}
+                    </p>
                   </div>
                   <div className="max-h-[calc(100vh-200px)] overflow-y-auto">
                     {notifications.map((notification) => (
@@ -216,7 +218,7 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
                       className="block text-sm text-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
                       onClick={() => setIsNotificationsOpen(false)}
                     >
-                      View all notifications
+                      {t('view_all_notifications')}
                     </Link>
                   </div>
                 </div>
