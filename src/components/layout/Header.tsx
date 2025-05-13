@@ -160,17 +160,17 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
             </div>
 
             {/* Notifications */}
-            <div className="flex-shrink-0 relative">
+            <div className="flex-shrink-0 relative flex items-center">
               <button 
                 onClick={toggleNotifications}
-                className="p-1 text-gray-400 dark:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 relative focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="inline-flex items-center justify-center w-8 h-8 text-gray-400 dark:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 relative focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <Bell size={20} />
                 <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
               </button>
 
               {isNotificationsOpen && (
-                <div className="absolute right-0 mt-2 w-96 bg-white dark:bg-gray-700 rounded-lg shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-600">
+                <div className="md:absolute md:right-0 fixed inset-x-0 mx-auto md:mx-0 md:inset-x-auto top-16 md:top-auto mt-2 w-[95%] md:w-96 bg-white dark:bg-gray-700 rounded-lg shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-600">
                   <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-600">
                     <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Notifications</h3>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">You have {notifications.filter(n => n.unread).length} unread notifications</p>
@@ -215,12 +215,11 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
               )}
             </div>
             
-            <div className="flex-shrink-0 relative">
-              <Link to="/messages" className="p-1 text-gray-400 dark:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 relative">
+            <div className="flex-shrink-0 relative flex items-center">
+              <Link to="/messages" className="inline-flex items-center justify-center w-8 h-8 text-gray-400 dark:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 relative">
                 <MessageSquare size={20} />
               </Link>
-
-                <span className="absolute top-4 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
             </div>
 
             <div className="relative flex-shrink-0">
