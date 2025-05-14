@@ -105,7 +105,7 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
 
   return (
     <header className="sticky top-0 z-30 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-      <div className="px-4 sm:px-6 lg:px-8">
+      <div className="px-2 sm:px-4 lg:px-6">
         <div className="flex items-center justify-between h-16" ref={headerRef}>
           <div className="flex items-center">
             <button 
@@ -115,14 +115,14 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
             >
               <Menu size={24} />
             </button>
-            <div className="ml-4 lg:ml-0">
+            <div className="ml-2 lg:ml-0">
               <Link to="/" className="flex items-center">
                 <span className="text-xl font-bold text-blue-900 dark:text-blue-100">Ship<span className="text-blue-600">Track</span></span>
               </Link>
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4">
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
@@ -135,11 +135,11 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
             <div className="relative">
               <button
                 onClick={toggleLanguageMenu}
-                className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                className="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-1"
               >
                 <Globe2 size={20} />
-                <span className="text-sm font-medium">{language.toUpperCase()}</span>
-                <ChevronDown size={16} />
+                <span className="hidden sm:inline text-sm font-medium">{language.toUpperCase()}</span>
+                <ChevronDown size={16} className="hidden sm:block" />
               </button>
 
               {isLanguageOpen && (
@@ -161,11 +161,11 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
             </div>
 
             {/* Notifications */}
-            <div className="flex-shrink-0 relative flex items-center">
+            <div className="relative">
               <button 
                 ref={notificationsButtonRef}
                 onClick={toggleNotifications}
-                className="inline-flex items-center justify-center w-8 h-8 text-gray-400 dark:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 relative focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="p-1 text-gray-400 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full relative focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <Bell size={20} />
                 <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
@@ -234,19 +234,24 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
               )}
             </div>
             
-            <div className="flex-shrink-0 relative flex items-center">
-              <Link to="/messages" className="inline-flex items-center justify-center w-8 h-8 text-gray-400 dark:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 relative">
+            {/* Messages */}
+            <div className="relative">
+              <Link 
+                to="/messages" 
+                className="p-1 text-gray-400 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full relative focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
                 <MessageSquare size={20} />
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
               </Link>
-              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
             </div>
 
-            <div className="relative flex-shrink-0">
+            {/* Profile */}
+            <div className="relative">
               <button 
                 onClick={toggleProfileMenu}
-                className="flex items-center space-x-3 focus:outline-none"
+                className="flex items-center space-x-2 focus:outline-none"
               >
-                <div className="h-8 w-8 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-600">
+                <div className="h-8 w-8 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-600 flex-shrink-0">
                   {user.avatar ? (
                     <img 
                       src={user.avatar} 
@@ -259,10 +264,10 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
                     </div>
                   )}
                 </div>
-                <div className="hidden md:block text-sm font-medium text-gray-700 dark:text-gray-200">
-                  {user.name}
+                <div className="hidden md:flex items-center">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{user.name}</span>
+                  <ChevronDown size={16} className="text-gray-500 dark:text-gray-400 ml-1" />
                 </div>
-                <ChevronDown size={16} className="text-gray-500 dark:text-gray-400" />
               </button>
 
               {isProfileOpen && (
