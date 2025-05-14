@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { User } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const SettingsPage = () => {
   const { user } = useAuth();
+  const { t, language, setLanguage } = useLanguage();
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
-  const [language, setLanguage] = useState('en');
   const [notifications, setNotifications] = useState(true);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -17,8 +18,8 @@ const SettingsPage = () => {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-        <p className="mt-1 text-gray-600">Manage your account preferences</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t('settings')}</h1>
+        <p className="mt-1 text-gray-600">{t('manage_account_preferences')}</p>
       </div>
 
       <div className="bg-white shadow sm:rounded-lg">
@@ -27,7 +28,7 @@ const SettingsPage = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Profile Section */}
               <div>
-                <h3 className="text-lg font-medium leading-6 text-gray-900">Profile</h3>
+                <h3 className="text-lg font-medium leading-6 text-gray-900">{t('profile')}</h3>
                 <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
                   <div className="sm:col-span-6">
                     <div className="flex items-center">
@@ -46,14 +47,14 @@ const SettingsPage = () => {
                         type="button"
                         className="ml-5 bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                       >
-                        Change avatar
+                        {t('change_avatar')}
                       </button>
                     </div>
                   </div>
 
                   <div className="sm:col-span-3">
                     <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                      Name
+                      {t('name')}
                     </label>
                     <div className="mt-1">
                       <input
@@ -69,7 +70,7 @@ const SettingsPage = () => {
 
                   <div className="sm:col-span-4">
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                      Email
+                      {t('email')}
                     </label>
                     <div className="mt-1">
                       <input
@@ -87,19 +88,19 @@ const SettingsPage = () => {
 
               {/* Preferences Section */}
               <div className="pt-6">
-                <h3 className="text-lg font-medium leading-6 text-gray-900">Preferences</h3>
+                <h3 className="text-lg font-medium leading-6 text-gray-900">{t('preferences')}</h3>
                 <div className="mt-6">
                   <div className="max-w-xl">
                     <div className="sm:col-span-3">
                       <label htmlFor="language" className="block text-sm font-medium text-gray-700">
-                        Language
+                        {t('language_preference')}
                       </label>
                       <div className="mt-1">
                         <select
                           id="language"
                           name="language"
                           value={language}
-                          onChange={(e) => setLanguage(e.target.value)}
+                          onChange={(e) => setLanguage(e.target.value as 'en' | 'fr')}
                           className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
                         >
                           <option value="en">English</option>
@@ -122,9 +123,9 @@ const SettingsPage = () => {
                         </div>
                         <div className="ml-3 text-sm">
                           <label htmlFor="notifications" className="font-medium text-gray-700">
-                            Email notifications
+                            {t('email_notifications')}
                           </label>
-                          <p className="text-gray-500">Receive notifications about your shipments</p>
+                          <p className="text-gray-500">{t('receive_notifications')}</p>
                         </div>
                       </div>
                     </div>
@@ -134,13 +135,13 @@ const SettingsPage = () => {
 
               {/* Security Section */}
               <div className="pt-6">
-                <h3 className="text-lg font-medium leading-6 text-gray-900">Security</h3>
+                <h3 className="text-lg font-medium leading-6 text-gray-900">{t('security')}</h3>
                 <div className="mt-6">
                   <button
                     type="button"
                     className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
-                    Change password
+                    {t('change_password')}
                   </button>
                 </div>
               </div>
@@ -151,13 +152,13 @@ const SettingsPage = () => {
                     type="button"
                     className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
-                    Cancel
+                    {t('cancel')}
                   </button>
                   <button
                     type="submit"
                     className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
-                    Save changes
+                    {t('save_changes')}
                   </button>
                 </div>
               </div>

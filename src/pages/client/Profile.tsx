@@ -4,9 +4,11 @@ import { getMockShipments } from '../../services/shipmentService';
 import { Shipment } from '../../types/shipment';
 import { User, Package, TrendingUp, Clock } from 'lucide-react';
 import Status from '../../components/common/Status';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const ProfilePage = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -49,8 +51,8 @@ const ProfilePage = () => {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
-        <p className="mt-1 text-gray-600">View your profile and shipping analytics</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t('profile')}</h1>
+        <p className="mt-1 text-gray-600">{t('view_profile_analytics')}</p>
       </div>
 
       {/* Profile Card */}
@@ -71,7 +73,7 @@ const ProfilePage = () => {
             <div className="ml-6">
               <h2 className="text-2xl font-bold text-gray-900">{user?.name}</h2>
               <p className="text-gray-600">{user?.email}</p>
-              <p className="mt-1 text-sm text-gray-500">Member since {new Date().getFullYear()}</p>
+              <p className="mt-1 text-sm text-gray-500">{t('member_since')} {new Date().getFullYear()}</p>
             </div>
           </div>
         </div>
@@ -83,7 +85,7 @@ const ProfilePage = () => {
           <div className="flex items-center">
             <Package className="h-8 w-8 text-blue-600" />
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Total Shipments</p>
+              <p className="text-sm font-medium text-gray-500">{t('totalShipments')}</p>
               <p className="text-2xl font-semibold text-gray-900">{totalShipments}</p>
             </div>
           </div>
@@ -93,7 +95,7 @@ const ProfilePage = () => {
           <div className="flex items-center">
             <TrendingUp className="h-8 w-8 text-green-600" />
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Completion Rate</p>
+              <p className="text-sm font-medium text-gray-500">{t('completion_rate')}</p>
               <p className="text-2xl font-semibold text-gray-900">{completionRate}%</p>
             </div>
           </div>
@@ -103,7 +105,7 @@ const ProfilePage = () => {
           <div className="flex items-center">
             <Clock className="h-8 w-8 text-amber-600" />
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Active Shipments</p>
+              <p className="text-sm font-medium text-gray-500">{t('active_shipments')}</p>
               <p className="text-2xl font-semibold text-gray-900">{activeShipments}</p>
             </div>
           </div>
@@ -113,7 +115,7 @@ const ProfilePage = () => {
           <div className="flex items-center">
             <Package className="h-8 w-8 text-purple-600" />
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Completed</p>
+              <p className="text-sm font-medium text-gray-500">{t('completed')}</p>
               <p className="text-2xl font-semibold text-gray-900">{completedShipments}</p>
             </div>
           </div>
@@ -124,7 +126,7 @@ const ProfilePage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Monthly Shipments Chart */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Monthly Shipments</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">{t('monthly_shipments')}</h3>
           <div className="h-64">
             <div className="flex h-full items-end space-x-2">
               {Array.from({ length: 12 }).map((_, index) => {
@@ -155,7 +157,7 @@ const ProfilePage = () => {
 
         {/* Status Distribution */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Shipment Status Distribution</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">{t('shipment_status_distribution')}</h3>
           <div className="space-y-4">
             {Object.entries(statusDistribution).map(([status, count]) => (
               <div key={status} className="flex items-center">
