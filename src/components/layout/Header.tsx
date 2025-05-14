@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Bell, Menu, MessageSquare, Globe2, ChevronDown, Moon, Sun } from 'lucide-react';
+import { Bell, Menu, MessageSquare, Globe2, ChevronDown, Moon, Sun, Check } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -179,33 +179,42 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
                     overflowY: 'auto'
                   }}
                 >
-                  <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-600">
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{t('notifications')}</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      {t('unread_count', { count: notifications.filter(n => n.unread).length })}
-                    </p>
+                  <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-600 flex justify-between items-center">
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{t('notifications')}</h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        {t('unread_count', { count: notifications.filter(n => n.unread).length })}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {/* Handle mark all as read */}}
+                      className="p-1 text-gray-400 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-full"
+                      title={t('mark_all_as_read')}
+                    >
+                      <Check size={18} />
+                    </button>
                   </div>
                   <div className="max-h-[calc(100vh-200px)] overflow-y-auto">
                     {notifications.map((notification) => (
                       <div 
                         key={notification.id}
-                        className={`px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer ${notification.unread ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
+                        className={`px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer ${notification.unread ? 'bg-blue-50 dark:bg-gray-800' : ''}`}
                       >
                         <div className="flex items-start">
                           <div className="flex-1 min-w-0">
-                            <p className={`text-sm font-medium ${notification.unread ? 'text-blue-900 dark:text-blue-100' : 'text-gray-900 dark:text-gray-100'}`}>
+                            <p className={`text-sm font-medium ${notification.unread ? 'text-blue-900 dark:text-blue-400' : 'text-gray-900 dark:text-gray-500'}`}>
                               {notification.title}
                             </p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                            <p className="text-sm text-gray-700 dark:text-gray-500 mt-0.5">
                               {notification.message}
                             </p>
-                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                            <p className="text-xs text-gray-600 dark:text-gray-600 mt-1">
                               {notification.time}
                             </p>
                           </div>
                           {notification.unread && (
                             <div className="ml-3 flex-shrink-0">
-                              <div className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full"></div>
+                              <div className="w-2 h-2 bg-blue-600 dark:bg-blue-500 rounded-full"></div>
                             </div>
                           )}
                         </div>

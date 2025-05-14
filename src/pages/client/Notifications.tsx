@@ -82,30 +82,32 @@ const NotificationsPage = () => {
               {notifications.map((notification) => (
                 <div 
                   key={notification.id}
-                  className={`px-4 py-4 sm:px-6 hover:bg-gray-50 ${
-                    notification.unread ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                  className={`px-4 py-4 sm:px-6 hover:bg-gray-50 dark:hover:bg-gray-700 ${
+                    notification.unread ? 'bg-blue-50 dark:bg-gray-800' : ''
                   }`}
                 >
                   <div className="flex items-start">
                     <div className="flex-shrink-0">
-                      <Bell className={`h-5 w-5 ${notification.unread ? 'text-blue-600' : 'text-gray-400'}`} />
+                      <Bell className={`h-5 w-5 ${notification.unread ? 'text-blue-600 dark:text-blue-500' : 'text-gray-500 dark:text-gray-600'}`} />
                     </div>
                     <div className="ml-3 flex-1">
                       <p className={`text-sm font-medium ${
-                        notification.unread ? 'text-blue-900 dark:text-blue-100' : 'text-gray-900 dark:text-gray-100'
+                        notification.unread 
+                          ? 'text-blue-900 dark:text-blue-400' 
+                          : 'text-gray-900 dark:text-gray-500'
                       }`}>
                         {notification.title}
                       </p>
-                      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                      <p className="mt-1 text-sm text-gray-700 dark:text-gray-500">
                         {notification.message}
                       </p>
-                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
+                      <p className="mt-1 text-xs text-gray-600 dark:text-gray-600">
                         {notification.time}
                       </p>
                     </div>
                     {notification.unread && (
                       <div className="ml-3 flex-shrink-0">
-                        <div className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full"></div>
+                        <div className="w-2 h-2 bg-blue-600 dark:bg-blue-500 rounded-full"></div>
                       </div>
                     )}
                   </div>
@@ -114,9 +116,9 @@ const NotificationsPage = () => {
             </div>
           ) : (
             <div className="px-4 py-12 text-center">
-              <Bell className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">{t('no_notifications')}</h3>
-              <p className="mt-1 text-sm text-gray-500">{t('no_notifications_description')}</p>
+              <Bell className="mx-auto h-12 w-12 text-gray-500 dark:text-gray-600" />
+              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-500">{t('no_notifications')}</h3>
+              <p className="mt-1 text-sm text-gray-600 dark:text-gray-600">{t('no_notifications_description')}</p>
             </div>
           )}
         </div>
