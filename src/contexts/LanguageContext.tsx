@@ -95,7 +95,8 @@ const translations = {
     security: 'Security',
     change_password: 'Change password',
     cancel: 'Cancel',
-    save_changes: 'Save changes'
+    save_changes: 'Save changes',
+    tracking_number: 'Tracking #'
   },
   fr: {
     dashboard: 'Tableau de bord',
@@ -183,7 +184,8 @@ const translations = {
     security: 'Sécurité',
     change_password: 'Changer le mot de passe',
     cancel: 'Annuler',
-    save_changes: 'Enregistrer les modifications'
+    save_changes: 'Enregistrer les modifications',
+    tracking_number: 'N° de suivi'
   },
 };
 

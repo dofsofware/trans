@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Shipment } from '../../types/shipment';
 import Status from '../common/Status';
 import { format } from 'date-fns';
-import { MapPin } from 'lucide-react';
+import { MapPin, Hash } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 interface ShipmentCardProps {
@@ -36,6 +36,14 @@ const ShipmentCard = ({ shipment }: ShipmentCardProps) => {
             <div className="text-sm">
               <div className="font-medium text-gray-700">{t('from')}: {shipment.origin}</div>
               <div className="font-medium text-gray-700 mt-1">{t('to')}: {shipment.destination}</div>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2 bg-blue-50 p-2 rounded-md">
+            <Hash size={16} className="text-blue-500" />
+            <div className="text-sm">
+              <span className="text-blue-600 font-medium">{t('tracking_number')}: </span>
+              <span className="text-blue-800">{shipment.id}</span>
             </div>
           </div>
 

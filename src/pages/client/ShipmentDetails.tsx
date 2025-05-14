@@ -4,7 +4,7 @@ import { getMockShipmentById } from '../../services/shipmentService';
 import { Shipment } from '../../types/shipment';
 import Status from '../../components/common/Status';
 import ShipmentTimeline from '../../components/shipments/ShipmentTimeline';
-import { ArrowLeft, FileText, MessageSquare } from 'lucide-react';
+import { ArrowLeft, FileText, MessageSquare, Hash } from 'lucide-react';
 import { format } from 'date-fns';
 import { useLanguage } from '../../contexts/LanguageContext';
 
@@ -90,8 +90,11 @@ const ShipmentDetails = () => {
               <dd className="mt-1 text-sm text-gray-900">{shipment.destination}</dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-gray-500">{t('description')}</dt>
-              <dd className="mt-1 text-sm text-gray-900">{shipment.description}</dd>
+              <dt className="text-sm font-medium text-gray-500">{t('tracking_number')}</dt>
+              <dd className="mt-1 text-sm text-gray-900 flex items-center">
+                <Hash size={16} className="text-blue-500 mr-1" />
+                <span className="font-medium">{shipment.id}</span>
+              </dd>
             </div>
             <div>
               <dt className="text-sm font-medium text-gray-500">{t('estimatedDelivery')}</dt>
@@ -115,6 +118,20 @@ const ShipmentDetails = () => {
       </div>
 
       <div className="mb-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Description Card */}
+        <div className="lg:col-span-3 bg-white shadow sm:rounded-lg">
+          <div className="px-4 py-5 sm:px-6">
+            <h3 className="text-lg leading-6 font-medium text-gray-900">
+              {t('description')}
+            </h3>
+          </div>
+          <div className="border-t border-gray-200 px-4 py-5 sm:p-6">
+            <p className="text-sm text-gray-700 whitespace-pre-wrap">
+              {shipment.description}
+            </p>
+          </div>
+        </div>
+
         {/* Timeline */}
         <div className="lg:col-span-2 bg-white shadow sm:rounded-lg">
           <div className="px-4 py-5 sm:px-6">
@@ -181,13 +198,6 @@ const ShipmentDetails = () => {
                   <MessageSquare size={16} className="mr-2" />
                   {t('contact_agent')}
                 </button>
-                {/*<button
-                  type="button"
-                  className="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  <FileText size={16} className="mr-2" />
-                  Upload Document
-                </button>*/}
               </div>
             </div>
           </div>
