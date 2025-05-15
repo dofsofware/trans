@@ -234,7 +234,7 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
               )}
             </div>
             
-            {/* Messages */}
+            {/* Messages
             <div className="relative">
               <Link 
                 to="/messages" 
@@ -243,7 +243,7 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
                 <MessageSquare size={20} />
                 <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
               </Link>
-            </div>
+            </div>*/}
 
             {/* Profile */}
             <div className="relative">
