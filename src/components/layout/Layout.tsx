@@ -46,7 +46,7 @@ const Layout = () => {
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
-        <Sidebar role={user.role} />
+        <Sidebar role={user.role} onNavigate={closeSidebarOnMobile} />
         <button
           onClick={toggleSidebar}
           className="absolute -right-8 top-1/2 transform -translate-y-1/2 bg-blue-900 dark:bg-gray-800 text-white p-2 rounded-r-md"
