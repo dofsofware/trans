@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Search, Filter, Download, Eye, CreditCard } from 'lucide-react';
 import { format } from 'date-fns';
+import { Link, useNavigate } from 'react-router-dom';
 
 interface Invoice {
   id: string;
@@ -80,9 +81,10 @@ const InvoicesPage = () => {
   const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const navigate = useNavigate();
 
   const filteredInvoices = mockInvoices
-    .filter(invoice => 
+    .filter(invoice =>
       statusFilter === 'all' || invoice.status === statusFilter
     )
     .filter(invoice =>
@@ -115,6 +117,10 @@ const InvoicesPage = () => {
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
+  };
+
+  const handleViewInvoice = (invoiceId: string) => {
+    navigate(`/invoices/${invoiceId}`);
   };
 
   return (
@@ -250,7 +256,10 @@ const InvoicesPage = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end space-x-3">
-                      <button className="text-blue-600 hover:text-blue-900">
+                      <button
+                        className="text-blue-600 hover:text-blue-900"
+                        onClick={() => handleViewInvoice(invoice.id)}
+                      >
                         <Eye size={18} />
                       </button>
                       <button className="text-blue-600 hover:text-blue-900">

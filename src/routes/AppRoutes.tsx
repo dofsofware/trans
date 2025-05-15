@@ -16,6 +16,7 @@ import SettingsPage from '../pages/client/Settings';
 import ProfilePage from '../pages/client/Profile';
 import NotificationsPage from '../pages/client/Notifications';
 import InvoicesPage from '../pages/client/Invoices';
+import InvoiceDetails from '../pages/client/InvoiceDetails';
 
 const AppRoutes = () => {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -45,6 +46,7 @@ const AppRoutes = () => {
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/invoices" element={<InvoicesPage />} />
+              <Route path="/invoices/:id" element={<InvoiceDetails />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           ) : (
