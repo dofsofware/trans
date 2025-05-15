@@ -12,7 +12,8 @@ import {
   Settings,
   Clipboard,
   TruckIcon,
-  AlertTriangle
+  AlertTriangle,
+  Receipt
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
@@ -30,8 +31,8 @@ const Sidebar = ({ role, onNavigate }: SidebarProps) => {
     { name: t('dashboard'), to: '/', icon: Home },
     { name: t('shipments'), to: '/shipments', icon: Package },
     { name: t('documents'), to: '/documents', icon: FileText },
-    { name: t('messages'), to: '/messages', icon: MessageSquare },
-//     { name: t('payments'), to: '/payments', icon: CreditCard },
+    { name: t('messages'), to: '/messages', icon: MessageSquare, hasNotification: true },
+    { name: t('invoices'), to: '/invoices', icon: Receipt },
   ];
 
   const agentLinks = [
@@ -108,7 +109,7 @@ const Sidebar = ({ role, onNavigate }: SidebarProps) => {
                 to={link.to}
                 onClick={onNavigate}
                 className={cn(
-                  "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                  "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors relative",
                   isActive(link.to)
                     ? "bg-blue-800 dark:bg-gray-700 text-white"
                     : "text-blue-100 dark:text-gray-300 hover:bg-blue-700 dark:hover:bg-gray-700"
@@ -123,6 +124,9 @@ const Sidebar = ({ role, onNavigate }: SidebarProps) => {
                   )}
                 />
                 {link.name}
+                {link.hasNotification && (
+                  <span className="absolute right-2 top-2 w-2 h-2 bg-red-500 rounded-full"></span>
+                )}
               </Link>
             );
           })}
