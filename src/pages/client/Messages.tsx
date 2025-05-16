@@ -493,21 +493,6 @@ const MessagesPage = () => {
                     <span className="truncate">{activeThread.shipmentId}</span>
                   </div>
                 </div>
-
-                <div className="flex space-x-2 md:space-x-4">
-                  <button className="text-gray-600 hover:text-gray-900 p-1 rounded-full hover:bg-gray-100 hidden sm:block">
-                    <Phone size={18} />
-                  </button>
-                  <button className="text-gray-600 hover:text-gray-900 p-1 rounded-full hover:bg-gray-100 hidden sm:block">
-                    <VideoIcon size={18} />
-                  </button>
-                  <button className="text-gray-600 hover:text-gray-900 p-1 rounded-full hover:bg-gray-100">
-                    <Calendar size={18} />
-                  </button>
-                  <button className="text-gray-600 hover:text-gray-900 p-1 rounded-full hover:bg-gray-100">
-                    <MoreHorizontal size={18} />
-                  </button>
-                </div>
               </div>
 
               {/* Messages area with improved scrolling */}
