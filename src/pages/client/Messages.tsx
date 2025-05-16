@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { MessageSquare, Send, User, Search, PlusCircle, Phone, VideoIcon, MoreHorizontal, Paperclip, ArrowLeft, Calendar, Tag, Clock, ChevronUp } from 'lucide-react';
+import { MessageSquare, Send, User, Search, PlusCircle, Paperclip, ArrowLeft, Calendar, Tag, Clock, ChevronUp } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 // Mock threads data
 const mockThreads = [
@@ -171,10 +172,9 @@ const StatusIndicator = ({ status }) => {
 };
 
 const MessagesPage = () => {
-  // Simulating authenticated user
+  const { t, language } = useLanguage();
   const user = { id: '1', name: 'Current User' };
 
-  // Component states
   const [activeThread, setActiveThread] = useState(mockThreads[0]);
   const [messageText, setMessageText] = useState('');
   const [messagesData, setMessagesData] = useState(expandedMockMessages);
@@ -182,9 +182,8 @@ const MessagesPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
-  const [textareaHeight, setTextareaHeight] = useState(40); // Default height
+  const [textareaHeight, setTextareaHeight] = useState(40);
 
-  // Create refs for the messages container
   const messagesContainerRef = useRef(null);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
@@ -229,19 +228,16 @@ const MessagesPage = () => {
     setMessagesData(prevMessages => [...prevMessages, newMessage]);
     setMessageText('');
 
-    // Reset textarea height after sending message
     if (textareaRef.current) {
       textareaRef.current.style.height = '40px';
       setTextareaHeight(40);
     }
   };
 
-  // Scroll to bottom of messages
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Handle scroll in messages container
   const handleMessagesScroll = () => {
     if (!messagesContainerRef.current) return;
 
@@ -251,20 +247,15 @@ const MessagesPage = () => {
     setShowScrollToBottom(!isNearBottom);
   };
 
-  // Resize textarea based on content
   const handleTextareaResize = () => {
     if (!textareaRef.current) return;
 
-    // Reset height to auto to get the correct scrollHeight
     textareaRef.current.style.height = 'auto';
-
-    // Calculate new height (with max height constraint)
     const newHeight = Math.min(textareaRef.current.scrollHeight, 120);
     textareaRef.current.style.height = `${newHeight}px`;
     setTextareaHeight(newHeight);
   };
 
-  // Effect to handle window resize
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
@@ -277,17 +268,14 @@ const MessagesPage = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Effect to scroll to bottom when thread changes or a new message is added
   useEffect(() => {
     scrollToBottom();
   }, [activeThread, messagesData.length]);
 
-  // Effect to attach scroll event listener
   useEffect(() => {
     const container = messagesContainerRef.current;
     if (container) {
       container.addEventListener('scroll', handleMessagesScroll);
-      // Initial check
       handleMessagesScroll();
     }
 
@@ -298,14 +286,12 @@ const MessagesPage = () => {
     };
   }, []);
 
-  // Filter threads based on search query
   const filteredThreads = mockThreads.filter(thread =>
     thread.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
     thread.shipmentId.toLowerCase().includes(searchQuery.toLowerCase()) ||
     thread.agent.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Group messages by date
   const groupMessagesByDate = (messages) => {
     const groupedMessages = {};
 
@@ -326,7 +312,6 @@ const MessagesPage = () => {
 
   const groupedMessages = groupMessagesByDate(threadMessages);
 
-  // Function to format date header
   const formatDateHeader = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -342,12 +327,10 @@ const MessagesPage = () => {
     }
   };
 
-  // Toggle threads list visibility on mobile
   const toggleThreadsList = () => {
     setShowThreadsList(!showThreadsList);
   };
 
-  // Animation class for message entry
   const getMessageAnimationClass = (index) => {
     return `animate-fadeIn`;
   };
@@ -357,21 +340,20 @@ const MessagesPage = () => {
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 md:py-6">
         <div className="flex items-center justify-between mb-4 md:mb-6">
           <div>
-            <h1 className="text-xl md:text-2xl font-bold text-gray-900">Messages</h1>
-            <p className="mt-1 text-sm text-gray-600">Manage your shipment communications</p>
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900">{t('messages')}</h1>
+            <p className="mt-1 text-sm text-gray-600">{t('manage_messages')}</p>
           </div>
           <button
             className="inline-flex items-center px-3 py-1.5 md:px-4 md:py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             <PlusCircle size={16} className="mr-1 md:mr-2" />
-            <span className="hidden xs:inline">Nouveau message</span>
-            <span className="xs:hidden">Nouveau</span>
+            <span className="hidden xs:inline">{t('new_message')}</span>
+            <span className="xs:hidden">{t('new')}</span>
           </button>
         </div>
 
         <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
           <div className="flex flex-col md:grid md:grid-cols-12 h-[600px] md:h-[700px]">
-            {/* Threads list - takes 4 columns on desktop */}
             {(showThreadsList || windowWidth >= 768) && (
               <div className="md:col-span-4 lg:col-span-3 bg-gray-50 border-r border-gray-200 overflow-hidden flex flex-col min-h-0 max-h-full">
                 <div className="p-3 md:p-4 border-b border-gray-200 bg-white">
@@ -382,7 +364,7 @@ const MessagesPage = () => {
                     <input
                       type="text"
                       className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
-                      placeholder="Rechercher messages..."
+                      placeholder={t('search_messages')}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -446,16 +428,14 @@ const MessagesPage = () => {
                     </ul>
                   ) : (
                     <div className="p-4 text-center text-gray-500">
-                      No conversations match your search
+                      {t('no_conversations')}
                     </div>
                   )}
                 </div>
               </div>
             )}
 
-            {/* Messages area - takes 8 columns on desktop */}
             <div className="md:col-span-8 lg:col-span-9 flex flex-col h-full bg-white min-h-0">
-              {/* Thread header */}
               <div className="px-4 py-3 md:px-6 md:py-4 border-b border-gray-200 flex items-center bg-white shadow-sm">
                 {windowWidth < 768 && (
                   <button
@@ -485,7 +465,7 @@ const MessagesPage = () => {
                   <h2 className="text-base md:text-lg font-medium text-gray-900 flex items-center truncate">
                     {activeThread.agent.name}
                     {activeThread.agent.status === 'online' && (
-                      <span className="ml-2 text-xs font-normal text-green-600">En ligne</span>
+                      <span className="ml-2 text-xs font-normal text-green-600">{t('online')}</span>
                     )}
                   </h2>
                   <div className="flex items-center text-xs md:text-sm text-gray-500 truncate">
@@ -495,7 +475,6 @@ const MessagesPage = () => {
                 </div>
               </div>
 
-              {/* Messages area with improved scrolling */}
               <div
                 ref={messagesContainerRef}
                 className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 custom-scrollbar relative"
@@ -547,7 +526,7 @@ const MessagesPage = () => {
                               <div className={`text-xs md:text-xs mt-1 opacity-0 group-hover:opacity-100 transition-opacity ${isOwnMessage ? 'text-blue-200' : 'text-gray-400'}`}>
                                 <div className="flex items-center">
                                   <Clock size={10} className="mr-1" />
-                                  {new Date(message.timestamp).toLocaleTimeString('en-US', {
+                                  {new Date(message.timestamp).toLocaleTimeString(language === 'fr' ? 'fr-FR' : 'en-US', {
                                     hour: '2-digit',
                                     minute: '2-digit'
                                   })}
@@ -562,7 +541,6 @@ const MessagesPage = () => {
                 ))}
                 <div ref={messagesEndRef} />
 
-                {/* Scroll to bottom button */}
                 {showScrollToBottom && (
                   <button
                     className="absolute bottom-6 right-6 bg-blue-600 text-white p-2 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-200 transform hover:scale-105"
@@ -573,7 +551,6 @@ const MessagesPage = () => {
                 )}
               </div>
 
-              {/* Message input with auto-resize */}
               <div className="border-t border-gray-200 p-3 md:p-4 bg-white">
                 <div className="flex space-x-2 md:space-x-3">
                   <div className="flex-1 relative">
@@ -581,7 +558,7 @@ const MessagesPage = () => {
                       ref={textareaRef}
                       rows={1}
                       className="block w-full pl-3 pr-10 py-2 md:pl-4 md:pr-12 md:py-3 border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm resize-none custom-scrollbar"
-                      placeholder="Écrivez votre message..."
+                      placeholder={t('write_message')}
                       value={messageText}
                       onChange={(e) => {
                         setMessageText(e.target.value);
@@ -595,7 +572,10 @@ const MessagesPage = () => {
                       }}
                       style={{ height: `${textareaHeight}px` }}
                     ></textarea>
-                    <button className="absolute right-3 bottom-2 md:bottom-3 text-gray-400 hover:text-gray-600">
+                    <button 
+                      className="absolute right-3 bottom-2 md:bottom-3 text-gray-400 hover:text-gray-600"
+                      title={t('attach_file')}
+                    >
                       <Paperclip size={18} />
                     </button>
                   </div>
@@ -606,7 +586,7 @@ const MessagesPage = () => {
                     disabled={!messageText.trim()}
                   >
                     <Send size={16} className="mr-1" />
-                    <span className="hidden sm:inline">Envoyer</span>
+                    <span className="hidden sm:inline">{t('send')}</span>
                   </button>
                 </div>
               </div>
@@ -615,7 +595,6 @@ const MessagesPage = () => {
         </div>
       </div>
 
-      {/* Custom scrollbar styles */}
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 6px;

@@ -284,9 +284,9 @@ const InvoicesPage = () => {
         </div>
       )}
 
-      {/* Invoices Table */}
+      {/* Table - Hidden on mobile */}
       {filteredInvoices.length > 0 && (
-        <div className="bg-white shadow rounded-lg border border-gray-200 overflow-hidden">
+        <div className="hidden lg:block bg-white shadow rounded-lg border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -371,7 +371,7 @@ const InvoicesPage = () => {
       <div className="lg:hidden mt-6">
         <div className="space-y-4">
           {filteredInvoices.map((invoice) => (
-            <div key={invoice.id} className="bg-white rounded-lg shadow border border-gray-200 p-4 sm:hidden">
+            <div key={invoice.id} className="bg-white rounded-lg shadow border border-gray-200 p-4">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="font-medium text-gray-900">{invoice.number}</h3>
