@@ -22,7 +22,7 @@ const mockInvoices: Invoice[] = [
     id: '1',
     number: 'INV-2024-001',
     amount: 2500.00,
-    currency: 'EUR',
+    currency: 'XOF',
     dueDate: '2024-03-15',
     status: 'unpaid',
     shipmentId: 'SHIP-1001',
@@ -33,7 +33,7 @@ const mockInvoices: Invoice[] = [
     id: '2',
     number: 'INV-2024-002',
     amount: 1800.00,
-    currency: 'EUR',
+    currency: 'XOF',
     dueDate: '2024-02-28',
     status: 'overdue',
     shipmentId: 'SHIP-1002',
@@ -44,7 +44,7 @@ const mockInvoices: Invoice[] = [
     id: '3',
     number: 'INV-2024-003',
     amount: 3200.00,
-    currency: 'EUR',
+    currency: 'XOF',
     dueDate: '2024-01-30',
     status: 'paid',
     shipmentId: 'SHIP-1003',
@@ -56,7 +56,7 @@ const mockInvoices: Invoice[] = [
     id: '4',
     number: 'INV-2024-004',
     amount: 1500.00,
-    currency: 'EUR',
+    currency: 'XOF',
     dueDate: '2024-03-20',
     status: 'unpaid',
     shipmentId: 'SHIP-1004',
@@ -67,7 +67,7 @@ const mockInvoices: Invoice[] = [
     id: '5',
     number: 'INV-2024-005',
     amount: 2800.00,
-    currency: 'EUR',
+    currency: 'XOF',
     dueDate: '2024-01-15',
     status: 'paid',
     shipmentId: 'SHIP-1005',
@@ -139,7 +139,7 @@ const InvoicesPage = () => {
             <div className="ml-4">
               <h3 className="text-sm font-medium text-gray-500">{t('total_paid')}</h3>
               <p className="text-2xl font-semibold text-gray-900">
-                {totalPaid.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                {totalPaid.toLocaleString('fr-FR', { style: 'currency', currency: 'XOF' })}
               </p>
             </div>
           </div>
@@ -153,7 +153,7 @@ const InvoicesPage = () => {
             <div className="ml-4">
               <h3 className="text-sm font-medium text-gray-500">{t('total_unpaid')}</h3>
               <p className="text-2xl font-semibold text-gray-900">
-                {totalUnpaid.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                {totalUnpaid.toLocaleString('fr-FR', { style: 'currency', currency: 'XOF' })}
               </p>
             </div>
           </div>
@@ -167,7 +167,7 @@ const InvoicesPage = () => {
             <div className="ml-4">
               <h3 className="text-sm font-medium text-gray-500">{t('total_overdue')}</h3>
               <p className="text-2xl font-semibold text-gray-900">
-                {totalOverdue.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                {totalOverdue.toLocaleString('fr-FR', { style: 'currency', currency: 'XOF' })}
               </p>
             </div>
           </div>

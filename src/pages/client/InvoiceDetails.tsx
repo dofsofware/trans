@@ -11,7 +11,7 @@ const InvoiceDetails = () => {
     id: 'INV-2024-001',
     number: 'INV-2024-001',
     amount: 2500.00,
-    currency: 'EUR',
+    currency: 'XOF',
     dueDate: '2024-03-15',
     status: 'unpaid',
     shipmentId: 'SHIP-1001',
