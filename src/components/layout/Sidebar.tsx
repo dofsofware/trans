@@ -22,47 +22,59 @@ interface SidebarProps {
   onNavigate?: () => void;
 }
 
+// Extending the link interface to include the unread message count
+interface NavLink {
+  name: string;
+  to: string;
+  icon: React.FC<React.SVGProps<SVGSVGElement>>;
+  unreadCount?: number;
+}
+
 const Sidebar = ({ role, onNavigate }: SidebarProps) => {
   const location = useLocation();
   const { t } = useLanguage();
   const isActive = (path: string) => location.pathname === path;
 
-  const clientLinks = [
+  const clientLinks: NavLink[] = [
     { name: t('dashboard'), to: '/', icon: Home },
     { name: t('shipments'), to: '/shipments', icon: Package },
     { name: t('documents'), to: '/documents', icon: FileText },
-    { name: t('messages'), to: '/messages', icon: MessageSquare, hasNotification: true },
+    { name: t('messages'), to: '/messages', icon: MessageSquare, unreadCount: 5 },
     { name: t('invoices'), to: '/invoices', icon: Receipt },
   ];
 
-  const agentLinks = [
+  const agentLinks: NavLink[] = [
     { name: t('dashboard'), to: '/', icon: Home },
     { name: t('shipments'), to: '/shipments', icon: Package },
   ];
 
-  const operationsLinks = [
+  const operationsLinks: NavLink[] = [
     ...agentLinks,
     { name: 'Warehouse', to: '/warehouse', icon: TruckIcon },
+    { name: t('messages'), to: '/messages', icon: MessageSquare, unreadCount: 5 },
   ];
 
-  const customsLinks = [
+  const customsLinks: NavLink[] = [
     ...agentLinks,
     { name: 'Declarations', to: '/declarations', icon: Clipboard },
+    { name: t('messages'), to: '/messages', icon: MessageSquare, unreadCount: 5 },
   ];
 
-  const financeLinks = [
+  const financeLinks: NavLink[] = [
     ...agentLinks,
     { name: 'Invoices', to: '/invoices', icon: FileText },
+    { name: t('messages'), to: '/messages', icon: MessageSquare, unreadCount: 5 },
   ];
 
-  const supervisorLinks = [
+  const supervisorLinks: NavLink[] = [
     ...agentLinks,
     { name: 'Staff', to: '/staff', icon: Users },
     { name: 'Analytics', to: '/analytics', icon: BarChart },
     { name: 'Issues', to: '/issues', icon: AlertTriangle },
+    { name: t('messages'), to: '/messages', icon: MessageSquare, unreadCount: 5 },
   ];
 
-  const adminLinks = [
+  const adminLinks: NavLink[] = [
     ...supervisorLinks,
     { name: t('settings'), to: '/settings', icon: Settings },
   ];
@@ -115,7 +127,7 @@ const Sidebar = ({ role, onNavigate }: SidebarProps) => {
                     : "text-blue-100 dark:text-gray-300 hover:bg-blue-700 dark:hover:bg-gray-700"
                 )}
               >
-                <Icon 
+                <Icon
                   className={cn(
                     "mr-3 flex-shrink-0 h-5 w-5",
                     isActive(link.to)
@@ -124,8 +136,12 @@ const Sidebar = ({ role, onNavigate }: SidebarProps) => {
                   )}
                 />
                 {link.name}
-                {link.hasNotification && (
-                  <span className="absolute right-2 top-2 w-2 h-2 bg-red-500 rounded-full"></span>
+                {link.unreadCount && link.unreadCount > 0 && (
+                  <div className="absolute right-2 flex items-center justify-center">
+                    <span className="flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full min-w-5 h-5 px-1">
+                      {link.unreadCount > 99 ? '99+' : link.unreadCount}
+                    </span>
+                  </div>
                 )}
               </Link>
             );
