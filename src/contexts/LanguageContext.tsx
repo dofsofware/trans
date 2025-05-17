@@ -164,7 +164,8 @@ const translations = {
         sea_shipment: 'Sea Freight',
         type_air: 'Air',
         type_sea: 'Sea',
-        shipments_found: 'Shipments found'
+        shipments_found: 'Shipments found',
+        shipment_found: 'Shipment found',
       },
       fr: {
         dashboard: 'Tableau de bord',
@@ -321,7 +322,8 @@ const translations = {
         sea_shipment: 'Fret maritime',
         type_air: 'Aérien',
         type_sea: 'Maritime',
-        shipments_found: 'Expéditions trouvées'
+        shipments_found: 'Expéditions trouvées',
+        shipment_found: 'Expédition trouvée',
       }
 };
 

@@ -162,7 +162,7 @@ const ShipmentsPage = () => {
       {/* Results Count */}
       <div className="mb-4 flex justify-between items-center">
         <p className="text-sm text-gray-600">
-          {filteredShipments.length} {filteredShipments.length === 1 ? t('shipment_found') : t('shipments_found')}
+          {filteredShipments.length} {filteredShipments.length < 2 ? t('shipment_found') : t('shipments_found')}
         </p>
         {/* Sort options could go here */}
       </div>
