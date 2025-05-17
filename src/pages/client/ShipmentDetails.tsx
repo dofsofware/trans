@@ -211,17 +211,6 @@ const ShipmentDetails = () => {
               <Status status={shipment.status} size="sm" />
             </div>
           </div>
-          <div className="flex space-x-2">
-            <button className="p-2 rounded-full hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors">
-              <RefreshCw size={16} />
-            </button>
-            <button className="p-2 rounded-full hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors">
-              <Share2 size={16} />
-            </button>
-            <button className="p-2 rounded-full hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors">
-              <Printer size={16} />
-            </button>
-          </div>
         </div>
       </div>
 
