@@ -139,9 +139,6 @@ const ShipmentDetails = () => {
               <div className="px-4 py-12 text-center">
                 <FileText size={40} className="mx-auto text-gray-300 mb-3" />
                 <p className="text-sm text-gray-500 mb-4">{t('no_documents_yet')}</p>
-                <button className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                  Upload Document
-                </button>
               </div>
             )}
           </div>
@@ -285,12 +282,12 @@ const ShipmentDetails = () => {
         </div>
       </div>
 
-      {/* Tabs Navigation */}
+      {/* Tabs Navigation - AMÉLIORATION ICI */}
       <div className="mb-6 border-b border-gray-200">
-        <nav className="-mb-px flex space-x-6 overflow-x-auto scrollbar-hide">
+        <nav className="-mb-px flex space-x-4 sm:space-x-6 overflow-x-auto scrollbar-hide">
           <button
             onClick={() => setActiveTab('timeline')}
-            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+            className={`whitespace-nowrap py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm ${
               activeTab === 'timeline'
                 ? 'border-blue-600 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -300,7 +297,7 @@ const ShipmentDetails = () => {
           </button>
           <button
             onClick={() => setActiveTab('documents')}
-            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+            className={`whitespace-nowrap py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm ${
               activeTab === 'documents'
                 ? 'border-blue-600 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -310,7 +307,7 @@ const ShipmentDetails = () => {
           </button>
           <button
             onClick={() => setActiveTab('details')}
-            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+            className={`whitespace-nowrap py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm ${
               activeTab === 'details'
                 ? 'border-blue-600 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -348,8 +345,8 @@ const ShipmentDetails = () => {
                   type="button"
                   className="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                 >
-                  <RefreshCw size={16} className="mr-2" />
-                  {t('track_updates')}
+                  <MessageSquare size={16} className="mr-2" />
+                  {t('file_claim')}
                 </button>
               </div>
             </div>
