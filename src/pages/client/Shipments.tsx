@@ -3,7 +3,7 @@ import { getMockShipments } from '../../services/shipmentService';
 import { Shipment } from '../../types/shipment';
 import { useAuth } from '../../contexts/AuthContext';
 import ShipmentCard from '../../components/shipments/ShipmentCard';
-import { Filter, Plus, Search } from 'lucide-react';
+import { Filter, Plus, Search, X } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 const ShipmentsPage = () => {
@@ -20,6 +20,8 @@ const ShipmentsPage = () => {
     weight: '',
     volume: '',
   });
+  const [showFilters, setShowFilters] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const fetchShipments = async () => {
@@ -52,6 +54,14 @@ const ShipmentsPage = () => {
     });
   };
 
+  const clearSearch = () => {
+    setSearchQuery('');
+  };
+
+  const clearFilters = () => {
+    setStatusFilter('all');
+  };
+
   const filteredShipments = shipments
     .filter(s => statusFilter === 'all' || s.status === statusFilter)
     .filter(s => {
@@ -64,172 +74,118 @@ const ShipmentsPage = () => {
         s.description.toLowerCase().includes(searchLower)
       );
     });
-    const { t } = useLanguage();
+
   return (
-    <div>
-      <div className="mb-6 flex justify-between items-center">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{t('my_shipments')}</h1>
-          <p className="mt-1 text-gray-600">{t('hereIsOverview')}</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{t('my_shipments')}</h1>
+          <p className="mt-1 text-sm md:text-base text-gray-600">{t('hereIsOverview')}</p>
         </div>
-        {/*<button
-          type="button"
-          onClick={() => setShowNewShipmentModal(true)}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          <Plus size={16} className="mr-2" />
-          New Shipment
-        </button>*/}
       </div>
 
       {/* Search and Filters */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
-        <div className="flex-1 relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search size={18} className="text-gray-400" />
+      <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+        <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
+          <div className="flex-1 relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search size={18} className="text-gray-400" />
+            </div>
+            <input
+              type="text"
+              placeholder={t('search_shipments')}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+            {searchQuery && (
+              <button
+                onClick={clearSearch}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                aria-label="Clear search"
+              >
+                <X size={16} />
+              </button>
+            )}
           </div>
-          <input
-            type="text"
-            placeholder= {t('search_shipments')}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          />
-        </div>
-        <div className="relative">
-          <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            <Filter size={16} className="mr-2" />
-            <span>{t('filter_by_status')}</span>
-            <select
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+          <div className="flex space-x-2">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
             >
-              <option value="all">{t('all')}</option>
-              <option value="draft">{t('draft')}</option>
-              <option value="processing">{t('processing')}</option>
-              <option value="warehouse">{t('warehouse')}</option>
-              <option value="customs">{t('customs')}</option>
-              <option value="in_transit">{t('in_transit')}</option>
-              <option value="delivered">{t('delivered')}</option>
-              <option value="issue">{t('issue')}</option>
-            </select>
-          </button>
+              <Filter size={16} className="mr-2" />
+              <span>{t('filters')}</span>
+            </button>
+            {statusFilter !== 'all' && (
+              <button
+                onClick={clearFilters}
+                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-red-600 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
+              >
+                <X size={16} className="mr-1" />
+                <span>{t('clear')}</span>
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* Expanded Filters */}
+        {showFilters && (
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <label htmlFor="status-filter" className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('status')}
+                </label>
+                <select
+                  id="status-filter"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-lg"
+                >
+                  <option value="all">{t('all')}</option>
+                  <option value="draft">{t('draft')}</option>
+                  <option value="processing">{t('processing')}</option>
+                  <option value="warehouse">{t('warehouse')}</option>
+                  <option value="customs">{t('customs')}</option>
+                  <option value="in_transit">{t('in_transit')}</option>
+                  <option value="delivered">{t('delivered')}</option>
+                  <option value="issue">{t('issue')}</option>
+                </select>
+              </div>
+              {/* Additional filters could go here */}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Results Count */}
+      <div className="mb-4 flex justify-between items-center">
+        <p className="text-sm text-gray-600">
+          {filteredShipments.length} {filteredShipments.length === 1 ? t('shipment_found') : t('shipments_found')}
+        </p>
+        {/* Sort options could go here */}
       </div>
 
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="spinner"></div>
+           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      ) : filteredShipments.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredShipments.map(shipment => (
             <ShipmentCard key={shipment.id} shipment={shipment} />
           ))}
         </div>
-      )}
-
-      {/* New Shipment Modal */}
-      {showNewShipmentModal && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-lg w-full">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">Create New Shipment</h3>
-            </div>
-            <form onSubmit={handleNewShipmentSubmit}>
-              <div className="px-6 py-4 space-y-4">
-                <div>
-                  <label htmlFor="origin" className="block text-sm font-medium text-gray-700">
-                    Origin
-                  </label>
-                  <input
-                    type="text"
-                    id="origin"
-                    value={newShipment.origin}
-                    onChange={(e) => setNewShipment({ ...newShipment, origin: e.target.value })}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="destination" className="block text-sm font-medium text-gray-700">
-                    Destination
-                  </label>
-                  <input
-                    type="text"
-                    id="destination"
-                    value={newShipment.destination}
-                    onChange={(e) => setNewShipment({ ...newShipment, destination: e.target.value })}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                    Description
-                  </label>
-                  <textarea
-                    id="description"
-                    rows={3}
-                    value={newShipment.description}
-                    onChange={(e) => setNewShipment({ ...newShipment, description: e.target.value })}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    required
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="weight" className="block text-sm font-medium text-gray-700">
-                      Weight (kg)
-                    </label>
-                    <input
-                      type="number"
-                      id="weight"
-                      min="0"
-                      step="0.01"
-                      value={newShipment.weight}
-                      onChange={(e) => setNewShipment({ ...newShipment, weight: e.target.value })}
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="volume" className="block text-sm font-medium text-gray-700">
-                      Volume (CBM)
-                    </label>
-                    <input
-                      type="number"
-                      id="volume"
-                      min="0"
-                      step="0.01"
-                      value={newShipment.volume}
-                      onChange={(e) => setNewShipment({ ...newShipment, volume: e.target.value })}
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
-                <button
-                  type="button"
-                  onClick={() => setShowNewShipmentModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  Create Shipment
-                </button>
-              </div>
-            </form>
+      ) : (
+        <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+          <div className="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-blue-100 mb-4">
+            <Search size={36} className="text-blue-600" />
           </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-1">{t('no_shipments_found')}</h3>
+          <p className="text-gray-500">{t('try_adjusting_filters')}</p>
         </div>
       )}
+
     </div>
   );
 };
