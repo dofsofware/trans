@@ -1,14 +1,14 @@
 import { Link, useLocation } from 'react-router-dom';
 import { UserRole } from '../../types/user';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { 
-  Home, 
-  Package, 
-  FileText, 
-  MessageSquare, 
-  CreditCard, 
-  Users, 
-  BarChart, 
+import {
+  Home,
+  Package,
+  FileText,
+  MessageSquare,
+  CreditCard,
+  Users,
+  BarChart,
   Settings,
   Clipboard,
   TruckIcon,
@@ -104,8 +104,8 @@ const Sidebar = ({ role, onNavigate }: SidebarProps) => {
   }
 
   return (
-    <div className="h-full w-64 bg-blue-900 dark:bg-gray-800 text-white flex flex-col">
-      <div className="flex items-center justify-center h-16 border-b border-blue-800 dark:border-gray-700">
+    <div className="h-full w-64 bg-gradient-to-b from-blue-900 to-blue-950 dark:from-gray-800 dark:to-gray-900 text-white flex flex-col">
+      <div className="flex items-center justify-center h-16 border-b border-blue-800/50 dark:border-gray-700/50">
         <Link to="/" className="text-xl font-bold" onClick={onNavigate}>
           Ship<span className="text-blue-400">Track</span>
         </Link>
@@ -123,8 +123,8 @@ const Sidebar = ({ role, onNavigate }: SidebarProps) => {
                 className={cn(
                   "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors relative",
                   isActive(link.to)
-                    ? "bg-blue-800 dark:bg-gray-700 text-white"
-                    : "text-blue-100 dark:text-gray-300 hover:bg-blue-700 dark:hover:bg-gray-700"
+                    ? "bg-blue-800/70 dark:bg-gray-700/70 text-white backdrop-blur-sm"
+                    : "text-blue-100 dark:text-gray-300 hover:bg-blue-700/50 dark:hover:bg-gray-700/50"
                 )}
               >
                 <Icon
@@ -149,7 +149,7 @@ const Sidebar = ({ role, onNavigate }: SidebarProps) => {
         </div>
       </div>
 
-      <div className="p-4 bg-blue-800 dark:bg-gray-700 text-xs text-blue-300 dark:text-gray-400">
+      <div className="p-4 bg-blue-800/80 dark:bg-gray-700/80 text-xs text-blue-300 dark:text-gray-400 backdrop-blur-sm">
         <p>{role.charAt(0).toUpperCase() + role.slice(1)} Portal • v0.1.0</p>
       </div>
     </div>
