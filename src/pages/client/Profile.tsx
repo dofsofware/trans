@@ -5,6 +5,7 @@ import { Shipment } from '../../types/shipment';
 import { User, Package, TrendingUp, Clock, Calendar, PieChart } from 'lucide-react';
 import Status from '../../components/common/Status';
 import { useLanguage } from '../../contexts/LanguageContext';
+import LoadingScreen from '../../components/common/LoadingScreen';
 
 const ProfilePage = () => {
   const { user } = useAuth();
@@ -193,12 +194,7 @@ const ProfilePage = () => {
   // Pulsing loader animation
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-pulse flex flex-col items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-          <p className="mt-4 text-blue-500 font-medium">Chargement...</p>
-        </div>
-      </div>
+      <LoadingScreen />
     );
   }
 

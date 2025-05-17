@@ -7,6 +7,7 @@ import ShipmentTimeline from '../../components/shipments/ShipmentTimeline';
 import { ArrowLeft, FileText, MessageSquare, Hash } from 'lucide-react';
 import { format } from 'date-fns';
 import { useLanguage } from '../../contexts/LanguageContext';
+import LoadingScreen from '../../components/common/LoadingScreen';
 
 const ShipmentDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -33,9 +34,7 @@ const ShipmentDetails = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="spinner"></div>
-      </div>
+      <LoadingScreen />
     );
   }
 

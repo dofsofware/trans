@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import ShipmentCard from '../../components/shipments/ShipmentCard';
 import { Filter, Plus, Search, X } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import LoadingScreen from '../../components/common/LoadingScreen';
 
 const ShipmentsPage = () => {
   const { user } = useAuth();
@@ -167,9 +168,7 @@ const ShipmentsPage = () => {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
-        </div>
+        <LoadingScreen />
       ) : filteredShipments.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredShipments.map(shipment => (

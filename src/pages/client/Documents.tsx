@@ -4,6 +4,8 @@ import { Shipment, Document } from '../../types/shipment';
 import { useAuth } from '../../contexts/AuthContext';
 import { FileText, Download, Plus, Search, ChevronDown, Filter } from 'lucide-react';
 import { format } from 'date-fns';
+import { useLanguage } from '../../contexts/LanguageContext';
+import LoadingScreen from '../../components/common/LoadingScreen';
 
 const DocumentsPage = () => {
   const { user } = useAuth();
@@ -14,6 +16,7 @@ const DocumentsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [sortConfig, setSortConfig] = useState({ key: 'uploadedAt', direction: 'desc' });
+  const { t } = useLanguage();
 
   useEffect(() => {
     const fetchDocuments = async () => {
@@ -161,9 +164,7 @@ const DocumentsPage = () => {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
-        </div>
+        <LoadingScreen />
       ) : (
         <>
           {filteredDocuments.length > 0 ? (

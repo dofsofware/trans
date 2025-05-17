@@ -1,14 +1,18 @@
 import { Loader2 } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
+
 
 const LoadingScreen = () => {
+    const { t } = useLanguage();
   return (
-    <div className="h-screen w-full flex flex-col items-center justify-center bg-gray-50">
-      <div className="flex flex-col items-center space-y-4">
-        <Loader2 className="h-12 w-12 text-blue-600 animate-spin" />
-        <h2 className="text-xl font-semibold text-gray-700">Loading...</h2>
-      </div>
-    </div>
+   <div className="flex justify-center items-center h-64">
+                   <div className="items-center">
+                       <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
+                       <p className="mt-4 text-blue-500 font-medium">{t('loading')}</p>
+                   </div>
+                 </div>
   );
 };
+
 
 export default LoadingScreen;

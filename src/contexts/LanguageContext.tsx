@@ -133,6 +133,7 @@ const translations = {
     attach_file: 'Attach file',
     show_less: 'Show Less',
     show_all: 'Show All',
+    loading: 'Loading...'
   },
   fr: {
     dashboard: 'Tableau de bord',
@@ -258,6 +259,7 @@ const translations = {
     attach_file: 'Joindre un fichier',
     show_less: 'Voir moins',
     show_all: 'Voir tout',
+    loading: 'Chargement...'
   },
 };
 

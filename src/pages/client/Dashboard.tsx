@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getMockShipments } from '../../services/shipmentService';
 import { Shipment } from '../../types/shipment';
 import { useAuth } from '../../contexts/AuthContext';
+import LoadingScreen from '../../components/common/LoadingScreen';
 import {
   BarChart,
   Package,
@@ -62,9 +63,7 @@ const Dashboard = () => {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
-        </div>
+        <LoadingScreen />
       ) : (
         <>
           {/* Stats */}
