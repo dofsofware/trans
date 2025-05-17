@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getMockShipments } from '../../services/shipmentService';
 import { Shipment, Document } from '../../types/shipment';
 import { useAuth } from '../../contexts/AuthContext';
-import { FileText, Download, Plus, Search, ChevronDown, Filter } from 'lucide-react';
+import { FileText, Download, Plus, Search, ChevronDown, Filter, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { useLanguage } from '../../contexts/LanguageContext';
 import LoadingScreen from '../../components/common/LoadingScreen';
@@ -92,21 +92,13 @@ const DocumentsPage = () => {
     }));
   };
 
-  const documentTypeLabels = {
-    invoice: 'Invoice',
-    customs: 'Customs Declaration',
-    bill_of_lading: 'Bill of Lading',
-    certificate: 'Certificate',
-    other: 'Other Document'
-  };
-
   const filterOptions = [
-    { value: 'all', label: 'All Documents' },
-    { value: 'invoice', label: 'Invoices' },
-    { value: 'customs', label: 'Customs Declarations' },
-    { value: 'bill_of_lading', label: 'Bills of Lading' },
-    { value: 'certificate', label: 'Certificates' },
-    { value: 'other', label: 'Other Documents' }
+    { value: 'all', label: t('all_documents') },
+    { value: 'invoice', label: t('invoices') },
+    { value: 'customs', label: t('customs_declarations') },
+    { value: 'bill_of_lading', label: t('bills_of_lading') },
+    { value: 'certificate', label: t('certificates') },
+    { value: 'other', label: t('other_documents') }
   ];
 
   const renderSortIcon = (key) => {
@@ -123,8 +115,8 @@ const DocumentsPage = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <div className="mb-6 md:mb-8 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Documents</h1>
-          <p className="mt-1 text-sm md:text-base text-gray-600">Manage all your shipment documents</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{t('documents')}</h1>
+          <p className="mt-1 text-sm md:text-base text-gray-600">{t('manage_documents')}</p>
         </div>
       </div>
 
@@ -136,7 +128,7 @@ const DocumentsPage = () => {
           </div>
           <input
             type="text"
-            placeholder="Search documents..."
+            placeholder={t('search_documents')}
             className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -181,7 +173,7 @@ const DocumentsPage = () => {
                           onClick={() => handleSort('name')}
                         >
                           <div className="flex items-center">
-                            Document
+                            {t('document')}
                             {renderSortIcon('name')}
                           </div>
                         </th>
@@ -191,7 +183,7 @@ const DocumentsPage = () => {
                           onClick={() => handleSort('shipment')}
                         >
                           <div className="flex items-center">
-                            Shipment
+                            {t('shipment')}
                             {renderSortIcon('shipment')}
                           </div>
                         </th>
@@ -201,7 +193,7 @@ const DocumentsPage = () => {
                           onClick={() => handleSort('type')}
                         >
                           <div className="flex items-center">
-                            Type
+                            {t('type')}
                             {renderSortIcon('type')}
                           </div>
                         </th>
@@ -211,12 +203,12 @@ const DocumentsPage = () => {
                           onClick={() => handleSort('uploadedAt')}
                         >
                           <div className="flex items-center">
-                            Uploaded
+                            {t('uploaded')}
                             {renderSortIcon('uploadedAt')}
                           </div>
                         </th>
                         <th scope="col" className="relative px-6 py-3">
-                          <span className="sr-only">Actions</span>
+                          <span className="sr-only">{t('actions')}</span>
                         </th>
                       </tr>
                     </thead>
@@ -242,7 +234,7 @@ const DocumentsPage = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                              {documentTypeLabels[document.type]}
+                              {t(document.type)}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -254,7 +246,7 @@ const DocumentsPage = () => {
                               className="inline-flex items-center text-blue-600 hover:text-blue-900 transition-colors"
                             >
                               <Download size={16} className="mr-1" />
-                              <span>Download</span>
+                              <span>{t('download')}</span>
                             </button>
                           </td>
                         </tr>
@@ -268,17 +260,17 @@ const DocumentsPage = () => {
               <div className="md:hidden space-y-4">
                 <div className="bg-white shadow rounded-lg overflow-hidden border border-gray-200 p-4">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-medium text-gray-700">Sort by</h3>
+                    <h3 className="text-sm font-medium text-gray-700">{t('sort_by')}</h3>
                     <div className="relative w-40">
                       <select
                         value={sortConfig.key}
                         onChange={(e) => setSortConfig({ key: e.target.value, direction: sortConfig.direction })}
                         className="block w-full pr-10 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
                       >
-                        <option value="name">Document Name</option>
-                        <option value="shipment">Shipment</option>
-                        <option value="type">Document Type</option>
-                        <option value="uploadedAt">Upload Date</option>
+                        <option value="name">{t('document')}</option>
+                        <option value="shipment">{t('shipment')}</option>
+                        <option value="type">{t('type')}</option>
+                        <option value="uploadedAt">{t('uploaded')}</option>
                       </select>
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                         <button
@@ -313,19 +305,19 @@ const DocumentsPage = () => {
                           </div>
                         </div>
                         <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 whitespace-nowrap">
-                          {documentTypeLabels[document.type]}
+                          {t(document.type)}
                         </span>
                       </div>
 
                       <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <p className="text-gray-500 text-xs">Shipment</p>
+                          <p className="text-gray-500 text-xs">{t('shipment')}</p>
                           <p className="text-gray-900 font-medium truncate">
                             {shipmentMap[document.shipmentId]?.reference || document.shipmentId}
                           </p>
                         </div>
                         <div>
-                          <p className="text-gray-500 text-xs">Uploaded</p>
+                          <p className="text-gray-500 text-xs">{t('uploaded')}</p>
                           <p className="text-gray-900 font-medium">
                             {format(new Date(document.uploadedAt), 'MMM d, yyyy')}
                           </p>
@@ -339,7 +331,7 @@ const DocumentsPage = () => {
                         className="inline-flex items-center px-3 py-1 border border-transparent text-sm rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                       >
                         <Download size={14} className="mr-1" />
-                        Download
+                        {t('download')}
                       </button>
                     </div>
                   </div>
@@ -352,21 +344,12 @@ const DocumentsPage = () => {
                 <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-blue-100">
                   <FileText size={24} className="text-blue-600" />
                 </div>
-                <h3 className="mt-4 text-lg font-medium text-gray-900">Aucun document trouvé</h3>
+                <h3 className="mt-4 text-lg font-medium text-gray-900">{t('no_documents_found')}</h3>
                 <p className="mt-2 text-sm text-gray-500">
                   {searchTerm || activeFilter !== 'all'
-                    ? "Aucun document ne correspond à vos critères de recherche."
-                    : "Vous n'avez pas encore de documents associés à vos expéditions."}
+                    ? t('no_documents_match_filters')
+                    : t('no_documents_yet')}
                 </p>
-                <div className="mt-6">
-                  <button
-                    type="button"
-                    className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-                  >
-                    <Plus size={16} className="mr-2" />
-                    Upload a Document
-                  </button>
-                </div>
               </div>
             </div>
           )}
@@ -376,8 +359,8 @@ const DocumentsPage = () => {
       {/* Document count display */}
       {filteredDocuments.length > 0 && (
         <div className="mt-4 text-sm text-gray-500 text-right">
-          Showing {filteredDocuments.length} {filteredDocuments.length === 1 ? 'document' : 'documents'}
-          {(searchTerm || activeFilter !== 'all') && ' (filtered)'}
+          {t('showing_documents', { count: filteredDocuments.length })}
+          {(searchTerm || activeFilter !== 'all') && ` ${t('filtered')}`}
         </div>
       )}
     </div>
