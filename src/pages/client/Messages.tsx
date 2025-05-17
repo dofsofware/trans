@@ -478,7 +478,7 @@ const MessagesPage = () => {
               ref={messagesContainerRef}
               className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 custom-scrollbar relative"
               onScroll={handleMessagesScroll}
-              style={{ maxHeight: 'calc(100vh - 180px)' }}
+              style={{ maxHeight: 'calc(100vh - 350px)' }}
             >
               {Object.keys(groupedMessages).map(date => (
                 <div key={date} className="mb-6">
