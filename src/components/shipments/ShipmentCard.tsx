@@ -37,8 +37,8 @@ const ShipmentCard = ({ shipment }: ShipmentCardProps) => {
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
-              <ShipmentTypeIcon size={12} className="mr-1" />
+            <span className="inline-flex items-center rounded-full border font-medium items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+              <ShipmentTypeIcon size={14} className="mr-1" />
               {shipmentTypeLabel}
             </span>
             <Status status={shipment.status} />
