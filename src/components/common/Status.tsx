@@ -6,7 +6,7 @@ import {
   PackageOpen, 
   Warehouse, 
   Building, 
-  Ship, 
+  ArrowLeftRight,
   PackageCheck, 
   AlertCircle 
 } from 'lucide-react';
@@ -58,7 +58,7 @@ const statusConfig: Record<ShipmentStatus, {
     color: 'text-indigo-700',
     bgColor: 'bg-indigo-50',
     borderColor: 'border-indigo-200',
-    icon: Ship
+    icon: ArrowLeftRight
   },
   delivered: {
     label: 'delivered',
