@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Shipment } from '../../types/shipment';
 import Status from '../common/Status';
 import { format } from 'date-fns';
-import { MapPin, Hash, Package, Calendar, Weight, Box } from 'lucide-react';
+import { MapPin, Hash, Package, Calendar, Weight, Box, Plane, Ship } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 interface ShipmentCardProps {
@@ -11,6 +11,9 @@ interface ShipmentCardProps {
 
 const ShipmentCard = ({ shipment }: ShipmentCardProps) => {
   const { t } = useLanguage();
+
+  const ShipmentTypeIcon = shipment.type === 'air' ? Plane : Ship;
+  const shipmentTypeLabel = shipment.type === 'air' ? t('type_air') : t('type_sea');
 
   return (
     <Link
@@ -33,7 +36,13 @@ const ShipmentCard = ({ shipment }: ShipmentCardProps) => {
               </div>
             </div>
           </div>
-          <Status status={shipment.status} />
+          <div className="flex items-center space-x-2">
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+              <ShipmentTypeIcon size={12} className="mr-1" />
+              {shipmentTypeLabel}
+            </span>
+            <Status status={shipment.status} />
+          </div>
         </div>
 
         <div className="mt-4 space-y-3">

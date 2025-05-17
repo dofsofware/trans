@@ -4,7 +4,7 @@ import { getMockShipmentById } from '../../services/shipmentService';
 import { Shipment } from '../../types/shipment';
 import Status from '../../components/common/Status';
 import ShipmentTimeline from '../../components/shipments/ShipmentTimeline';
-import { ArrowLeft, FileText, MessageSquare, Hash } from 'lucide-react';
+import { ArrowLeft, FileText, MessageSquare, Hash, Plane, Ship } from 'lucide-react';
 import { format } from 'date-fns';
 import { useLanguage } from '../../contexts/LanguageContext';
 import LoadingScreen from '../../components/common/LoadingScreen';
@@ -33,9 +33,7 @@ const ShipmentDetails = () => {
   }, [id]);
 
   if (isLoading) {
-    return (
-      <LoadingScreen />
-    );
+    return <LoadingScreen />;
   }
 
   if (!shipment) {
@@ -57,6 +55,9 @@ const ShipmentDetails = () => {
     );
   }
 
+  const ShipmentTypeIcon = shipment.type === 'air' ? Plane : Ship;
+  const shipmentTypeLabel = shipment.type === 'air' ? t('air_shipment') : t('sea_shipment');
+
   return (
     <div>
       <div className="mb-6">
@@ -71,9 +72,15 @@ const ShipmentDetails = () => {
             <h3 className="text-lg leading-6 font-medium text-gray-900">
               Shipment {shipment.reference}
             </h3>
-            <p className="mt-1 max-w-2xl text-sm text-gray-500">
-              {t('created_at')} {format(new Date(shipment.createdAt), 'MMMM d, yyyy')}
-            </p>
+            <div className="mt-1 flex items-center space-x-4">
+              <p className="text-sm text-gray-500">
+                {t('created_at')} {format(new Date(shipment.createdAt), 'MMMM d, yyyy')}
+              </p>
+              <div className="flex items-center text-sm text-blue-600">
+                <ShipmentTypeIcon size={16} className="mr-1" />
+                {shipmentTypeLabel}
+              </div>
+            </div>
           </div>
           <Status status={shipment.status} size="lg" />
         </div>

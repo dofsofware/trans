@@ -7,6 +7,8 @@ export type ShipmentStatus =
   | 'delivered' 
   | 'issue';
 
+export type ShipmentType = 'air' | 'sea';
+
 export interface ShipmentEvent {
   id: string;
   shipmentId: string;
@@ -37,6 +39,7 @@ export interface Shipment {
   weight: number;
   volume: number;
   status: ShipmentStatus;
+  type: ShipmentType;
   estimatedDelivery?: string;
   assignedAgentId?: string;
   createdAt: string;

@@ -1,9 +1,10 @@
-import { Shipment, ShipmentStatus, Document } from '../types/shipment';
+import { Shipment, ShipmentStatus, Document, ShipmentType } from '../types/shipment';
 import { format, addDays, subDays } from 'date-fns';
 
 // Mock data generator for shipments
 export const generateMockShipments = (count = 10): Shipment[] => {
   const statuses: ShipmentStatus[] = ['draft', 'processing', 'warehouse', 'customs', 'in_transit', 'delivered', 'issue'];
+  const types: ShipmentType[] = ['air', 'sea'];
   const origins = ['Shenzhen, China', 'Dubai, UAE', 'Rotterdam, Netherlands', 'Hamburg, Germany', 'Singapore'];
   const destinations = ['Paris, France', 'New York, USA', 'Tokyo, Japan', 'London, UK', 'Sydney, Australia'];
   
@@ -11,6 +12,7 @@ export const generateMockShipments = (count = 10): Shipment[] => {
   
   for (let i = 0; i < count; i++) {
     const status = statuses[Math.floor(Math.random() * statuses.length)];
+    const type = types[Math.floor(Math.random() * types.length)];
     const createdAt = format(subDays(new Date(), Math.floor(Math.random() * 60)), "yyyy-MM-dd'T'HH:mm:ss");
     const updatedAt = format(subDays(new Date(), Math.floor(Math.random() * 30)), "yyyy-MM-dd'T'HH:mm:ss");
     const estimatedDelivery = format(addDays(new Date(), Math.floor(Math.random() * 30)), "yyyy-MM-dd'T'HH:mm:ss");
@@ -52,6 +54,7 @@ export const generateMockShipments = (count = 10): Shipment[] => {
       weight: parseFloat((Math.random() * 10000).toFixed(2)),
       volume: parseFloat((Math.random() * 100).toFixed(2)),
       status,
+      type,
       estimatedDelivery,
       assignedAgentId: '2',
       createdAt,
