@@ -49,7 +49,7 @@ const Layout = () => {
         <Sidebar role={user.role} onNavigate={closeSidebarOnMobile} />
         <button
           onClick={toggleSidebar}
-          className="absolute -right-8 top-1/2 transform -translate-y-1/2 bg-blue-900 dark:bg-gray-800 text-white p-2 rounded-r-md"
+          className="absolute -right-9 top-1/4 -transform translate-y-1/2 bg-blue-900 dark:bg-gray-800 text-white p-2 rounded-r-md"
           aria-label="Toggle sidebar"
         >
           <ChevronLeft size={20} className={`transform transition-transform duration-300 ${sidebarOpen ? '' : 'rotate-180'}`} />

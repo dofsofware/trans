@@ -23,6 +23,7 @@ const ShipmentsPage = () => {
   });
   const [showFilters, setShowFilters] = useState(false);
   const { t } = useLanguage();
+  const [pageLoaded, setPageLoaded] = useState(false);
 
   useEffect(() => {
     const fetchShipments = async () => {
@@ -35,6 +36,8 @@ const ShipmentsPage = () => {
         console.error('Error fetching shipments:', error);
       } finally {
         setIsLoading(false);
+        // Trigger animations after data is loaded
+        setTimeout(() => setPageLoaded(true), 100);
       }
     };
 
@@ -77,52 +80,67 @@ const ShipmentsPage = () => {
     });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 transition-all duration-700 ${pageLoaded ? 'opacity-100' : 'opacity-0'}`}>
+      <div
+        className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+        style={{
+          animationName: 'slideInDown',
+          animationDuration: '0.6s',
+          animationFillMode: 'both'
+        }}
+      >
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{t('my_shipments')}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 animate-charFadeIn">{t('my_shipments')}</h1>
           <p className="mt-1 text-sm md:text-base text-gray-600">{t('hereIsOverview')}</p>
         </div>
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+      <div
+        className="bg-white rounded-lg shadow-sm p-4 mb-6 transform transition-all duration-500 hover:shadow-md"
+        style={{
+          animationName: 'fadeInUp',
+          animationDuration: '0.6s',
+          animationFillMode: 'both',
+          animationDelay: '0.2s'
+        }}
+      >
         <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
           <div className="flex-1 relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search size={18} className="text-gray-400" />
+              <Search size={18} className="text-gray-400 animate-pulse" />
             </div>
             <input
               type="text"
               placeholder={t('search_shipments')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-300 focus:shadow-inner"
             />
             {searchQuery && (
               <button
                 onClick={clearSearch}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200"
                 aria-label="Clear search"
               >
-                <X size={16} />
+                <X size={16} className="transform transition-transform duration-200 hover:rotate-90" />
               </button>
             )}
           </div>
           <div className="flex space-x-2">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 hover:shadow transform hover:scale-105"
             >
-              <Filter size={16} className="mr-2" />
+              <Filter size={16} className={`mr-2 transition-transform duration-300 ${showFilters ? 'rotate-180' : 'rotate-0'}`} />
               <span>{t('filters')}</span>
             </button>
             {statusFilter !== 'all' && (
               <button
                 onClick={clearFilters}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-red-600 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
+                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-red-600 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-300 hover:shadow transform hover:scale-105"
               >
-                <X size={16} className="mr-1" />
+                <X size={16} className="mr-1 animate-spin-slow" />
                 <span>{t('clear')}</span>
               </button>
             )}
@@ -160,8 +178,16 @@ const ShipmentsPage = () => {
       </div>
 
       {/* Results Count */}
-      <div className="mb-4 flex justify-between items-center">
-        <p className="text-sm text-gray-600">
+      <div
+        className="mb-4 flex justify-between items-center"
+        style={{
+          animationName: 'fadeIn',
+          animationDuration: '0.6s',
+          animationFillMode: 'both',
+          animationDelay: '0.4s'
+        }}
+      >
+        <p className="text-sm text-gray-600 animate-pulse-slow">
           {filteredShipments.length} {filteredShipments.length < 2 ? t('shipment_found') : t('shipments_found')}
         </p>
         {/* Sort options could go here */}
@@ -170,21 +196,164 @@ const ShipmentsPage = () => {
       {isLoading ? (
         <LoadingScreen />
       ) : filteredShipments.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredShipments.map(shipment => (
-            <ShipmentCard key={shipment.id} shipment={shipment} />
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          style={{
+            animationName: 'fadeInUp',
+            animationDuration: '0.8s',
+            animationFillMode: 'both',
+            animationDelay: '0.5s'
+          }}
+        >
+          {filteredShipments.map((shipment, index) => (
+            <div
+              key={shipment.id}
+              className="transform transition-all duration-300 hover:scale-105 hover:z-10"
+              style={{
+                animationName: 'fadeInScale',
+                animationDuration: '0.5s',
+                animationFillMode: 'both',
+                animationDelay: `${0.1 * index + 0.6}s`
+              }}
+            >
+              <ShipmentCard shipment={shipment} />
+            </div>
           ))}
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-          <div className="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-blue-100 mb-4">
-            <Search size={36} className="text-blue-600" />
+        <div
+          className="bg-white rounded-lg shadow-sm p-8 text-center transform transition-all duration-500 hover:shadow-md"
+          style={{
+            animationName: 'fadeInUp',
+            animationDuration: '0.6s',
+            animationFillMode: 'both',
+            animationDelay: '0.5s'
+          }}
+        >
+          <div className="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-blue-100 mb-4 animate-pulse-slow">
+            <Search size={36} className="text-blue-600 animate-bounce-slow" />
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-1">{t('no_shipments_found')}</h3>
           <p className="text-gray-500">{t('try_adjusting_filters')}</p>
         </div>
       )}
 
+      {/* Add CSS animations */}
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes fadeInScale {
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        @keyframes slideInDown {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes charFadeIn {
+          0% { opacity: 0; transform: translateY(-8px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-charFadeIn {
+          display: inline-block;
+        }
+
+        .animate-charFadeIn span {
+          opacity: 0;
+          display: inline-block;
+          animation: charFadeIn 0.3s ease-out forwards;
+        }
+
+        .animate-pulse-slow {
+          animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        .animate-bounce-slow {
+          animation: bounce 2s infinite;
+        }
+
+        .animate-spin-slow {
+          animation: spin 3s linear infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.7;
+          }
+        }
+
+        @keyframes bounce {
+          0%, 100% {
+            transform: translateY(-10%);
+            animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+          }
+          50% {
+            transform: translateY(0);
+            animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+          }
+        }
+
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
+
+      {/* Script for character-by-character animation */}
+      <script dangerouslySetInnerHTML={{
+        __html: `
+          document.addEventListener('DOMContentLoaded', function() {
+            const animateText = document.querySelector('.animate-charFadeIn');
+            if (animateText) {
+              const text = animateText.textContent || '';
+              animateText.textContent = '';
+
+              for (let i = 0; i < text.length; i++) {
+                const span = document.createElement('span');
+                span.textContent = text[i];
+                span.style.animationDelay = \`\${i * 0.05}s\`;
+                animateText.appendChild(span);
+              }
+            }
+          });
+        `
+      }} />
     </div>
   );
 };

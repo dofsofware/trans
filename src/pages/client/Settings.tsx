@@ -1,20 +1,36 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { User, Globe, Bell, ShieldCheck, Camera, Save } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import AvatarUploader from '../../components/common/AvatarUploader';
 
 const SettingsPage = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { t, language, setLanguage } = useLanguage();
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
   const [notifications, setNotifications] = useState(true);
   const [activeTab, setActiveTab] = useState('profile');
+  const [avatar, setAvatar] = useState(user?.avatar || null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     // Handle settings update
+    updateUser({
+      name,
+      email,
+      avatar
+    });
   };
+
+  const handleAvatarSave = useCallback((avatarData) => {
+    // In a real implementation, you would upload the image to your server
+    // and get back a URL. For this example, we'll use the preview URL.
+    setAvatar(avatarData.preview);
+
+    // You could also store the cropping information if needed
+    console.log('Avatar data:', avatarData);
+  }, []);
 
   const tabs = [
     { id: 'profile', label: t('profile'), icon: <User size={18} /> },
@@ -88,10 +104,10 @@ const SettingsPage = () => {
             <div className="px-6 py-5 bg-gray-50">
               <div className="flex flex-col sm:flex-row items-center sm:space-x-6 mb-6">
                 <div className="h-24 w-24 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden relative group mb-4 sm:mb-0">
-                  {user?.avatar ? (
+                  {avatar ? (
                     <img
-                      src={user.avatar}
-                      alt={user.name}
+                      src={avatar}
+                      alt={name || user?.name || 'User avatar'}
                       className="h-full w-full object-cover"
                     />
                   ) : (
@@ -104,13 +120,10 @@ const SettingsPage = () => {
                 <div>
                   <h4 className="text-base font-medium text-gray-900 mb-1">{name || user?.name || 'Your Name'}</h4>
                   <p className="text-sm text-gray-500 mb-3">{email || user?.email || 'your.email@example.com'}</p>
-                  <button
-                    type="button"
-                    className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-                  >
-                    <Camera size={16} className="mr-2" />
-                    {t('change_avatar')}
-                  </button>
+                  <AvatarUploader
+                    currentAvatar={avatar}
+                    onSave={handleAvatarSave}
+                  />
                 </div>
               </div>
             </div>
