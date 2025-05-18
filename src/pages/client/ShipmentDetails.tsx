@@ -368,7 +368,7 @@ const ShipmentDetails = () => {
                 />
                 <ClaimButton
                   shipmentId={shipment.reference}
-                  variant="secondary"
+                  variant="primary"
                 />
               </div>
             </div>

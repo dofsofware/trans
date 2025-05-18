@@ -18,7 +18,6 @@ const ClaimModal = ({ isOpen, onClose, shipmentId }) => {
     { value: 'delivery_issue', label: t('delivery_issue') },
     { value: 'damaged_goods', label: t('damaged_goods') },
     { value: 'missing_items', label: t('missing_items') },
-    { value: 'customs_issue', label: t('customs_issue') },
     { value: 'delay_complaint', label: t('delay_complaint') },
     { value: 'billing_issue', label: t('billing_issue') },
     { value: 'other', label: t('other') }
@@ -176,7 +175,7 @@ export const useClaimSubmission = () => {
 };
 
 // Composant pour le bouton de réclamation
-const ClaimButton = ({ shipmentId, variant = "secondary" }) => {
+const ClaimButton = ({ shipmentId, variant = "primary" }) => {
   const { t } = useLanguage();
   const { openClaimModal, closeClaimModal, isModalOpen, ClaimModal } = useClaimSubmission();
 
