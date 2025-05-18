@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getMockShipments } from '../../services/shipmentService';
 import { Shipment } from '../../types/shipment';
-import { User, Package, TrendingUp, Clock, Calendar, PieChart } from 'lucide-react';
+import { User, Package, TrendingUp, Clock, Calendar, PieChart, Key } from 'lucide-react';
 import Status from '../../components/common/Status';
 import { useLanguage } from '../../contexts/LanguageContext';
 import LoadingScreen from '../../components/common/LoadingScreen';
@@ -228,6 +228,13 @@ const ProfilePage = () => {
               <p className="mt-1 text-sm text-blue-50 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
                 {t('member_since')} {new Date().getFullYear()}
               </p>
+              {/* Affichage de l'identifiant utilisateur */}
+              <div className="mt-2 flex items-center text-blue-50 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+                <Key className="h-4 w-4 mr-1" />
+                <p className="text-sm">
+                  <span className="font-mono"><b>{user?.identifiant || 'XXXXXXXXXXXXXXXXXXXXXXXXX'}</b></span>
+                </p>
+              </div>
             </div>
           </div>
         </div>

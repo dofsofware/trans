@@ -328,14 +328,14 @@ const ShipmentDetails = () => {
                   className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                 >
                   <MessageSquare size={16} className="mr-2" />
-                  {t('contact_agent')}
+                  {t('contact_the_agent_in_charge')}
                 </button>
                 <button
                   type="button"
                   className="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                 >
                   <MessageSquare size={16} className="mr-2" />
-                  {t('file_claim')}
+                  {t('claim')}
                 </button>
               </div>
             </div>
@@ -350,14 +350,10 @@ const ShipmentDetails = () => {
             <div className="p-4">
               <div className="space-y-4">
                 <div>
-                  <p className="text-xs font-medium text-gray-500">{t('account_manager')}</p>
-                  <p className="text-sm font-medium text-gray-900">Sarah Johnson</p>
-                  <p className="text-xs text-gray-500">sarah.j@logistics.com</p>
-                </div>
-                <div>
-                  <p className="text-xs font-medium text-gray-500">{t('support')}</p>
-                  <p className="text-sm font-medium text-gray-900">24/7 Support Team</p>
-                  <p className="text-xs text-gray-500">+1 (800) 123-4567</p>
+                  <p className="text-xs font-medium text-gray-500">{t('agent_in_charge')}</p>
+                  <p className="text-sm font-medium text-gray-900">Moussa Diagne</p>
+                  <p className="text-xs text-gray-500">moussa.d@logistics.com</p>
+                  <p className="text-xs text-gray-500">+221 77 111 22 33</p>
                 </div>
               </div>
             </div>

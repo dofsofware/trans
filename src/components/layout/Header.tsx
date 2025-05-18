@@ -318,7 +318,8 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
                 <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-700 rounded-lg shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-600 transform origin-top-right transition-all duration-200">
                   <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-600">
                     <p className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">{user.email || 'user@example.com'}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">{user?.email || 'user@example.com'}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">{user?.identifiant}</p>
                   </div>
                   <Link
                     to="/profile"
