@@ -205,6 +205,19 @@ const translations = {
     account_manager: 'Account Manager',
     agent_in_charge: 'Agent in charge',
     user_identifier: 'identifier',
+    contact_agent: 'Contact agent',
+    shipment_reference: 'Shipment reference',
+    message: 'Message',
+    write_your_message_here: 'Write your message here...',
+    send_message: 'Send message',
+    sending: 'Sending...',
+    message_sent_successfully: 'Message sent successfully',
+    available: 'Available',
+    department: 'Department',
+    position: 'Position',
+    languages: 'Languages',
+    location: 'Location',
+    availability: 'Availability'
   },
   fr: {
     dashboard: 'Tableau de bord',
@@ -402,6 +415,19 @@ const translations = {
     account_manager: 'Responsable de compte',
     agent_in_charge: 'Agent en charge',
     user_identifier: 'identifiant',
+    contact_agent: 'Contacter l\'agent',
+    shipment_reference: 'Référence d\'expédition',
+    message: 'Message',
+    write_your_message_here: 'Écrivez votre message ici...',
+    send_message: 'Envoyer le message',
+    sending: 'Envoi en cours...',
+    message_sent_successfully: 'Message envoyé avec succès',
+    available: 'Disponible',
+    department: 'Département',
+    position: 'Poste',
+    languages: 'Langues',
+    location: 'Emplacement',
+    availability: 'Disponibilité'
   }
 };
 

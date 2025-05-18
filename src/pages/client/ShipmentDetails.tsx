@@ -22,6 +22,39 @@ import {
 import { format } from 'date-fns';
 import { useLanguage } from '../../contexts/LanguageContext';
 import LoadingScreen from '../../components/common/LoadingScreen';
+import ContactAgentButton from '../../components/common/ContactAgentButton';
+
+// Définition des données mock pour l'agent en charge
+const getMockAgentById = (id) => {
+  const agents = {
+      "agent1": {
+        id: "agent1",
+        name: "Moussa Diagne",
+        email: "moussa.d@logistics.com",
+        phone: "+221 77 111 22 33",
+        photo: "https://as2.ftcdn.net/jpg/03/49/49/79/1000_F_349497933_Ly4im8BDmHLaLzgyKg2f2yZOvJjBtlw5.jpg",
+        department: "Sea Freight",
+        position: "Senior Logistics Coordinator",
+        languages: ["English", "French", "Wolof"],
+        location: "Dakar, Senegal",
+        availability: "08:00 - 17:00 GMT"
+      },
+      "agent2": {
+        id: "agent2",
+        name: "Sophie Lefebvre",
+        email: "sophie.l@logistics.com",
+        phone: "+33 6 22 33 44 55",
+        photo: "https://as2.ftcdn.net/jpg/03/49/49/79/1000_F_349497933_Ly4im8BDmHLaLzgyKg2f2yZOvJjBtlw5.jpg",
+        department: "Air Freight",
+        position: "Logistics Specialist",
+        languages: ["English", "French"],
+        location: "Paris, France",
+        availability: "09:00 - 18:00 CET"
+      }
+    };
+
+  return agents[id] || agents.agent1;
+};
 
 const ShipmentDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -29,6 +62,7 @@ const ShipmentDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('timeline');
+  const [agent, setAgent] = useState(null);
 
   useEffect(() => {
     const fetchShipment = async () => {
@@ -36,6 +70,11 @@ const ShipmentDetails = () => {
         if (id) {
           const data = await getMockShipmentById(id);
           setShipment(data);
+
+          // Récupérer les informations de l'agent en charge
+          // Dans un cas réel, l'agent serait probablement lié au shipment
+          const agentData = getMockAgentById("agent1");
+          setAgent(agentData);
         }
       } catch (error) {
         console.error('Error fetching shipment:', error);
@@ -125,9 +164,6 @@ const ShipmentDetails = () => {
                       </div>
                     </div>
                     <div className="flex space-x-2">
-                      <button className="p-1 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors">
-                        <Share2 size={16} />
-                      </button>
                       <button className="p-1 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors">
                         <Download size={16} />
                       </button>
@@ -271,7 +307,7 @@ const ShipmentDetails = () => {
         </div>
       </div>
 
-      {/* Tabs Navigation - AMÉLIORATION ICI */}
+      {/* Tabs Navigation */}
       <div className="mb-6 border-b border-gray-200">
         <nav className="-mb-px flex space-x-4 sm:space-x-6 overflow-x-auto scrollbar-hide">
           <button
@@ -323,13 +359,13 @@ const ShipmentDetails = () => {
             </div>
             <div className="p-4">
               <div className="space-y-3">
-                <button
-                  type="button"
-                  className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-                >
-                  <MessageSquare size={16} className="mr-2" />
-                  {t('contact_the_agent_in_charge')}
-                </button>
+                {/* Remplacé le bouton par notre composant ContactAgentButton */}
+                <ContactAgentButton
+                  shipmentId={shipment.reference}
+                  agentId="agent1"
+                  variant="primary"
+                />
+
                 <button
                   type="button"
                   className="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
@@ -349,12 +385,23 @@ const ShipmentDetails = () => {
             </div>
             <div className="p-4">
               <div className="space-y-4">
-                <div>
-                  <p className="text-xs font-medium text-gray-500">{t('agent_in_charge')}</p>
-                  <p className="text-sm font-medium text-gray-900">Moussa Diagne</p>
-                  <p className="text-xs text-gray-500">moussa.d@logistics.com</p>
-                  <p className="text-xs text-gray-500">+221 77 111 22 33</p>
-                </div>
+                {agent && (
+                  <div className="flex items-start space-x-3">
+                    <div className="flex-shrink-0">
+                      <img
+                        src={agent.photo}
+                        alt={agent.name}
+                        className="h-10 w-10 rounded-full"
+                      />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{agent.name}</p>
+                      <p className="text-xs text-gray-500">{agent.position}</p>
+                      <p className="text-xs text-gray-500">{agent.email}</p>
+                      <p className="text-xs text-gray-500">{agent.phone}</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
