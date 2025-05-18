@@ -4,6 +4,7 @@ import { getMockShipmentById } from '../../services/shipmentService';
 import { Shipment } from '../../types/shipment';
 import Status from '../../components/common/Status';
 import ShipmentTimeline from '../../components/shipments/ShipmentTimeline';
+import ClaimButton from '../../components/common/ClaimButton';
 import {
   ArrowLeft,
   FileText,
@@ -365,14 +366,10 @@ const ShipmentDetails = () => {
                   agentId="agent1"
                   variant="primary"
                 />
-
-                <button
-                  type="button"
-                  className="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-                >
-                  <MessageSquare size={16} className="mr-2" />
-                  {t('claim')}
-                </button>
+                <ClaimButton
+                  shipmentId={shipment.reference}
+                  variant="secondary"
+                />
               </div>
             </div>
           </div>
