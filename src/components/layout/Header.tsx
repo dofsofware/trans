@@ -6,6 +6,10 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { User } from '../../types/user';
 import { useState, useEffect, useRef } from 'react';
 
+// Import des images de logo
+import lightModeLogo from '../../utils/ShipTrack_light_mode.png';
+import darkModeLogo from '../../utils/ShipTrack_dark_mode.png';
+
 interface HeaderProps {
   toggleSidebar: () => void;
   user: User;
@@ -133,7 +137,12 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
             </button>
             <div>
               <Link to="/" className="flex items-center">
-                <span className="text-xl font-bold text-blue-900 dark:text-blue-100">Ship<span className="text-blue-600">Track</span></span>
+                {/* Logo qui change selon le thème */}
+                <img
+                  src={theme === 'dark' ? darkModeLogo : lightModeLogo}
+                  alt="ShipTrack Logo"
+                  className="h-8 w-auto"
+                />
               </Link>
             </div>
           </div>

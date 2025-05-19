@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { UserRole } from '../../types/user';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import {
   Home,
   Package,
@@ -16,6 +17,10 @@ import {
   Receipt
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
+
+// Import des images de logo
+import lightModeLogo from '../../utils/ShipTrack_light_mode_2.png';
+import darkModeLogo from '../../utils/ShipTrack_dark_mode.png';
 
 interface SidebarProps {
   role: UserRole;
@@ -33,6 +38,7 @@ interface NavLink {
 const Sidebar = ({ role, onNavigate }: SidebarProps) => {
   const location = useLocation();
   const { t } = useLanguage();
+  const { theme } = useTheme();
   const isActive = (path: string) => location.pathname === path;
 
   const clientLinks: NavLink[] = [
@@ -106,8 +112,12 @@ const Sidebar = ({ role, onNavigate }: SidebarProps) => {
   return (
     <div className="h-full w-64 bg-gradient-to-b from-blue-900 to-blue-950 dark:from-gray-800 dark:to-gray-900 text-white flex flex-col">
       <div className="flex items-center justify-center h-16 border-b border-blue-800/50 dark:border-gray-700/50">
-        <Link to="/" className="text-xl font-bold" onClick={onNavigate}>
-          Ship<span className="text-blue-400">Track</span>
+        <Link to="/" className="flex items-center justify-center" onClick={onNavigate}>
+          <img
+            src={theme === 'dark' ? darkModeLogo : lightModeLogo}
+            alt="ShipTrack Logo"
+            className="h-8 w-auto"
+          />
         </Link>
       </div>
 

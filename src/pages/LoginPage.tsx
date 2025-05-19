@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Ship, Loader2, Eye, EyeOff, AlertCircle, Globe2, Check, ChevronDown, Moon, Sun } from 'lucide-react';
+import { Loader2, Eye, EyeOff, AlertCircle, Globe2, Check, ChevronDown, Moon, Sun } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
+
+import darkLogo from '../utils/ShipTrack_dark_mode.png';
+import lightLogo from '../utils/ShipTrack_light_mode.png';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -18,6 +21,7 @@ const LoginPage = () => {
   const { theme, toggleTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
 
+  const logo = theme === 'dark' ? darkLogo : lightLogo;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -114,12 +118,13 @@ const LoginPage = () => {
         <div className="px-6 py-8 sm:p-10">
           {/* Logo and title section */}
           <div className="flex flex-col items-center">
-            <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-900/50 shadow-md">
-              <Ship size={34} className="text-blue-600 dark:text-blue-400" />
+            <div className="h-16 flex items-center justify-center">
+              <img
+                src={logo}
+                alt="ShipTrack Logo"
+                className="h-12 w-auto transition-all duration-300"
+              />
             </div>
-            <h2 className="mt-5 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-              Ship<span className="text-blue-600 dark:text-blue-400">Track</span>
-            </h2>
             <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">
               {t('portal')}
             </p>

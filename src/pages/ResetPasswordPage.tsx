@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Ship, Loader2, ArrowLeft, Key, CheckCircle, AlertCircle } from 'lucide-react';
+import { Loader2, ArrowLeft, Key, CheckCircle, AlertCircle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useTheme } from '../contexts/ThemeContext';
+
+import darkLogo from '../utils/ShipTrack_dark_mode.png';
+import lightLogo from '../utils/ShipTrack_light_mode.png';
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState('');
@@ -11,6 +15,9 @@ const ResetPasswordPage = () => {
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { theme } = useTheme();
+
+  const logo = theme === 'dark' ? darkLogo : lightLogo;
 
   // Password validation
   const [passwordStrength, setPasswordStrength] = useState({
@@ -131,10 +138,14 @@ const ResetPasswordPage = () => {
             <span className="text-sm font-medium">{t('backToLogin')}</span>
           </button>
 
-          {/* Logo and title section */}
+          {/* Logo */}
           <div className="flex flex-col items-center">
-            <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-900/50 shadow-md">
-              <Key size={34} className="text-blue-600 dark:text-blue-400" />
+            <div className="h-16 flex items-center justify-center">
+              <img
+                src={logo}
+                alt="ShipTrack Logo"
+                className="h-12 w-auto transition-all duration-300"
+              />
             </div>
             <h2 className="mt-5 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
               {t('createNewPassword')}
