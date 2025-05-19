@@ -3,6 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { User, Globe, Bell, ShieldCheck, Camera, Save } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import AvatarUploader from '../../components/common/AvatarUploader';
+import { PasswordChangeModal } from '../../components/common/PasswordChangeModal';
 
 const SettingsPage = () => {
   const { user, updateUser } = useAuth();
@@ -12,6 +13,7 @@ const SettingsPage = () => {
   const [notifications, setNotifications] = useState(true);
   const [activeTab, setActiveTab] = useState('profile');
   const [avatar, setAvatar] = useState(user?.avatar || null);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -31,6 +33,14 @@ const SettingsPage = () => {
     // You could also store the cropping information if needed
     console.log('Avatar data:', avatarData);
   }, []);
+
+  const openPasswordModal = () => {
+    setIsPasswordModalOpen(true);
+  };
+
+  const closePasswordModal = () => {
+    setIsPasswordModalOpen(false);
+  };
 
   const tabs = [
     { id: 'profile', label: t('profile'), icon: <User size={18} /> },
@@ -188,7 +198,7 @@ const SettingsPage = () => {
                       id="language"
                       name="language"
                       value={language}
-                      onChange={(e) => setLanguage(e.target.value as 'en' | 'fr')}
+                      onChange={(e) => setLanguage(e.target.value)}
                       className="mt-1 block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-lg"
                     >
                       <option value="en">English</option>
@@ -255,8 +265,10 @@ const SettingsPage = () => {
                 <p className="text-sm text-gray-500 mb-4">
                   {t('last_changed')}: 3 {t('months_ago')}
                 </p>
+
                 <button
                   type="button"
+                  onClick={openPasswordModal}
                   className="inline-flex items-center px-4 py-2.5 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                 >
                   {t('change_password')}
@@ -321,6 +333,12 @@ const SettingsPage = () => {
           </div>
         </form>
       </div>
+
+      {/* Modal pour le changement de mot de passe */}
+      <PasswordChangeModal
+        isOpen={isPasswordModalOpen}
+        onClose={closePasswordModal}
+      />
     </div>
   );
 };
