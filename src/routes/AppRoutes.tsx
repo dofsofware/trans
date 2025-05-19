@@ -17,6 +17,8 @@ import ProfilePage from '../pages/client/Profile';
 import NotificationsPage from '../pages/client/Notifications';
 import InvoicesPage from '../pages/client/Invoices';
 import InvoiceDetails from '../pages/client/InvoiceDetails';
+import ForgotPasswordPage from '../pages/ForgotPasswordPage';
+import ResetPasswordPage from '../pages/ResetPasswordPage';
 
 const AppRoutes = () => {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -31,6 +33,8 @@ const AppRoutes = () => {
         <>
           <Route path="/login" element={<LoginPage />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
         </>
       ) : (
         <>
