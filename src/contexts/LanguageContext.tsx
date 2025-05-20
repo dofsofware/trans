@@ -282,6 +282,18 @@ const translations = {
     lowerCase: 'At least 1 lowercase letter',
     number: 'At least 1 number',
     specialChar: 'At least 1 special character',
+    new_message_instruction: 'Select a shipment and write your message. Your inquiry will be sent to the assigned agent.',
+    select_shipment: 'Select Shipment',
+    select_a_shipment: '-- Select a shipment --',
+    subject: 'Subject',
+    enter_subject: 'Enter subject',
+    assigned_agent: 'Assigned Agent',
+    write_your_message: 'Write your message...',
+    error_select_shipment: 'Please select a shipment',
+    error_message_required: 'Message is required',
+    inquiry_about: 'Inquiry about',
+    away: 'Away',
+    offline: 'Offline'
   },
   fr: {
     dashboard: 'Tableau de bord',
@@ -551,13 +563,23 @@ const translations = {
     passwordResetSuccessDetails: 'Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.',
     proceedToLogin: 'Procéder à la connexion',
     invalidResetToken: 'Jeton de réinitialisation invalide ou expiré. Veuillez demander un nouveau lien de réinitialisation.',
-
-    // Exigences de mot de passe
     minLength: 'Au moins 8 caractères',
     upperCase: 'Au moins 1 lettre majuscule',
     lowerCase: 'Au moins 1 lettre minuscule',
     number: 'Au moins 1 chiffre',
     specialChar: 'Au moins 1 caractère spécial',
+    new_message_instruction: 'Sélectionnez une expédition et rédigez votre message. Votre demande sera envoyée à l\'agent assigné.',
+    select_shipment: 'Sélectionner une expédition',
+    select_a_shipment: '-- Sélectionner une expédition --',
+    subject: 'Sujet',
+    enter_subject: 'Entrer un sujet',
+    assigned_agent: 'Agent assigné',
+    write_your_message: 'Écrivez votre message...',
+    error_select_shipment: 'Veuillez sélectionner une expédition',
+    error_message_required: 'Le message est requis',
+    inquiry_about: 'Demande concernant',
+    away: 'Absent',
+    offline: 'Hors ligne'
   }
 };
 

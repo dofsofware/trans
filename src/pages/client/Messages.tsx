@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { MessageSquare, Send, Search, PlusCircle, Paperclip, ArrowLeft, Calendar, Tag, Clock, ChevronUp } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { NewMessageModal } from './NewMessageModal'; // Importation explicite depuis le fichier séparé
 
 // Mock threads data
 const mockThreads = [
@@ -183,14 +184,16 @@ const MessagesPage = () => {
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
   const [textareaHeight, setTextareaHeight] = useState(40);
+  const [isNewMessageModalOpen, setIsNewMessageModalOpen] = useState(false);
 
   const messagesContainerRef = useRef(null);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
 
+  // Format une date complète selon la langue choisie
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
+    return date.toLocaleString(language === 'fr' ? 'fr-FR' : 'en-US', {
       month: 'short',
       day: 'numeric',
       hour: 'numeric',
@@ -198,6 +201,7 @@ const MessagesPage = () => {
     });
   };
 
+  // Format une date pour les threads (affichage simplifié)
   const formatThreadDate = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -205,11 +209,11 @@ const MessagesPage = () => {
     yesterday.setDate(now.getDate() - 1);
 
     if (date.toDateString() === now.toDateString()) {
-      return date.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit' });
+      return date.toLocaleString(language === 'fr' ? 'fr-FR' : 'en-US', { hour: 'numeric', minute: '2-digit' });
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return 'Yesterday';
+      return language === 'fr' ? 'Hier' : 'Yesterday';
     } else {
-      return date.toLocaleString('en-US', { month: 'short', day: 'numeric' });
+      return date.toLocaleString(language === 'fr' ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric' });
     }
   };
 
@@ -231,6 +235,23 @@ const MessagesPage = () => {
     if (textareaRef.current) {
       textareaRef.current.style.height = '40px';
       setTextareaHeight(40);
+    }
+  };
+
+  const handleNewMessage = (newThread, newMessage) => {
+    // Ajouter le nouveau thread à la liste des threads (pour cet exemple, nous simulons cela)
+    const updatedThreads = [newThread, ...mockThreads];
+    // Dans une application réelle, vous utiliseriez probablement un état ou un contexte pour gérer les threads
+
+    // Ajouter le nouveau message à la liste des messages
+    setMessagesData(prevMessages => [...prevMessages, newMessage]);
+
+    // Définir le nouveau thread comme actif
+    setActiveThread(newThread);
+
+    // Sur mobile, afficher directement la conversation
+    if (windowWidth < 768) {
+      setShowThreadsList(false);
     }
   };
 
@@ -326,6 +347,7 @@ const MessagesPage = () => {
 
   const groupedMessages = groupMessagesByDate(threadMessages);
 
+  // Format l'en-tête de date pour les groupes de messages
   const formatDateHeader = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -333,11 +355,15 @@ const MessagesPage = () => {
     yesterday.setDate(now.getDate() - 1);
 
     if (date.toDateString() === now.toDateString()) {
-      return 'Today';
+      return language === 'fr' ? "Aujourd'hui" : 'Today';
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return 'Yesterday';
+      return language === 'fr' ? 'Hier' : 'Yesterday';
     } else {
-      return date.toLocaleString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+      return date.toLocaleString(language === 'fr' ? 'fr-FR' : 'en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric'
+      });
     }
   };
 
@@ -376,6 +402,7 @@ const MessagesPage = () => {
         </div>
         <button
           className="inline-flex items-center px-3 py-1.5 md:px-4 md:py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          onClick={() => setIsNewMessageModalOpen(true)}
         >
           <PlusCircle size={16} className="mr-1 md:mr-2" />
           <span className="hidden xs:inline">{t('new_message') || 'New Message'}</span>
@@ -491,7 +518,7 @@ const MessagesPage = () => {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-base md:text-lg font-medium text-gray-900 flex items-center truncate">
+                  <h2 className="text-base md:text-lg font-medium text-gray-900 flex items-center">
                     {activeThread.agent.name}
                     {activeThread.agent.status === 'online' && (
                       <span className="ml-2 text-xs font-normal text-green-600">{t('online') || 'Online'}</span>
@@ -626,6 +653,13 @@ const MessagesPage = () => {
           )}
         </div>
       </div>
+
+      {/* NewMessageModal avec tous les styles nécessaires inclus */}
+      <NewMessageModal
+        isOpen={isNewMessageModalOpen}
+        onClose={() => setIsNewMessageModalOpen(false)}
+        onSendMessage={handleNewMessage}
+      />
 
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar {
