@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { MessageSquare, Send, Search, PlusCircle, Paperclip, ArrowLeft, Calendar, Tag, Clock, ChevronUp } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { NewMessageModal } from './NewMessageModal'; // Importation explicite depuis le fichier séparé
+import FileUploadModal from '../../components/common/FileUploadModal'; // Ajout de l'import du composant FileUploadModal
 
 // Mock threads data
 const mockThreads = [
@@ -185,6 +186,7 @@ const MessagesPage = () => {
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
   const [textareaHeight, setTextareaHeight] = useState(40);
   const [isNewMessageModalOpen, setIsNewMessageModalOpen] = useState(false);
+  const [isFileUploadModalOpen, setIsFileUploadModalOpen] = useState(false); // Ajout de l'état pour la modal d'upload
 
   const messagesContainerRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -385,6 +387,24 @@ const MessagesPage = () => {
 
   // Sur desktop, nous affichons les deux sections côte à côte
   const showDesktopLayout = windowWidth >= 768;
+
+  const handleFileUpload = (files) => {
+    // Dans une application réelle, vous enverriez ces fichiers au serveur
+    // Pour cet exemple, nous allons simplement créer un message avec les noms des fichiers
+    if (files.length > 0) {
+      const fileNames = files.map(file => file.name).join(', ');
+      const newMessage = {
+        id: `m${Date.now()}`,
+        threadId: activeThread.id,
+        senderId: user.id,
+        content: `${t('files_attached') || 'Files attached'}: ${fileNames}`,
+        timestamp: new Date().toISOString(),
+        read: true
+      };
+
+      setMessagesData(prevMessages => [...prevMessages, newMessage]);
+    }
+  };
 
   const handleThreadClick = (thread) => {
     setActiveThread(thread);
@@ -621,11 +641,11 @@ const MessagesPage = () => {
                       style={{ height: `${textareaHeight}px` }}
                     ></textarea>
                     <button
-                      className="absolute right-3 bottom-2 md:bottom-3 text-gray-400 hover:text-gray-600"
-                      title={t('attach_file') || 'Attach file'}
-                    >
-                      <Paperclip size={18} />
-                    </button>
+                     className="absolute right-3 bottom-2 md:bottom-3 text-gray-400 hover:text-gray-600"
+                     title={t('attach_file') || 'Attach file'}
+                     onClick={() => setIsFileUploadModalOpen(true)} >
+                     <Paperclip size={18} />
+                     </button>
                   </div>
                   <button
                     type="button"
@@ -659,6 +679,13 @@ const MessagesPage = () => {
         isOpen={isNewMessageModalOpen}
         onClose={() => setIsNewMessageModalOpen(false)}
         onSendMessage={handleNewMessage}
+      />
+
+      {/* Modal d'upload de fichiers */}
+            <FileUploadModal
+              isOpen={isFileUploadModalOpen}
+              onClose={() => setIsFileUploadModalOpen(false)}
+              onFileUpload={handleFileUpload}
       />
 
       <style jsx>{`
