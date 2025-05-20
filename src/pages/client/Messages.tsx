@@ -175,10 +175,10 @@ const MessagesPage = () => {
   const { t, language } = useLanguage();
   const user = { id: '1', name: 'Current User' };
 
-  const [activeThread, setActiveThread] = useState(mockThreads[0]);
+  const [activeThread, setActiveThread] = useState(null);
   const [messageText, setMessageText] = useState('');
   const [messagesData, setMessagesData] = useState(expandedMockMessages);
-  const [showThreadsList, setShowThreadsList] = useState(true);  // Toujours true par défaut
+  const [showThreadsList, setShowThreadsList] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
@@ -259,18 +259,29 @@ const MessagesPage = () => {
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
-      // Si la largeur est supérieure à 768px, la sidebar est toujours visible
+      // Si la largeur est supérieure à 768px, l'activeThread est restauré s'il était null
       if (window.innerWidth >= 768) {
         setShowThreadsList(true);
+        if (!activeThread && mockThreads.length > 0) {
+          setActiveThread(mockThreads[0]);
+        }
       }
     };
 
     window.addEventListener('resize', handleResize);
+
+    // Initialisation : sur desktop on montre la première conversation, sur mobile aucune
+    if (window.innerWidth >= 768 && mockThreads.length > 0) {
+      setActiveThread(mockThreads[0]);
+    }
+
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {
-    scrollToBottom();
+    if (activeThread) {
+      scrollToBottom();
+    }
   }, [activeThread, messagesData.length]);
 
   useEffect(() => {
@@ -307,9 +318,11 @@ const MessagesPage = () => {
     return groupedMessages;
   };
 
-  const threadMessages = messagesData
-    .filter(m => m.threadId === activeThread.id)
-    .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+  const threadMessages = activeThread
+    ? messagesData
+        .filter(m => m.threadId === activeThread.id)
+        .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+    : [];
 
   const groupedMessages = groupMessagesByDate(threadMessages);
 
@@ -336,6 +349,24 @@ const MessagesPage = () => {
     return `animate-fadeIn`;
   };
 
+  // Pour la vue mobile, nous avons deux sections principales :
+  // 1. La liste des conversations (threads)
+  // 2. Le détail d'une conversation
+
+  // Sur mobile, nous voulons afficher une seule section à la fois
+  const showMobileThreadsList = windowWidth < 768 && (!activeThread || showThreadsList);
+  const showMobileConversation = windowWidth < 768 && activeThread && !showThreadsList;
+
+  // Sur desktop, nous affichons les deux sections côte à côte
+  const showDesktopLayout = windowWidth >= 768;
+
+  const handleThreadClick = (thread) => {
+    setActiveThread(thread);
+    if (windowWidth < 768) {
+      setShowThreadsList(false);
+    }
+  };
+
   return (
     <div className="h-full flex flex-col">
       <div className="flex items-center justify-between mb-4">
@@ -354,235 +385,245 @@ const MessagesPage = () => {
 
       <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 flex-1 flex flex-col min-h-0 h-full">
         <div className="flex flex-col md:grid md:grid-cols-12 h-full">
-          {/* La condition a été modifiée pour s'assurer que la barre latérale est toujours visible */}
-          <div className={`${(!showThreadsList && windowWidth < 768) ? 'hidden' : 'block'} md:col-span-4 lg:col-span-3 bg-gray-50 border-r border-gray-200 flex flex-col h-full`}>
-            <div className="p-3 md:p-4 border-b border-gray-200 bg-white">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search size={18} className="text-gray-400" />
-                </div>
-                <input
-                  type="text"
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
-                  placeholder={t('search_messages') || 'Search messages'}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="overflow-y-auto flex-1 custom-scrollbar" style={{ maxHeight: 'calc(100vh - 200px)' }}>
-              {filteredThreads.length > 0 ? (
-                <ul className="divide-y divide-gray-200">
-                  {filteredThreads.map((thread) => (
-                    <li
-                      key={thread.id}
-                      className={`hover:bg-gray-100 cursor-pointer transition-colors duration-150 ${activeThread.id === thread.id ? 'bg-blue-50 border-l-4 border-blue-600' : ''}`}
-                      onClick={() => {
-                        setActiveThread(thread);
-                        if (windowWidth < 768) {
-                          setShowThreadsList(false);
-                        }
-                      }}
-                    >
-                      <div className="p-3 md:p-4 relative">
-                        <div className="flex items-start space-x-3">
-                          <div className="flex-shrink-0 relative">
-                            {thread.agent.avatar ? (
-                              <img
-                                src={thread.agent.avatar}
-                                alt={thread.agent.name}
-                                className="h-10 w-10 rounded-full"
-                              />
-                            ) : (
-                              <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium">
-                                {getInitials(thread.agent.name)}
-                              </div>
-                            )}
-                            <StatusIndicator status={thread.agent.status} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex justify-between items-baseline">
-                              <h3 className="text-sm font-medium text-gray-900 truncate">{thread.agent.name}</h3>
-                              <span className="text-xs text-gray-500 whitespace-nowrap ml-2">
-                                {formatThreadDate(thread.lastMessageTime)}
-                              </span>
-                            </div>
-                            <p className="text-xs text-gray-500 mt-0.5 mb-1">
-                              {thread.shipmentId}
-                            </p>
-                            <p className={`text-sm ${thread.unreadCount > 0 ? 'font-medium text-gray-900' : 'text-gray-600'} truncate`}>
-                              {thread.lastMessage}
-                            </p>
-                          </div>
-                        </div>
-
-                        {thread.unreadCount > 0 && (
-                          <span className="absolute top-4 right-4 inline-flex items-center justify-center h-5 w-5 rounded-full bg-blue-600 text-xs font-medium text-white">
-                            {thread.unreadCount}
-                          </span>
-                        )}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div className="p-4 text-center text-gray-500">
-                  {t('no_conversations') || 'No conversations found'}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="md:col-span-8 lg:col-span-9 flex flex-col h-full bg-white">
-            <div className="px-4 py-3 md:px-6 md:py-4 border-b border-gray-200 flex items-center bg-white shadow-sm">
-              {windowWidth < 768 && (
-                <button
-                  className="mr-3 text-gray-600 hover:text-gray-900"
-                  onClick={toggleThreadsList}
-                >
-                  <ArrowLeft size={20} />
-                </button>
-              )}
-
-              <div className="flex-shrink-0 relative mr-3 md:mr-4">
-                {activeThread.agent.avatar ? (
-                  <img
-                    src={activeThread.agent.avatar}
-                    alt={activeThread.agent.name}
-                    className="h-8 w-8 md:h-10 md:w-10 rounded-full"
+          {/* Liste des conversations (toujours visible sur desktop, conditionnellement sur mobile) */}
+          {(showDesktopLayout || showMobileThreadsList) && (
+            <div className="md:col-span-4 lg:col-span-3 bg-gray-50 border-r border-gray-200 flex flex-col h-full">
+              <div className="p-3 md:p-4 border-b border-gray-200 bg-white">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Search size={18} className="text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
+                    placeholder={t('search_messages') || 'Search messages'}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   />
-                ) : (
-                  <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium">
-                    {getInitials(activeThread.agent.name)}
-                  </div>
-                )}
-                <StatusIndicator status={activeThread.agent.status} />
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <h2 className="text-base md:text-lg font-medium text-gray-900 flex items-center truncate">
-                  {activeThread.agent.name}
-                  {activeThread.agent.status === 'online' && (
-                    <span className="ml-2 text-xs font-normal text-green-600">{t('online') || 'Online'}</span>
-                  )}
-                </h2>
-                <div className="flex items-center text-xs md:text-sm text-gray-500 truncate">
-                  <Tag size={14} className="mr-1 flex-shrink-0" />
-                  <span className="truncate">{activeThread.shipmentId}</span>
                 </div>
               </div>
-            </div>
 
-            <div
-              ref={messagesContainerRef}
-              className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 custom-scrollbar relative"
-              onScroll={handleMessagesScroll}
-              style={{ maxHeight: 'calc(100vh - 350px)' }}
-            >
-              {Object.keys(groupedMessages).map(date => (
-                <div key={date} className="mb-6">
-                  <div className="flex justify-center mb-4">
-                    <span className="px-3 py-1 bg-gray-200 rounded-full text-xs font-medium text-gray-700">
-                      {formatDateHeader(date)}
-                    </span>
-                  </div>
-
-                  <div className="space-y-3 md:space-y-4">
-                    {groupedMessages[date].map((message, index) => {
-                      const isOwnMessage = message.senderId === user?.id;
-                      const agent = mockThreads.find(t => t.id === message.threadId)?.agent;
-
-                      return (
-                        <div
-                          key={message.id}
-                          className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} group ${getMessageAnimationClass(index)}`}
-                        >
-                          {!isOwnMessage && (
-                            <div className="flex-shrink-0 mr-2 md:mr-3 self-end">
-                              {agent?.avatar ? (
+              <div className="overflow-y-auto flex-1 custom-scrollbar" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+                {filteredThreads.length > 0 ? (
+                  <ul className="divide-y divide-gray-200">
+                    {filteredThreads.map((thread) => (
+                      <li
+                        key={thread.id}
+                        className={`hover:bg-gray-100 cursor-pointer transition-colors duration-150 ${activeThread?.id === thread.id ? 'bg-blue-50 border-l-4 border-blue-600' : ''}`}
+                        onClick={() => handleThreadClick(thread)}
+                      >
+                        <div className="p-3 md:p-4 relative">
+                          <div className="flex items-start space-x-3">
+                            <div className="flex-shrink-0 relative">
+                              {thread.agent.avatar ? (
                                 <img
-                                  src={agent.avatar}
-                                  alt={agent.name}
-                                  className="h-6 w-6 md:h-8 md:w-8 rounded-full"
+                                  src={thread.agent.avatar}
+                                  alt={thread.agent.name}
+                                  className="h-10 w-10 rounded-full"
                                 />
                               ) : (
-                                <div className="h-6 w-6 md:h-8 md:w-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-medium">
-                                  {getInitials(agent?.name || 'Agent')}
+                                <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium">
+                                  {getInitials(thread.agent.name)}
                                 </div>
                               )}
+                              <StatusIndicator status={thread.agent.status} />
                             </div>
-                          )}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex justify-between items-baseline">
+                                <h3 className="text-sm font-medium text-gray-900 truncate">{thread.agent.name}</h3>
+                                <span className="text-xs text-gray-500 whitespace-nowrap ml-2">
+                                  {formatThreadDate(thread.lastMessageTime)}
+                                </span>
+                              </div>
+                              <p className="text-xs text-gray-500 mt-0.5 mb-1">
+                                {thread.shipmentId}
+                              </p>
+                              <p className={`text-sm ${thread.unreadCount > 0 ? 'font-medium text-gray-900' : 'text-gray-600'} truncate`}>
+                                {thread.lastMessage}
+                              </p>
+                            </div>
+                          </div>
 
+                          {thread.unreadCount > 0 && (
+                            <span className="absolute top-4 right-4 inline-flex items-center justify-center h-5 w-5 rounded-full bg-blue-600 text-xs font-medium text-white">
+                              {thread.unreadCount}
+                            </span>
+                          )}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="p-4 text-center text-gray-500">
+                    {t('no_conversations') || 'No conversations found'}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Détail d'une conversation (toujours visible sur desktop, conditionnellement sur mobile) */}
+          {(showDesktopLayout || showMobileConversation) && activeThread && (
+            <div className="md:col-span-8 lg:col-span-9 flex flex-col h-full bg-white">
+              <div className="px-4 py-3 md:px-6 md:py-4 border-b border-gray-200 flex items-center bg-white shadow-sm">
+                {windowWidth < 768 && (
+                  <button
+                    className="mr-3 text-gray-600 hover:text-gray-900"
+                    onClick={() => setShowThreadsList(true)}
+                  >
+                    <ArrowLeft size={20} />
+                  </button>
+                )}
+
+                <div className="flex-shrink-0 relative mr-3 md:mr-4">
+                  {activeThread.agent.avatar ? (
+                    <img
+                      src={activeThread.agent.avatar}
+                      alt={activeThread.agent.name}
+                      className="h-8 w-8 md:h-10 md:w-10 rounded-full"
+                    />
+                  ) : (
+                    <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium">
+                      {getInitials(activeThread.agent.name)}
+                    </div>
+                  )}
+                  <StatusIndicator status={activeThread.agent.status} />
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-base md:text-lg font-medium text-gray-900 flex items-center truncate">
+                    {activeThread.agent.name}
+                    {activeThread.agent.status === 'online' && (
+                      <span className="ml-2 text-xs font-normal text-green-600">{t('online') || 'Online'}</span>
+                    )}
+                  </h2>
+                  <div className="flex items-center text-xs md:text-sm text-gray-500 truncate">
+                    <Tag size={14} className="mr-1 flex-shrink-0" />
+                    <span className="truncate">{activeThread.shipmentId}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                ref={messagesContainerRef}
+                className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 custom-scrollbar relative"
+                onScroll={handleMessagesScroll}
+                style={{ maxHeight: 'calc(100vh - 350px)' }}
+              >
+                {Object.keys(groupedMessages).map(date => (
+                  <div key={date} className="mb-6">
+                    <div className="flex justify-center mb-4">
+                      <span className="px-3 py-1 bg-gray-200 rounded-full text-xs font-medium text-gray-700">
+                        {formatDateHeader(date)}
+                      </span>
+                    </div>
+
+                    <div className="space-y-3 md:space-y-4">
+                      {groupedMessages[date].map((message, index) => {
+                        const isOwnMessage = message.senderId === user?.id;
+                        const agent = mockThreads.find(t => t.id === message.threadId)?.agent;
+
+                        return (
                           <div
-                            className={`
-                              relative max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg rounded-2xl px-3 py-2 md:px-4 md:py-3 shadow-sm
-                              ${isOwnMessage
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-white text-gray-800 border border-gray-100'}
-                            `}
+                            key={message.id}
+                            className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} group ${getMessageAnimationClass(index)}`}
                           >
-                            <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
-                            <div className={`text-xs md:text-xs mt-1 opacity-0 group-hover:opacity-100 transition-opacity ${isOwnMessage ? 'text-blue-200' : 'text-gray-400'}`}>
-                              <div className="flex items-center">
-                                <Clock size={10} className="mr-1" />
-                                {new Date(message.timestamp).toLocaleTimeString(language === 'fr' ? 'fr-FR' : 'en-US', {
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
+                            {!isOwnMessage && (
+                              <div className="flex-shrink-0 mr-2 md:mr-3 self-end">
+                                {agent?.avatar ? (
+                                  <img
+                                    src={agent.avatar}
+                                    alt={agent.name}
+                                    className="h-6 w-6 md:h-8 md:w-8 rounded-full"
+                                  />
+                                ) : (
+                                  <div className="h-6 w-6 md:h-8 md:w-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-medium">
+                                    {getInitials(agent?.name || 'Agent')}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            <div
+                              className={`
+                                relative max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg rounded-2xl px-3 py-2 md:px-4 md:py-3 shadow-sm
+                                ${isOwnMessage
+                                  ? 'bg-blue-600 text-white'
+                                  : 'bg-white text-gray-800 border border-gray-100'}
+                              `}
+                            >
+                              <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                              <div className={`text-xs md:text-xs mt-1 opacity-0 group-hover:opacity-100 transition-opacity ${isOwnMessage ? 'text-blue-200' : 'text-gray-400'}`}>
+                                <div className="flex items-center">
+                                  <Clock size={10} className="mr-1" />
+                                  {new Date(message.timestamp).toLocaleTimeString(language === 'fr' ? 'fr-FR' : 'en-US', {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ))}
-              <div ref={messagesEndRef} />
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
 
-            </div>
-
-            <div className="border-t border-gray-200 p-3 md:p-4 bg-white">
-              <div className="flex space-x-2 md:space-x-3">
-                <div className="flex-1 relative">
-                  <textarea
-                    ref={textareaRef}
-                    rows={1}
-                    className="block w-full pl-3 pr-10 py-2 md:pl-4 md:pr-12 md:py-3 border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm resize-none custom-scrollbar"
-                    placeholder={t('write_message') || 'Write a message...'}
-                    value={messageText}
-                    onChange={(e) => {
-                      setMessageText(e.target.value);
-                      handleTextareaResize();
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSendMessage();
-                      }
-                    }}
-                    style={{ height: `${textareaHeight}px` }}
-                  ></textarea>
+              <div className="border-t border-gray-200 p-3 md:p-4 bg-white">
+                <div className="flex space-x-2 md:space-x-3">
+                  <div className="flex-1 relative">
+                    <textarea
+                      ref={textareaRef}
+                      rows={1}
+                      className="block w-full pl-3 pr-10 py-2 md:pl-4 md:pr-12 md:py-3 border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm resize-none custom-scrollbar"
+                      placeholder={t('write_message') || 'Write a message...'}
+                      value={messageText}
+                      onChange={(e) => {
+                        setMessageText(e.target.value);
+                        handleTextareaResize();
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSendMessage();
+                        }
+                      }}
+                      style={{ height: `${textareaHeight}px` }}
+                    ></textarea>
+                    <button
+                      className="absolute right-3 bottom-2 md:bottom-3 text-gray-400 hover:text-gray-600"
+                      title={t('attach_file') || 'Attach file'}
+                    >
+                      <Paperclip size={18} />
+                    </button>
+                  </div>
                   <button
-                    className="absolute right-3 bottom-2 md:bottom-3 text-gray-400 hover:text-gray-600"
-                    title={t('attach_file') || 'Attach file'}
+                    type="button"
+                    className={`inline-flex items-center justify-center px-3 md:px-4 h-10 border border-transparent rounded-lg text-sm font-medium shadow-sm text-white ${messageText.trim() ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-400 cursor-not-allowed'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 self-end`}
+                    onClick={handleSendMessage}
+                    disabled={!messageText.trim()}
                   >
-                    <Paperclip size={18} />
+                    <Send size={16} className="mr-1" />
+                    <span className="hidden sm:inline">{t('send') || 'Send'}</span>
                   </button>
                 </div>
-                <button
-                  type="button"
-                  className={`inline-flex items-center justify-center px-3 md:px-4 h-10 border border-transparent rounded-lg text-sm font-medium shadow-sm text-white ${messageText.trim() ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-400 cursor-not-allowed'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 self-end`}
-                  onClick={handleSendMessage}
-                  disabled={!messageText.trim()}
-                >
-                  <Send size={16} className="mr-1" />
-                  <span className="hidden sm:inline">{t('send') || 'Send'}</span>
-                </button>
               </div>
             </div>
-          </div>
+          )}
+
+          {/* Message lorsqu'aucune conversation n'est sélectionnée sur desktop */}
+          {showDesktopLayout && !activeThread && (
+            <div className="md:col-span-8 lg:col-span-9 flex flex-col h-full items-center justify-center bg-gray-50">
+              <div className="text-center p-6">
+                <MessageSquare size={48} className="mx-auto text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium text-gray-700 mb-2">{t('select_conversation') || 'Select a conversation'}</h3>
+                <p className="text-gray-500">{t('select_conversation_hint') || 'Choose a conversation from the list to start messaging'}</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
