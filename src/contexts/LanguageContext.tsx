@@ -293,7 +293,9 @@ const translations = {
     error_message_required: 'Message is required',
     inquiry_about: 'Inquiry about',
     away: 'Away',
-    offline: 'Offline'
+    offline: 'Offline',
+    files_attached: 'Files attached',
+    attached_files: 'Attached files',
   },
   fr: {
     dashboard: 'Tableau de bord',
@@ -579,7 +581,9 @@ const translations = {
     error_message_required: 'Le message est requis',
     inquiry_about: 'Demande concernant',
     away: 'Absent',
-    offline: 'Hors ligne'
+    offline: 'Hors ligne',
+    files_attached: 'Fichier joint',
+    attached_files: 'Fichiers joints',
   }
 };
 

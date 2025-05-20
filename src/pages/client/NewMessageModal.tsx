@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, Send, Paperclip, MessageSquare, Info, AlertCircle } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import FileUploadModal from '../../components/common/FileUploadModal';
 
 // Mock shipments data
 const mockShipments = [
@@ -210,44 +211,71 @@ const FormTextarea = ({
   placeholder = "",
   className = "",
   inputRef,
+  onAttachFiles = null,
 }) => {
-  return (
-    <div className="mb-4">
-      <label
-        htmlFor={id}
-        className="block text-sm font-medium text-gray-700 mb-1"
-      >
-        {label}
-      </label>
-      <div className="relative">
-        <textarea
-          id={id}
-          name={id}
-          value={value}
-          onChange={onChange}
-          ref={inputRef}
-          className={`shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border ${error ? 'border-red-300' : 'border-gray-300'} rounded-md py-2.5 resize-none pr-10 ${className}`}
-          placeholder={placeholder}
-          aria-invalid={error ? "true" : "false"}
-        ></textarea>
-        <button
-          type="button"
-          className="absolute right-3 bottom-3 text-gray-400 hover:text-gray-600 focus:outline-none"
-          title="Attach file"
-        >
-          <Paperclip size={18} />
-        </button>
-      </div>
-      {error && (
-        <p className="mt-1 text-sm text-red-600" id={`${id}-error`}>
-          {error}
-        </p>
-      )}
-    </div>
-  );
-};
+        const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+        const { t } = useLanguage();
 
-// New Message Form Component
+        const openUploadModal = () => {
+          setIsUploadModalOpen(true);
+        };
+
+        const closeUploadModal = () => {
+          setIsUploadModalOpen(false);
+        };
+
+        const handleFileUpload = (files) => {
+          if (onAttachFiles) {
+            onAttachFiles(files);
+          }
+          closeUploadModal();
+        };
+
+        return (
+          <div className="mb-4">
+            <label
+              htmlFor={id}
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              {label}
+            </label>
+            <div className="relative">
+              <textarea
+                id={id}
+                name={id}
+                value={value}
+                onChange={onChange}
+                ref={inputRef}
+                className={`shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border ${error ? 'border-red-300' : 'border-gray-300'} rounded-md py-2.5 resize-none pr-10 ${className}`}
+                placeholder={placeholder}
+                aria-invalid={error ? "true" : "false"}
+              ></textarea>
+              <button
+                type="button"
+                className="absolute right-3 bottom-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+                title={t('attach_file') || "Attach file"}
+                onClick={openUploadModal}
+              >
+                <Paperclip size={18} />
+              </button>
+            </div>
+            {error && (
+              <p className="mt-1 text-sm text-red-600" id={`${id}-error`}>
+                {error}
+              </p>
+            )}
+
+            {/* Modal d'upload intégré directement dans le composant */}
+            <FileUploadModal
+              isOpen={isUploadModalOpen}
+              onClose={closeUploadModal}
+              onFileUpload={handleFileUpload}
+            />
+          </div>
+        );
+      };
+
+// New Message Form Component avec gestion des pièces jointes
 const NewMessageForm = ({ onClose, onSendMessage }) => {
   const { t } = useLanguage();
   const [selectedShipment, setSelectedShipment] = useState('');
@@ -257,6 +285,7 @@ const NewMessageForm = ({ onClose, onSendMessage }) => {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const textareaRef = useRef(null);
+  const [attachedFiles, setAttachedFiles] = useState([]); // État pour stocker les fichiers attachés
 
   const selectedShipmentData = mockShipments.find(shipment => shipment.id === selectedShipment);
 
@@ -279,6 +308,18 @@ const NewMessageForm = ({ onClose, onSendMessage }) => {
       handleTextareaResize();
     }
   }, [messageText]);
+
+  // Gérer l'ajout de fichiers
+  const handleAttachFiles = (files) => {
+    setAttachedFiles(files);
+  };
+
+  // Gérer la suppression d'un fichier attaché
+  const removeAttachedFile = (indexToRemove) => {
+    setAttachedFiles(
+      attachedFiles.filter((_, index) => index !== indexToRemove)
+    );
+  };
 
   const handleSendMessage = () => {
     setError('');
@@ -314,13 +355,112 @@ const NewMessageForm = ({ onClose, onSendMessage }) => {
         senderId: '1', // Current user ID
         content: messageText,
         timestamp: new Date().toISOString(),
-        read: true
+        read: true,
+        attachments: attachedFiles.map(file => ({
+          id: `file-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          url: URL.createObjectURL(file) // Ceci est juste pour simuler - dans une vraie app, vous téléchargeriez le fichier sur un serveur
+        }))
       };
 
       onSendMessage(newThread, newMessage);
       setIsSubmitting(false);
       onClose();
     }, 1000);
+  };
+
+  const MessageAttachment = ({ attachment }) => {
+    const { t } = useLanguage();
+
+    // Déterminer le type d'icône en fonction du type de fichier
+    const getAttachmentIcon = (fileType) => {
+      if (fileType.startsWith('image/')) {
+        return null; // Pas besoin d'icône pour les images car on affiche l'aperçu
+      } else if (fileType.startsWith('application/pdf')) {
+        return <FileText size={14} className="text-red-500" />;
+      } else if (fileType.startsWith('application/msword') ||
+                fileType.startsWith('application/vnd.openxmlformats-officedocument.wordprocessingml.document')) {
+        return <FileText size={14} className="text-blue-500" />;
+      } else if (fileType.startsWith('application/vnd.ms-excel') ||
+                fileType.startsWith('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
+        return <FileText size={14} className="text-green-500" />;
+      } else {
+        return <Paperclip size={14} className="text-blue-500" />;
+      }
+    };
+
+    // Formater la taille du fichier
+    const formatFileSize = (bytes) => {
+      if (bytes < 1024) return bytes + ' B';
+      else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      else return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    };
+
+    return (
+      <div className="mt-2 mb-2">
+        <a
+          href={attachment.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block bg-gray-50 border border-gray-200 rounded-md p-2 hover:bg-gray-100 transition-colors"
+        >
+          <div className="flex items-center">
+            {attachment.type.startsWith('image/') ? (
+              <div className="w-10 h-10 mr-2 rounded overflow-hidden">
+                <img
+                  src={attachment.url}
+                  alt={attachment.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ) : (
+              <div className="w-10 h-10 mr-2 bg-blue-100 rounded flex items-center justify-center">
+                {getAttachmentIcon(attachment.type)}
+              </div>
+            )}
+            <div className="flex-1 overflow-hidden">
+              <p className="text-sm font-medium text-gray-700 truncate">{attachment.name}</p>
+              <p className="text-xs text-gray-500">{formatFileSize(attachment.size)}</p>
+            </div>
+            <div className="ml-2">
+              <Download size={16} className="text-gray-500" />
+            </div>
+          </div>
+        </a>
+      </div>
+    );
+  };
+
+  const MessageItem = ({ message, isCurrentUser }) => {
+    return (
+      <div className={`mb-4 flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
+        <div className={`max-w-3/4 p-3 rounded-lg ${isCurrentUser ? 'bg-blue-100 text-blue-900' : 'bg-gray-100 text-gray-900'}`}>
+          <p className="text-sm">{message.content}</p>
+
+          {/* Afficher les pièces jointes si présentes */}
+          {message.attachments && message.attachments.length > 0 && (
+            <div className="mt-2 border-t border-gray-200 pt-2">
+              {message.attachments.map((attachment) => (
+                <MessageAttachment key={attachment.id} attachment={attachment} />
+              ))}
+            </div>
+          )}
+
+          <p className="text-xs text-gray-500 mt-1">
+            {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  // Formater la taille du fichier
+  const formatFileSize = (bytes) => {
+    if (bytes < 1024) return bytes + ' B';
+    else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    else return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
   return (
@@ -381,7 +521,7 @@ const NewMessageForm = ({ onClose, onSendMessage }) => {
           </div>
         )}
 
-        {/* Message Input */}
+        {/* Message Input avec attachement de fichiers */}
         <FormTextarea
           id="message"
           label={t('message') || 'Message'}
@@ -390,7 +530,48 @@ const NewMessageForm = ({ onClose, onSendMessage }) => {
           placeholder={t('write_your_message') || 'Write your message...'}
           inputRef={textareaRef}
           className="min-h-20"
+          onAttachFiles={handleAttachFiles}
         />
+
+        {/* Affichage des fichiers attachés */}
+        {attachedFiles.length > 0 && (
+          <div className="mt-2 mb-4">
+            <p className="text-sm font-medium text-gray-700 mb-2">
+              {t('attached_files') || 'Attached Files'} ({attachedFiles.length})
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+              {attachedFiles.map((file, index) => (
+                <div key={index} className="bg-gray-50 border border-gray-200 rounded-md p-2 relative">
+                  <button
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
+                    onClick={() => removeAttachedFile(index)}
+                  >
+                    <X size={12} />
+                  </button>
+                  <div className="flex items-center">
+                    {file.type.startsWith('image/') ? (
+                      <div className="w-8 h-8 mr-2 rounded overflow-hidden">
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt={file.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-8 h-8 mr-2 bg-blue-100 rounded flex items-center justify-center">
+                        <Paperclip size={14} className="text-blue-500" />
+                      </div>
+                    )}
+                    <div className="flex-1 overflow-hidden">
+                      <p className="text-xs font-medium text-gray-700 truncate">{file.name}</p>
+                      <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Error Message */}
         {error && (
@@ -430,6 +611,9 @@ const NewMessageForm = ({ onClose, onSendMessage }) => {
               <>
                 <Send size={16} className="mr-2" />
                 {t('send_message') || 'Send Message'}
+                {attachedFiles.length > 0 && (
+                  <span className="ml-1">({attachedFiles.length})</span>
+                )}
               </>
             )}
           </button>
