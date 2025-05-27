@@ -21,6 +21,7 @@ import { cn } from '../../utils/cn';
 // Import des images de logo
 import lightModeLogo from '../../utils/ShipTrack_light_mode_2.png';
 import darkModeLogo from '../../utils/ShipTrack_dark_mode.png';
+import backgroundImage from '../../utils/back.png';
 
 interface SidebarProps {
   role: UserRole;
@@ -110,57 +111,71 @@ const Sidebar = ({ role, onNavigate }: SidebarProps) => {
   }
 
   return (
-    <div className="h-full w-64 bg-gradient-to-b from-blue-900 to-blue-950 dark:from-gray-800 dark:to-gray-900 text-white flex flex-col">
-      <div className="flex items-center justify-center h-16 border-b border-blue-800/50 dark:border-gray-700/50">
-        <Link to="/" className="flex items-center justify-center" onClick={onNavigate}>
-          <img
-            src={theme === 'dark' ? darkModeLogo : lightModeLogo}
-            alt="ShipTrack Logo"
-            className="h-8 w-auto"
-          />
-        </Link>
-      </div>
-
-      <div className="flex flex-col flex-1 overflow-y-auto pt-5 pb-4">
-        <div className="px-2 space-y-1">
-          {links.map((link) => {
-            const Icon = link.icon;
-            return (
-              <Link
-                key={link.to}
-                to={link.to}
-                onClick={onNavigate}
-                className={cn(
-                  "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors relative",
-                  isActive(link.to)
-                    ? "bg-blue-800/70 dark:bg-gray-700/70 text-white backdrop-blur-sm"
-                    : "text-blue-100 dark:text-gray-300 hover:bg-blue-700/50 dark:hover:bg-gray-700/50"
-                )}
-              >
-                <Icon
-                  className={cn(
-                    "mr-3 flex-shrink-0 h-5 w-5",
-                    isActive(link.to)
-                      ? "text-blue-200 dark:text-gray-300"
-                      : "text-blue-300 dark:text-gray-400 group-hover:text-blue-200 dark:group-hover:text-gray-300"
-                  )}
-                />
-                {link.name}
-                {link.unreadCount && link.unreadCount > 0 && (
-                  <div className="absolute right-2 flex items-center justify-center">
-                    <span className="flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full min-w-5 h-5 px-1">
-                      {link.unreadCount > 99 ? '99+' : link.unreadCount}
-                    </span>
-                  </div>
-                )}
-              </Link>
-            );
-          })}
+    <div 
+      className="h-full w-64 bg-gradient-to-b from-blue-900 to-blue-950 dark:from-gray-800 dark:to-gray-900 text-white flex flex-col relative"
+      style={{
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Overlay transparent pour maintenir la lisibilité */}
+      <div className="absolute inset-0 bg-gradient-to-b from-blue-900/80 to-blue-950/80 dark:from-gray-800/80 dark:to-gray-900/80"></div>
+      
+      {/* Contenu de la sidebar */}
+      <div className="relative z-10 flex flex-col h-full">
+        <div className="flex items-center justify-center h-16 border-b border-blue-800/50 dark:border-gray-700/50">
+          <Link to="/" className="flex items-center justify-center" onClick={onNavigate}>
+            <img
+              src={theme === 'dark' ? darkModeLogo : lightModeLogo}
+              alt="ShipTrack Logo"
+              className="h-8 w-auto"
+            />
+          </Link>
         </div>
-      </div>
 
-      <div className="p-4 bg-blue-800/80 dark:bg-gray-700/80 text-xs text-blue-300 dark:text-gray-400 backdrop-blur-sm">
-        <p>{role.charAt(0).toUpperCase() + role.slice(1)} Portal • v0.1.0</p>
+        <div className="flex flex-col flex-1 overflow-y-auto pt-5 pb-4">
+          <div className="px-2 space-y-1">
+            {links.map((link) => {
+              const Icon = link.icon;
+              return (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  onClick={onNavigate}
+                  className={cn(
+                    "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors relative",
+                    isActive(link.to)
+                      ? "bg-blue-800/70 dark:bg-gray-700/70 text-white backdrop-blur-sm"
+                      : "text-blue-100 dark:text-gray-300 hover:bg-blue-700/50 dark:hover:bg-gray-700/50"
+                  )}
+                >
+                  <Icon
+                    className={cn(
+                      "mr-3 flex-shrink-0 h-5 w-5",
+                      isActive(link.to)
+                        ? "text-blue-200 dark:text-gray-300"
+                        : "text-blue-300 dark:text-gray-400 group-hover:text-blue-200 dark:group-hover:text-gray-300"
+                    )}
+                  />
+                  {link.name}
+                  {link.unreadCount && link.unreadCount > 0 && (
+                    <div className="absolute right-2 flex items-center justify-center">
+                      <span className="flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full min-w-5 h-5 px-1">
+                        {link.unreadCount > 99 ? '99+' : link.unreadCount}
+                      </span>
+                    </div>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="p-4 bg-blue-800/80 dark:bg-gray-700/80 text-xs text-blue-300 dark:text-gray-400 backdrop-blur-sm">
+          <p>{role.charAt(0).toUpperCase() + role.slice(1)} Portal • v0.1.0</p>
+        </div>
       </div>
     </div>
   );
