@@ -17,6 +17,7 @@ import {
 import ShipmentCard from '../../components/shipments/ShipmentCard';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../contexts/LanguageContext';
+import backImage from '../../utils/backGround_hearder.png';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -58,11 +59,22 @@ const Dashboard = () => {
 
   return (
     <div className={`max-w-7xl mx-auto transition-opacity duration-700 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
-      <div className="mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 shadow-sm transform transition-all duration-500 hover:shadow-md hover:scale-[1.01] animate-fadeIn">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 flex items-center">
-          {t('welcome')}, <span className="text-blue-700 ml-2">{user?.name}</span>
-        </h1>
-        <p className="mt-2 text-gray-600 text-lg">{t('hereIsOverview')}</p>
+      {/* Header with background image */}
+      <div 
+        className="mb-8 rounded-xl p-6 shadow-sm transform transition-all duration-500 hover:shadow-md hover:scale-[1.01] animate-fadeIn"
+        style={{
+          backgroundImage: `linear-gradient(to right, rgba(239, 246, 255, 0.85), rgba(224, 231, 255, 0.85)), url(${backImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        <div className="p-4">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 flex items-center">
+            {t('welcome')}, <span className="text-blue-700 ml-2">{user?.name}</span>
+          </h1>
+          <p className="mt-2 text-gray-600 text-lg">{t('hereIsOverview')}</p>
+        </div>
       </div>
 
       {isLoading ? (
