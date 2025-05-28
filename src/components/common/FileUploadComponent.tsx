@@ -1,9 +1,11 @@
 import { useState, useRef } from 'react';
 import { X, FileImage, FileVideo, FileText, FileSpreadsheet, File, Loader2, Upload } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const FileUploadComponent = ({ onFileSelect, maxFileSize = 5 }) => {
   const { t, language } = useLanguage();
+  const { theme } = useTheme();
   const [files, setFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -185,7 +187,7 @@ const FileUploadComponent = ({ onFileSelect, maxFileSize = 5 }) => {
               file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
       return <FileText size={16} className="text-blue-700" />;
     }
-    return <File size={16} className="text-gray-500" />;
+    return <File size={16} className={theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} />;
   };
 
   const getFilePreview = (file, index) => {
@@ -210,23 +212,23 @@ const FileUploadComponent = ({ onFileSelect, maxFileSize = 5 }) => {
 
     // Pour les autres types de fichiers, afficher une icône
     let icon = null;
-    let bgColor = "bg-gray-100";
+    let bgColor = theme === 'dark' ? 'bg-gray-700' : 'bg-gray-100';
 
     if (file.type.startsWith('video/')) {
       icon = <FileVideo size={24} className="text-purple-500" />;
     } else if (file.type === 'application/pdf') {
       icon = <FileText size={24} className="text-red-500" />;
-      bgColor = "bg-red-50";
+      bgColor = theme === 'dark' ? 'bg-red-900/30' : 'bg-red-50';
     } else if (file.type === 'application/vnd.ms-excel' ||
               file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
       icon = <FileSpreadsheet size={24} className="text-green-500" />;
-      bgColor = "bg-green-50";
+      bgColor = theme === 'dark' ? 'bg-green-900/30' : 'bg-green-50';
     } else if (file.type === 'application/msword' ||
               file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
       icon = <FileText size={24} className="text-blue-700" />;
-      bgColor = "bg-blue-50";
+      bgColor = theme === 'dark' ? 'bg-blue-900/30' : 'bg-blue-50';
     } else {
-      icon = <File size={24} className="text-gray-500" />;
+      icon = <File size={24} className={theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} />;
     }
 
     return (
@@ -292,8 +294,12 @@ const FileUploadComponent = ({ onFileSelect, maxFileSize = 5 }) => {
     <div className="w-full">
       {/* Drag and drop area */}
       <div
-        className={`mt-2 flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-4 transition-colors ${
-          isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-400'
+        className={`mt-2 flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-4 transition-colors cursor-pointer ${
+          isDragging 
+            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+            : theme === 'dark'
+              ? 'border-gray-600 hover:border-blue-400 bg-gray-800'
+              : 'border-gray-300 hover:border-blue-400 bg-white'
         }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -301,11 +307,15 @@ const FileUploadComponent = ({ onFileSelect, maxFileSize = 5 }) => {
         onClick={handleOpenFileDialog}
         style={{ minHeight: '100px' }}
       >
-        <Upload size={24} className="text-gray-500 mb-2" />
-        <p className="text-sm text-center text-gray-500">
+        <Upload size={24} className={theme === 'dark' ? 'text-gray-400 mb-2' : 'text-gray-500 mb-2'} />
+        <p className={`text-sm text-center ${
+          theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+        }`}>
           {texts.dragFiles}
         </p>
-        <p className="text-xs text-center text-gray-400 mt-1">
+        <p className={`text-xs text-center mt-1 ${
+          theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
+        }`}>
           {texts.maxFileSize}
         </p>
         {isUploading && (
@@ -334,20 +344,30 @@ const FileUploadComponent = ({ onFileSelect, maxFileSize = 5 }) => {
       {/* File previews */}
       {files.length > 0 && (
         <div className="mt-3">
-          <div className="text-sm font-medium text-gray-700">
+          <div className={`text-sm font-medium ${
+            theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+          }`}>
             {texts.selectedFiles}
           </div>
           <div className="mt-2 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
             {files.map((file, index) => (
               <div key={index} className="relative">
                 {getFilePreview(file, index)}
-                <div className="mt-1 text-xs text-gray-500 truncate max-w-full" style={{ width: '64px' }}>
+                <div className={`mt-1 text-xs truncate max-w-full ${
+                  theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                }`} style={{ width: '64px' }}>
                   {file.name.length > 12 ? file.name.substring(0, 10) + '...' : file.name}
                 </div>
-                <div className="text-xs text-gray-400">
+                <div className={`text-xs ${
+                  theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
+                }`}>
                   {formatFileSize(file.size)}
                 </div>
-                <div className="text-xs text-gray-500 bg-gray-100 rounded px-1 inline-block mt-1">
+                <div className={`text-xs rounded px-1 inline-block mt-1 ${
+                  theme === 'dark' 
+                    ? 'text-gray-400 bg-gray-700' 
+                    : 'text-gray-500 bg-gray-100'
+                }`}>
                   {getFileTypeLabel(file)}
                 </div>
                 {getUploadStatusIndicator(file)}

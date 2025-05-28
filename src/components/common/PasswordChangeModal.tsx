@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { ShieldCheck, Eye, EyeOff, AlertCircle, CheckCircle, X, Info } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
-// Composant Modal réutilisable avec animation améliorée
+// Composant Modal réutilisable avec animation améliorée et support du dark mode
 const Modal = ({ isOpen, onClose, title, children }) => {
+  const { theme } = useTheme();
+  
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -27,7 +30,11 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 
       <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
         <div
-          className="relative transform overflow-hidden rounded-lg bg-white shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-lg w-full max-w-md"
+          className={`relative transform overflow-hidden rounded-lg shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-lg w-full max-w-md ${
+            theme === 'dark' 
+              ? 'bg-gray-800 text-white' 
+              : 'bg-white text-gray-900'
+          }`}
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-headline"
@@ -39,10 +46,12 @@ const Modal = ({ isOpen, onClose, title, children }) => {
   );
 };
 
-// Indicateur de force du mot de passe
+// Indicateur de force du mot de passe avec support du dark mode
 const PasswordStrengthIndicator = ({ strength }) => {
+  const { theme } = useTheme();
+  
   let width = '0%';
-  let color = 'bg-gray-200';
+  let color = theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200';
   let label = 'Non défini';
 
   if (strength === 'weak') {
@@ -62,14 +71,17 @@ const PasswordStrengthIndicator = ({ strength }) => {
   return (
     <div className="mt-1 mb-3">
       <div className="flex justify-between items-center mb-1">
-        <span className="text-xs text-gray-600">Force du mot de passe:</span>
+        <span className={`text-xs ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+          Force du mot de passe:
+        </span>
         <span className={`text-xs font-medium ${
-          strength === 'weak' ? 'text-red-600' :
-          strength === 'medium' ? 'text-yellow-600' :
-          strength === 'strong' ? 'text-green-600' : 'text-gray-500'
+          strength === 'weak' ? 'text-red-500' :
+          strength === 'medium' ? 'text-yellow-500' :
+          strength === 'strong' ? 'text-green-500' : 
+          theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
         }`}>{label}</span>
       </div>
-      <div className="w-full bg-gray-200 rounded-full h-2">
+      <div className={`w-full rounded-full h-2 ${theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200'}`}>
         <div
           className={`${color} h-2 rounded-full transition-all duration-300 ease-out`}
           style={{ width }}
@@ -79,7 +91,7 @@ const PasswordStrengthIndicator = ({ strength }) => {
   );
 };
 
-// Composant Input Password amélioré
+// Composant Input Password amélioré avec support du dark mode
 const PasswordInput = ({
   id,
   label,
@@ -89,13 +101,19 @@ const PasswordInput = ({
   toggleVisibility,
   error,
   placeholder = "••••••••",
-  className = ""
+  className = "",
+  onFocus,
+  onBlur
 }) => {
+  const { theme } = useTheme();
+  
   return (
     <div className="mb-4">
       <label
         htmlFor={id}
-        className="block text-sm font-medium text-gray-700 mb-1"
+        className={`block text-sm font-medium mb-1 ${
+          theme === 'dark' ? 'text-gray-200' : 'text-gray-700'
+        }`}
       >
         {label}
       </label>
@@ -106,14 +124,24 @@ const PasswordInput = ({
           type={showPassword ? "text" : "password"}
           value={value}
           onChange={onChange}
-          className={`shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border ${error ? 'border-red-300' : 'border-gray-300'} rounded-md pr-10 py-2.5 ${className}`}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          className={`shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border rounded-md pr-10 py-2.5 transition-colors ${
+            error 
+              ? 'border-red-300' 
+              : theme === 'dark' 
+                ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400' 
+                : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
+          } ${className}`}
           placeholder={placeholder}
           aria-invalid={error ? "true" : "false"}
           autoComplete={id === "current-password" ? "current-password" : id === "new-password" ? "new-password" : "off"}
         />
         <button
           type="button"
-          className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+          className={`absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-600 focus:outline-none transition-colors ${
+            theme === 'dark' ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'
+          }`}
           onClick={toggleVisibility}
           aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
         >
@@ -121,7 +149,7 @@ const PasswordInput = ({
         </button>
       </div>
       {error && (
-        <p className="mt-1 text-sm text-red-600" id={`${id}-error`}>
+        <p className="mt-1 text-sm text-red-500" id={`${id}-error`}>
           {error}
         </p>
       )}
@@ -129,9 +157,10 @@ const PasswordInput = ({
   );
 };
 
-// Composant PasswordChangeForm amélioré
+// Composant PasswordChangeForm amélioré avec support du dark mode
 const PasswordChangeForm = ({ onClose }) => {
   const { t } = useLanguage();
+  const { theme } = useTheme();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -219,8 +248,14 @@ const PasswordChangeForm = ({ onClose }) => {
   return (
     <>
       <div className="p-5">
-        <div className="mb-4 flex items-start bg-blue-50 border border-blue-100 rounded-md p-3 text-blue-800">
-          <Info size={18} className="mr-2 mt-0.5 flex-shrink-0 text-blue-600" />
+        <div className={`mb-4 flex items-start border rounded-md p-3 ${
+          theme === 'dark' 
+            ? 'bg-blue-900/20 border-blue-800 text-blue-200' 
+            : 'bg-blue-50 border-blue-100 text-blue-800'
+        }`}>
+          <Info size={18} className={`mr-2 mt-0.5 flex-shrink-0 ${
+            theme === 'dark' ? 'text-blue-400' : 'text-blue-600'
+          }`} />
           <p className="text-sm">
             {t('password_change_instruction')}
           </p>
@@ -258,9 +293,19 @@ const PasswordChangeForm = ({ onClose }) => {
         )}
 
         {/* Password Requirements */}
-        <div className={`mb-5 rounded-md p-3 transition-colors duration-300 border ${activeField === 'new' || (newPassword && !allRequirementsMet) ? 'bg-blue-50 border-blue-100' : 'bg-gray-50 border-gray-200'}`}>
-          <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
-            <ShieldCheck size={14} className="mr-1 text-blue-600" />
+        <div className={`mb-5 rounded-md p-3 transition-colors duration-300 border ${
+          activeField === 'new' || (newPassword && !allRequirementsMet) 
+            ? theme === 'dark' 
+              ? 'bg-blue-900/20 border-blue-800' 
+              : 'bg-blue-50 border-blue-100'
+            : theme === 'dark' 
+              ? 'bg-gray-700 border-gray-600' 
+              : 'bg-gray-50 border-gray-200'
+        }`}>
+          <h4 className={`text-sm font-medium mb-2 flex items-center ${
+            theme === 'dark' ? 'text-gray-200' : 'text-gray-700'
+          }`}>
+            <ShieldCheck size={14} className="mr-1 text-blue-500" />
             {t('security_requirements')}
           </h4>
           <ul className="space-y-2">
@@ -269,9 +314,15 @@ const PasswordChangeForm = ({ onClose }) => {
                 {req.met ? (
                   <CheckCircle size={14} className="text-green-500 mr-2 flex-shrink-0" />
                 ) : (
-                  <AlertCircle size={14} className="text-gray-400 mr-2 flex-shrink-0" />
+                  <AlertCircle size={14} className={`mr-2 flex-shrink-0 ${
+                    theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
+                  }`} />
                 )}
-                <span className={`transition-colors duration-200 ${req.met ? "text-green-600" : "text-gray-500"}`}>
+                <span className={`transition-colors duration-200 ${
+                  req.met 
+                    ? "text-green-500" 
+                    : theme === 'dark' ? "text-gray-400" : "text-gray-500"
+                }`}>
                   {req.label}
                 </span>
               </li>
@@ -295,8 +346,12 @@ const PasswordChangeForm = ({ onClose }) => {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md flex items-start animate-fadeIn">
-            <AlertCircle size={16} className="mr-2 mt-0.5 flex-shrink-0" />
+          <div className={`mb-4 border px-4 py-3 rounded-md flex items-start animate-fadeIn ${
+            theme === 'dark' 
+              ? 'bg-red-900/20 border-red-800 text-red-300' 
+              : 'bg-red-50 border-red-200 text-red-700'
+          }`}>
+            <AlertCircle size={16} className="mr-2 mt-0.5 flex-shrink-0 text-red-500" />
             <span className="text-sm">{error}</span>
           </div>
         )}
@@ -305,7 +360,11 @@ const PasswordChangeForm = ({ onClose }) => {
         <div className="flex flex-col-reverse sm:flex-row sm:justify-end space-y-reverse space-y-3 sm:space-y-0 sm:space-x-3 mt-6">
           <button
             type="button"
-            className="py-2.5 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors w-full sm:w-auto"
+            className={`py-2.5 px-4 border rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors w-full sm:w-auto ${
+              theme === 'dark'
+                ? 'border-gray-600 text-gray-200 bg-gray-700 hover:bg-gray-600'
+                : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+            }`}
             disabled={isSubmitting}
             onClick={onClose}
           >
@@ -314,9 +373,11 @@ const PasswordChangeForm = ({ onClose }) => {
           <button
             type="button"
             onClick={handleSubmit}
-            className={`inline-flex justify-center items-center px-4 py-2.5 border border-transparent shadow-sm text-sm font-medium rounded-md text-white
-              ${isSubmitting || (!currentPassword || !newPassword || !confirmPassword) ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}
-              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors w-full sm:w-auto`}
+            className={`inline-flex justify-center items-center px-4 py-2.5 border border-transparent shadow-sm text-sm font-medium rounded-md text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors w-full sm:w-auto ${
+              isSubmitting || (!currentPassword || !newPassword || !confirmPassword) 
+                ? 'bg-blue-400 cursor-not-allowed' 
+                : 'bg-blue-600 hover:bg-blue-700'
+            }`}
             disabled={isSubmitting || !currentPassword || !newPassword || !confirmPassword}
           >
             {isSubmitting ? (
@@ -337,10 +398,14 @@ const PasswordChangeForm = ({ onClose }) => {
         </div>
       </div>
 
-      {/* Success notification - placé au niveau global pour meilleure visibilité */}
+      {/* Success notification */}
       {showNotification && (
         <div className="fixed inset-x-0 top-4 flex items-center justify-center z-50">
-          <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-lg flex items-center max-w-md animate-fadeIn">
+          <div className={`border-l-4 border-green-500 p-4 rounded shadow-lg flex items-center max-w-md animate-fadeIn ${
+            theme === 'dark' 
+              ? 'bg-green-900/20 text-green-300' 
+              : 'bg-green-100 text-green-700'
+          }`}>
             <CheckCircle size={18} className="text-green-500 mr-2 flex-shrink-0" />
             <span className="font-medium">{t('password_changed_successfully')}</span>
           </div>
@@ -353,6 +418,7 @@ const PasswordChangeForm = ({ onClose }) => {
 // Composant combiné PasswordChangeModal qui utilise les deux composants ci-dessus
 const PasswordChangeModal = ({ isOpen, onClose }) => {
   const { t } = useLanguage();
+  const { theme } = useTheme();
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -396,9 +462,10 @@ export const usePasswordChange = () => {
   };
 };
 
-// Exemple d'implémentation du bouton
+// Exemple d'implémentation du bouton avec support du dark mode
 const PasswordChangeButton = ({ variant = "primary" }) => {
   const { t } = useLanguage();
+  const { theme } = useTheme();
   const { openPasswordModal, closePasswordModal, isModalOpen, PasswordChangeModal } = usePasswordChange();
 
   return (
@@ -416,7 +483,11 @@ const PasswordChangeButton = ({ variant = "primary" }) => {
         <button
           type="button"
           onClick={openPasswordModal}
-          className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className={`inline-flex items-center text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+            theme === 'dark' 
+              ? 'text-blue-400 hover:text-blue-300' 
+              : 'text-blue-600 hover:text-blue-800'
+          }`}
         >
           <ShieldCheck size={16} className="mr-1" />
           {t('change_password')}

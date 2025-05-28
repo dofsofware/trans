@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { AlertCircle, X, Check } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 // Modal de réclamation
 const ClaimModal = ({ isOpen, onClose, shipmentId }) => {
   const { t } = useLanguage();
+  const { theme } = useTheme();
   const [message, setMessage] = useState('');
   const [claimType, setClaimType] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -45,7 +47,9 @@ const ClaimModal = ({ isOpen, onClose, shipmentId }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+      <div className={`rounded-lg shadow-xl w-full max-w-md overflow-hidden ${
+        theme === 'dark' ? 'bg-gray-800' : 'bg-white'
+      }`}>
         {/* Header */}
         <div className="px-4 py-3 bg-red-600 text-white flex justify-between items-center">
           <h3 className="text-lg font-medium flex items-center">
@@ -64,18 +68,30 @@ const ClaimModal = ({ isOpen, onClose, shipmentId }) => {
         <div className="p-4">
           {/* Shipment reference */}
           <div className="mb-4">
-            <p className="text-xs font-medium text-gray-500">{t('shipment_reference')}</p>
-            <p className="text-sm font-medium text-gray-900">{shipmentId}</p>
+            <p className={`text-xs font-medium ${
+              theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+            }`}>
+              {t('shipment_reference')}
+            </p>
+            <p className={`text-sm font-medium ${
+              theme === 'dark' ? 'text-gray-100' : 'text-gray-900'
+            }`}>
+              {shipmentId}
+            </p>
           </div>
 
           {/* Information box */}
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+          <div className={`mb-6 p-4 rounded-lg ${
+            theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'
+          }`}>
             <div className="flex items-start">
               <div className="flex-shrink-0 mt-0.5">
                 <AlertCircle size={16} className="text-red-500" />
               </div>
               <div className="ml-3">
-                <p className="text-sm text-gray-700">
+                <p className={`text-sm ${
+                  theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                }`}>
                   {t('claim_agent_notification')}
                 </p>
               </div>
@@ -84,12 +100,21 @@ const ClaimModal = ({ isOpen, onClose, shipmentId }) => {
 
           {/* Claim type select */}
           <div className="mb-4">
-            <label htmlFor="claimType" className="block text-sm font-medium text-gray-700 mb-1">
+            <label 
+              htmlFor="claimType" 
+              className={`block text-sm font-medium mb-1 ${
+                theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+              }`}
+            >
               {t('claim_type')}
             </label>
             <select
               id="claimType"
-              className="shadow-sm block w-full focus:ring-red-500 focus:border-red-500 sm:text-sm border border-gray-300 rounded-md p-2"
+              className={`shadow-sm block w-full focus:ring-red-500 focus:border-red-500 sm:text-sm border rounded-md p-2 ${
+                theme === 'dark' 
+                  ? 'bg-gray-700 border-gray-600 text-gray-100' 
+                  : 'bg-white border-gray-300 text-gray-900'
+              }`}
               value={claimType}
               onChange={(e) => setClaimType(e.target.value)}
             >
@@ -104,13 +129,22 @@ const ClaimModal = ({ isOpen, onClose, shipmentId }) => {
 
           {/* Message input */}
           <div className="mb-4">
-            <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+            <label 
+              htmlFor="message" 
+              className={`block text-sm font-medium mb-1 ${
+                theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+              }`}
+            >
               {t('message')}
             </label>
             <textarea
               id="message"
               rows={4}
-              className="shadow-sm block w-full focus:ring-red-500 focus:border-red-500 sm:text-sm border border-gray-300 rounded-md p-2"
+              className={`shadow-sm block w-full focus:ring-red-500 focus:border-red-500 sm:text-sm border rounded-md p-2 ${
+                theme === 'dark' 
+                  ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400' 
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+              }`}
               placeholder={t('write_your_claim_here')}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
@@ -144,7 +178,11 @@ const ClaimModal = ({ isOpen, onClose, shipmentId }) => {
 
         {/* Success notification */}
         {showNotification && (
-          <div className="absolute bottom-4 right-4 bg-green-50 border border-green-200 text-green-800 rounded-lg p-4 shadow-lg flex items-center space-x-2 animate-fade-in">
+          <div className={`absolute bottom-4 right-4 border rounded-lg p-4 shadow-lg flex items-center space-x-2 animate-fade-in ${
+            theme === 'dark' 
+              ? 'bg-green-900 border-green-700 text-green-200' 
+              : 'bg-green-50 border-green-200 text-green-800'
+          }`}>
             <Check size={16} className="text-green-500" />
             <span className="text-sm">{t('claim_sent_successfully')}</span>
           </div>
@@ -177,6 +215,7 @@ export const useClaimSubmission = () => {
 // Composant pour le bouton de réclamation
 const ClaimButton = ({ shipmentId, variant = "primary" }) => {
   const { t } = useLanguage();
+  const { theme } = useTheme();
   const { openClaimModal, closeClaimModal, isModalOpen, ClaimModal } = useClaimSubmission();
 
   return (
@@ -194,7 +233,11 @@ const ClaimButton = ({ shipmentId, variant = "primary" }) => {
         <button
           type="button"
           onClick={openClaimModal}
-          className="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+          className={`w-full inline-flex justify-center items-center px-4 py-2 border shadow-sm text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors ${
+            theme === 'dark'
+              ? 'border-gray-600 text-gray-300 bg-gray-800 hover:bg-gray-700'
+              : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+          }`}
         >
           <AlertCircle size={16} className="mr-2" />
           {t('file_claim')}

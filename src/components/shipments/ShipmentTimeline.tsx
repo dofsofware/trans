@@ -1,6 +1,7 @@
 import { ShipmentEvent } from '../../types/shipment';
 import { format } from 'date-fns';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { 
   FileEdit, 
   PackageOpen, 
@@ -40,6 +41,16 @@ const statusColorMap = {
   issue: 'bg-red-200 text-red-700'
 };
 
+const statusColorMapDark = {
+  draft: 'bg-gray-700 text-gray-300',
+  processing: 'bg-amber-800 text-amber-300',
+  warehouse: 'bg-blue-800 text-blue-300',
+  customs: 'bg-purple-800 text-purple-300',
+  in_transit: 'bg-indigo-800 text-indigo-300',
+  delivered: 'bg-emerald-800 text-emerald-300',
+  issue: 'bg-red-800 text-red-300'
+};
+
 const statusLabelMap = {
   draft: 'shipment_created',
   processing: 'processing_started',
@@ -55,6 +66,9 @@ const ShipmentTimeline = ({ events }: ShipmentTimelineProps) => {
   const [animating, setAnimating] = useState(false);
   const timelineRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
+  const { theme } = useTheme();
+
+  const isDark = theme === 'dark';
 
   const sortedEvents = [...events].sort((a, b) =>
     new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
@@ -98,7 +112,7 @@ const ShipmentTimeline = ({ events }: ShipmentTimelineProps) => {
       <ul className="-mb-8">
         {displayedEvents.map((event, eventIdx) => {
           const Icon = statusIconMap[event.status];
-          const colorClass = statusColorMap[event.status];
+          const colorClass = isDark ? statusColorMapDark[event.status] : statusColorMap[event.status];
           const lastItem = eventIdx === displayedEvents.length - 1;
 
           return (
@@ -106,7 +120,9 @@ const ShipmentTimeline = ({ events }: ShipmentTimelineProps) => {
               <div className="relative pb-8">
                 {!lastItem && (
                   <span
-                    className="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200"
+                    className={`absolute top-5 left-5 -ml-px h-full w-0.5 ${
+                      isDark ? 'bg-gray-600' : 'bg-gray-200'
+                    }`}
                     aria-hidden="true"
                   />
                 )}
@@ -119,8 +135,12 @@ const ShipmentTimeline = ({ events }: ShipmentTimelineProps) => {
                     </div>
                   </div>
                   <div className="min-w-0 flex-1 py-1.5">
-                    <div className="text-sm text-gray-500">
-                      <div className="font-medium text-gray-900">
+                    <div className={`text-sm ${
+                      isDark ? 'text-gray-400' : 'text-gray-500'
+                    }`}>
+                      <div className={`font-medium ${
+                        isDark ? 'text-white' : 'text-gray-900'
+                      }`}>
                         {t(statusLabelMap[event.status])}
                       </div>
                       <span className="whitespace-nowrap text-sm">
@@ -128,12 +148,16 @@ const ShipmentTimeline = ({ events }: ShipmentTimelineProps) => {
                       </span>
                       {event.location && (
                         <div className="mt-1">
-                          <span className="text-gray-600">Location: </span>
+                          <span className={`${
+                            isDark ? 'text-gray-300' : 'text-gray-600'
+                          }`}>Location: </span>
                           {event.location}
                         </div>
                       )}
                       {event.notes && (
-                        <div className="mt-1 text-sm text-gray-700">
+                        <div className={`mt-1 text-sm ${
+                          isDark ? 'text-gray-300' : 'text-gray-700'
+                        }`}>
                           {event.notes}
                         </div>
                       )}
@@ -150,31 +174,47 @@ const ShipmentTimeline = ({ events }: ShipmentTimelineProps) => {
                         <Icon className="h-5 w-5" aria-hidden="true" />
                       </div>
                       {!lastItem && (
-                        <div className="h-full w-0.5 bg-gray-200 my-1"></div>
+                        <div className={`h-full w-0.5 my-1 ${
+                          isDark ? 'bg-gray-600' : 'bg-gray-200'
+                        }`}></div>
                       )}
                     </div>
 
                     {/* Content */}
                     <div className="flex-1 pb-6">
-                      <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-3">
-                        <h3 className="text-sm font-medium text-gray-900">
+                      <div className={`rounded-lg shadow-sm border p-3 ${
+                        isDark 
+                          ? 'bg-gray-700 border-gray-600' 
+                          : 'bg-white border-gray-100'
+                      }`}>
+                        <h3 className={`text-sm font-medium ${
+                          isDark ? 'text-white' : 'text-gray-900'
+                        }`}>
                           {t(statusLabelMap[event.status])}
                         </h3>
 
-                        <div className="flex items-center mt-2 text-xs text-gray-500">
+                        <div className={`flex items-center mt-2 text-xs ${
+                          isDark ? 'text-gray-400' : 'text-gray-500'
+                        }`}>
                           <Calendar size={12} className="mr-1 flex-shrink-0" />
                           {format(new Date(event.timestamp), 'MMM d, yyyy • h:mm a')}
                         </div>
 
                         {event.location && (
-                          <div className="flex items-center mt-2 text-xs text-gray-600">
+                          <div className={`flex items-center mt-2 text-xs ${
+                            isDark ? 'text-gray-300' : 'text-gray-600'
+                          }`}>
                             <MapPin size={12} className="mr-1 flex-shrink-0" />
                             <span>{event.location}</span>
                           </div>
                         )}
 
                         {event.notes && (
-                          <div className="mt-2 text-xs text-gray-700 bg-gray-50 p-2 rounded">
+                          <div className={`mt-2 text-xs p-2 rounded ${
+                            isDark 
+                              ? 'text-gray-300 bg-gray-600' 
+                              : 'text-gray-700 bg-gray-50'
+                          }`}>
                             {event.notes}
                           </div>
                         )}
@@ -192,7 +232,11 @@ const ShipmentTimeline = ({ events }: ShipmentTimelineProps) => {
         <div className="mt-6 text-center">
           <button
             type="button"
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium bg-white text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+            className={`inline-flex items-center px-4 py-2 border rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors ${
+              isDark
+                ? 'border-gray-600 bg-gray-700 text-gray-200 hover:bg-gray-600 focus:ring-offset-gray-800'
+                : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+            }`}
             onClick={toggleShowAll}
           >
             {showAll ? (

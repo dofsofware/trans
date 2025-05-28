@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import LoadingScreen from '../../components/common/LoadingScreen';
 import ContactAgentButton from '../../components/common/ContactAgentButton';
 
@@ -62,8 +63,11 @@ const ShipmentDetails = () => {
   const [shipment, setShipment] = useState<Shipment | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { t } = useLanguage();
+  const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState('timeline');
   const [agent, setAgent] = useState(null);
+
+  const isDark = theme === 'dark';
 
   useEffect(() => {
     const fetchShipment = async () => {
@@ -93,11 +97,19 @@ const ShipmentDetails = () => {
 
   if (!shipment) {
     return (
-      <div className="bg-white shadow rounded-lg p-6 max-w-2xl mx-auto mt-8">
+      <div className={`shadow rounded-lg p-6 max-w-2xl mx-auto mt-8 ${
+        isDark ? 'bg-gray-800' : 'bg-white'
+      }`}>
         <div className="text-center">
-          <Package size={48} className="mx-auto text-gray-400 mb-4" />
-          <h3 className="text-xl font-medium text-gray-900 mb-2">Shipment not found</h3>
-          <p className="text-gray-500 mb-6">
+          <Package size={48} className={`mx-auto mb-4 ${
+            isDark ? 'text-gray-500' : 'text-gray-400'
+          }`} />
+          <h3 className={`text-xl font-medium mb-2 ${
+            isDark ? 'text-white' : 'text-gray-900'
+          }`}>Shipment not found</h3>
+          <p className={`mb-6 ${
+            isDark ? 'text-gray-400' : 'text-gray-500'
+          }`}>
             The shipment you're looking for doesn't exist or you don't have access to view it.
           </p>
           <Link
@@ -116,13 +128,19 @@ const ShipmentDetails = () => {
   const shipmentTypeLabel = shipment.type === 'air' ? t('air_shipment') : t('sea_shipment');
 
   const renderDetailItem = (icon, label, value) => (
-    <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+    <div className={`flex items-start space-x-3 p-3 rounded-lg ${
+      isDark ? 'bg-gray-700' : 'bg-gray-50'
+    }`}>
       <div className="flex-shrink-0 mt-1">
         {icon}
       </div>
       <div>
-        <p className="text-xs font-medium text-gray-500">{label}</p>
-        <p className="text-sm font-medium text-gray-900">{value}</p>
+        <p className={`text-xs font-medium ${
+          isDark ? 'text-gray-400' : 'text-gray-500'
+        }`}>{label}</p>
+        <p className={`text-sm font-medium ${
+          isDark ? 'text-white' : 'text-gray-900'
+        }`}>{value}</p>
       </div>
     </div>
   );
@@ -131,7 +149,9 @@ const ShipmentDetails = () => {
     switch(activeTab) {
       case 'timeline':
         return (
-          <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className={`rounded-lg shadow overflow-hidden ${
+            isDark ? 'bg-gray-800' : 'bg-white'
+          }`}>
             <div className="p-4 sm:p-6">
               <ShipmentTimeline events={shipment.events} />
             </div>
@@ -139,12 +159,22 @@ const ShipmentDetails = () => {
         );
       case 'documents':
         return (
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
+          <div className={`rounded-lg shadow overflow-hidden ${
+            isDark ? 'bg-gray-800' : 'bg-white'
+          }`}>
+            <div className={`px-4 py-5 sm:px-6 border-b ${
+              isDark ? 'border-gray-700' : 'border-gray-200'
+            }`}>
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium text-gray-900">Documents</h3>
+                <h3 className={`text-lg font-medium ${
+                  isDark ? 'text-white' : 'text-gray-900'
+                }`}>Documents</h3>
                 {shipment.documents.length > 0 && (
-                  <button className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors">
+                  <button className={`inline-flex items-center px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                    isDark 
+                      ? 'text-blue-300 bg-blue-900 hover:bg-blue-800' 
+                      : 'text-blue-700 bg-blue-50 hover:bg-blue-100'
+                  }`}>
                     <Download size={14} className="mr-1" />
                     {t('download_all')}
                   </button>
@@ -152,20 +182,34 @@ const ShipmentDetails = () => {
               </div>
             </div>
             {shipment.documents.length > 0 ? (
-              <ul className="divide-y divide-gray-200">
+              <ul className={`divide-y ${
+                isDark ? 'divide-gray-700' : 'divide-gray-200'
+              }`}>
                 {shipment.documents.map(doc => (
-                  <li key={doc.id} className="px-4 py-3 flex justify-between items-center hover:bg-gray-50 transition-colors">
+                  <li key={doc.id} className={`px-4 py-3 flex justify-between items-center transition-colors ${
+                    isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
+                  }`}>
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10 rounded-md bg-blue-50 flex items-center justify-center">
+                      <div className={`flex-shrink-0 h-10 w-10 rounded-md flex items-center justify-center ${
+                        isDark ? 'bg-blue-900' : 'bg-blue-50'
+                      }`}>
                         <FileText size={20} className="text-blue-600" />
                       </div>
                       <div className="ml-3">
-                        <p className="text-sm font-medium text-gray-900">{doc.name}</p>
-                        <p className="text-xs text-gray-500">Added on {format(new Date(), 'MMM d, yyyy')}</p>
+                        <p className={`text-sm font-medium ${
+                          isDark ? 'text-white' : 'text-gray-900'
+                        }`}>{doc.name}</p>
+                        <p className={`text-xs ${
+                          isDark ? 'text-gray-400' : 'text-gray-500'
+                        }`}>Added on {format(new Date(), 'MMM d, yyyy')}</p>
                       </div>
                     </div>
                     <div className="flex space-x-2">
-                      <button className="p-1 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors">
+                      <button className={`p-1 rounded-full transition-colors ${
+                        isDark 
+                          ? 'hover:bg-gray-600 text-gray-400 hover:text-gray-200' 
+                          : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
+                      }`}>
                         <Download size={16} />
                       </button>
                     </div>
@@ -174,55 +218,115 @@ const ShipmentDetails = () => {
               </ul>
             ) : (
               <div className="px-4 py-12 text-center">
-                <FileText size={40} className="mx-auto text-gray-300 mb-3" />
-                <p className="text-sm text-gray-500 mb-4">{t('no_documents_yet')}</p>
+                <FileText size={40} className={`mx-auto mb-3 ${
+                  isDark ? 'text-gray-600' : 'text-gray-300'
+                }`} />
+                <p className={`text-sm mb-4 ${
+                  isDark ? 'text-gray-400' : 'text-gray-500'
+                }`}>{t('no_documents_yet')}</p>
               </div>
             )}
           </div>
         );
       case 'details':
         return (
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">{t('shipment_details')}</h3>
+          <div className={`rounded-lg shadow overflow-hidden ${
+            isDark ? 'bg-gray-800' : 'bg-white'
+          }`}>
+            <div className={`px-4 py-5 sm:px-6 border-b ${
+              isDark ? 'border-gray-700' : 'border-gray-200'
+            }`}>
+              <h3 className={`text-lg font-medium ${
+                isDark ? 'text-white' : 'text-gray-900'
+              }`}>{t('shipment_details')}</h3>
             </div>
             <div className="p-4 sm:p-6">
-              <h4 className="font-medium text-gray-900 mb-3">{t('description')}</h4>
-              <p className="text-sm text-gray-700 whitespace-pre-wrap mb-6 bg-gray-50 p-4 rounded-lg">
+              <h4 className={`font-medium mb-3 ${
+                isDark ? 'text-white' : 'text-gray-900'
+              }`}>{t('description')}</h4>
+              <p className={`text-sm whitespace-pre-wrap mb-6 p-4 rounded-lg ${
+                isDark 
+                  ? 'text-gray-300 bg-gray-700' 
+                  : 'text-gray-700 bg-gray-50'
+              }`}>
                 {shipment.description}
               </p>
 
-              <h4 className="font-medium text-gray-900 mb-3">{t('additional_information')}</h4>
+              <h4 className={`font-medium mb-3 ${
+                isDark ? 'text-white' : 'text-gray-900'
+              }`}>{t('additional_information')}</h4>
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <dt className="text-xs font-medium text-gray-500 mb-1">{t('incoterms')}</dt>
-                  <dd className="text-sm font-medium text-gray-900">FOB</dd>
+                <div className={`p-4 rounded-lg ${
+                  isDark ? 'bg-gray-700' : 'bg-gray-50'
+                }`}>
+                  <dt className={`text-xs font-medium mb-1 ${
+                    isDark ? 'text-gray-400' : 'text-gray-500'
+                  }`}>{t('incoterms')}</dt>
+                  <dd className={`text-sm font-medium ${
+                    isDark ? 'text-white' : 'text-gray-900'
+                  }`}>FOB</dd>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <dt className="text-xs font-medium text-gray-500 mb-1">{t('containers')}</dt>
-                  <dd className="text-sm font-medium text-gray-900">2 x 40' HC</dd>
+                <div className={`p-4 rounded-lg ${
+                  isDark ? 'bg-gray-700' : 'bg-gray-50'
+                }`}>
+                  <dt className={`text-xs font-medium mb-1 ${
+                    isDark ? 'text-gray-400' : 'text-gray-500'
+                  }`}>{t('containers')}</dt>
+                  <dd className={`text-sm font-medium ${
+                    isDark ? 'text-white' : 'text-gray-900'
+                  }`}>2 x 40' HC</dd>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <dt className="text-xs font-medium text-gray-500 mb-1">{t('insurance')}</dt>
-                  <dd className="text-sm font-medium text-gray-900">Yes - Full Value</dd>
+                <div className={`p-4 rounded-lg ${
+                  isDark ? 'bg-gray-700' : 'bg-gray-50'
+                }`}>
+                  <dt className={`text-xs font-medium mb-1 ${
+                    isDark ? 'text-gray-400' : 'text-gray-500'
+                  }`}>{t('insurance')}</dt>
+                  <dd className={`text-sm font-medium ${
+                    isDark ? 'text-white' : 'text-gray-900'
+                  }`}>Yes - Full Value</dd>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <dt className="text-xs font-medium text-gray-500 mb-1">{t('customs_status')}</dt>
-                  <dd className="text-sm font-medium text-gray-900">Cleared</dd>
+                <div className={`p-4 rounded-lg ${
+                  isDark ? 'bg-gray-700' : 'bg-gray-50'
+                }`}>
+                  <dt className={`text-xs font-medium mb-1 ${
+                    isDark ? 'text-gray-400' : 'text-gray-500'
+                  }`}>{t('customs_status')}</dt>
+                  <dd className={`text-sm font-medium ${
+                    isDark ? 'text-white' : 'text-gray-900'
+                  }`}>Cleared</dd>
                 </div>
               </dl>
 
-              <h4 className="font-medium text-gray-900 mb-3">{t('parties')}</h4>
+              <h4 className={`font-medium mb-3 ${
+                isDark ? 'text-white' : 'text-gray-900'
+              }`}>{t('parties')}</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-xs font-medium text-gray-500 mb-1">{t('shipper')}</p>
-                  <p className="text-sm font-medium text-gray-900">GlobalTrade Inc.</p>
-                  <p className="text-xs text-gray-500 mt-1">New York, USA</p>
+                <div className={`p-4 rounded-lg ${
+                  isDark ? 'bg-gray-700' : 'bg-gray-50'
+                }`}>
+                  <p className={`text-xs font-medium mb-1 ${
+                    isDark ? 'text-gray-400' : 'text-gray-500'
+                  }`}>{t('shipper')}</p>
+                  <p className={`text-sm font-medium ${
+                    isDark ? 'text-white' : 'text-gray-900'
+                  }`}>GlobalTrade Inc.</p>
+                  <p className={`text-xs mt-1 ${
+                    isDark ? 'text-gray-400' : 'text-gray-500'
+                  }`}>New York, USA</p>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-xs font-medium text-gray-500 mb-1">{t('consignee')}</p>
-                  <p className="text-sm font-medium text-gray-900">EuroDistribution GmbH</p>
-                  <p className="text-xs text-gray-500 mt-1">Hamburg, Germany</p>
+                <div className={`p-4 rounded-lg ${
+                  isDark ? 'bg-gray-700' : 'bg-gray-50'
+                }`}>
+                  <p className={`text-xs font-medium mb-1 ${
+                    isDark ? 'text-gray-400' : 'text-gray-500'
+                  }`}>{t('consignee')}</p>
+                  <p className={`text-sm font-medium ${
+                    isDark ? 'text-white' : 'text-gray-900'
+                  }`}>EuroDistribution GmbH</p>
+                  <p className={`text-xs mt-1 ${
+                    isDark ? 'text-gray-400' : 'text-gray-500'
+                  }`}>Hamburg, Germany</p>
                 </div>
               </div>
             </div>
@@ -236,7 +340,9 @@ const ShipmentDetails = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Header with Back Button and Key Info */}
-      <div className="bg-gray-50 w-full py-3 mb-6 shadow-sm">
+      <div className={`w-full py-3 mb-6 shadow-sm ${
+        isDark ? 'bg-gray-800' : 'bg-gray-50'
+      }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between">
           <div className="flex items-center mb-2 sm:mb-0">
             <Link to="/" className="mr-4 inline-flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors">
@@ -244,7 +350,9 @@ const ShipmentDetails = () => {
             </Link>
             <div className="flex items-center">
               <ShipmentTypeIcon size={18} className="text-blue-600 mr-2" />
-              <span className="text-sm font-medium text-gray-900 mr-2">{shipment.reference}</span>
+              <span className={`text-sm font-medium mr-2 ${
+                isDark ? 'text-white' : 'text-gray-900'
+              }`}>{shipment.reference}</span>
               <Status status={shipment.status} size="sm" />
             </div>
           </div>
@@ -252,12 +360,16 @@ const ShipmentDetails = () => {
       </div>
 
       {/* Main Info Card */}
-      <div className="bg-white shadow rounded-lg overflow-hidden mb-6">
+      <div className={`shadow rounded-lg overflow-hidden mb-6 ${
+        isDark ? 'bg-gray-800' : 'bg-white'
+      }`}>
         <div className="relative">
           <div className="absolute top-0 left-0 w-full h-5 bg-blue-600"></div>
           <div className="relative px-4 sm:px-6 pt-12 pb-6">
             <div className="flex flex-wrap items-baseline mb-4">
-              <h1 className="text-2xl font-bold text-gray-900 mr-3">
+              <h1 className={`text-2xl font-bold mr-3 ${
+                isDark ? 'text-white' : 'text-gray-900'
+              }`}>
                 {`${shipment.origin} → ${shipment.destination}`}
               </h1>
               <div className="flex items-center text-sm text-blue-600">
@@ -301,7 +413,9 @@ const ShipmentDetails = () => {
               )}
             </div>
 
-            <p className="text-xs text-gray-500">
+            <p className={`text-xs ${
+              isDark ? 'text-gray-400' : 'text-gray-500'
+            }`}>
               {t('created_at')} {format(new Date(shipment.createdAt), 'MMMM d, yyyy')}
             </p>
           </div>
@@ -309,35 +423,49 @@ const ShipmentDetails = () => {
       </div>
 
       {/* Tabs Navigation */}
-      <div className="mb-6 border-b border-gray-200">
+      <div className={`mb-6 border-b ${
+        isDark ? 'border-gray-700' : 'border-gray-200'
+      }`}>
         <nav className="-mb-px flex space-x-4 sm:space-x-6 overflow-x-auto scrollbar-hide">
           <button
             onClick={() => setActiveTab('timeline')}
-            className={`whitespace-nowrap py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm ${
+            className={`whitespace-nowrap py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors ${
               activeTab === 'timeline'
                 ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            } transition-colors`}
+                : `border-transparent ${
+                    isDark 
+                      ? 'text-gray-400 hover:text-gray-200 hover:border-gray-600' 
+                      : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`
+            }`}
           >
             {t('shipment_timeLine')}
           </button>
           <button
             onClick={() => setActiveTab('documents')}
-            className={`whitespace-nowrap py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm ${
+            className={`whitespace-nowrap py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors ${
               activeTab === 'documents'
                 ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            } transition-colors`}
+                : `border-transparent ${
+                    isDark 
+                      ? 'text-gray-400 hover:text-gray-200 hover:border-gray-600' 
+                      : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`
+            }`}
           >
             {t('documents')}
           </button>
           <button
             onClick={() => setActiveTab('details')}
-            className={`whitespace-nowrap py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm ${
+            className={`whitespace-nowrap py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-colors ${
               activeTab === 'details'
                 ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            } transition-colors`}
+                : `border-transparent ${
+                    isDark 
+                      ? 'text-gray-400 hover:text-gray-200 hover:border-gray-600' 
+                      : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`
+            }`}
           >
             {t('details')}
           </button>
@@ -352,9 +480,15 @@ const ShipmentDetails = () => {
 
         {/* Quick Actions Sidebar */}
         <div className="space-y-6">
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">
+          <div className={`rounded-lg shadow overflow-hidden ${
+            isDark ? 'bg-gray-800' : 'bg-white'
+          }`}>
+            <div className={`px-4 py-5 sm:px-6 border-b ${
+              isDark ? 'border-gray-700' : 'border-gray-200'
+            }`}>
+              <h3 className={`text-lg font-medium ${
+                isDark ? 'text-white' : 'text-gray-900'
+              }`}>
                 {t('quick_actions')}
               </h3>
             </div>
@@ -374,9 +508,15 @@ const ShipmentDetails = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
-              <h3 className="text-md font-medium text-gray-900">
+          <div className={`rounded-lg shadow overflow-hidden ${
+            isDark ? 'bg-gray-800' : 'bg-white'
+          }`}>
+            <div className={`px-4 py-5 sm:px-6 border-b ${
+              isDark ? 'border-gray-700' : 'border-gray-200'
+            }`}>
+              <h3 className={`text-md font-medium ${
+                isDark ? 'text-white' : 'text-gray-900'
+              }`}>
                 {t('contact_information')}
               </h3>
             </div>
@@ -392,10 +532,18 @@ const ShipmentDetails = () => {
                       />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{agent.name}</p>
-                      <p className="text-xs text-gray-500">{agent.position}</p>
-                      <p className="text-xs text-gray-500">{agent.email}</p>
-                      <p className="text-xs text-gray-500">{agent.phone}</p>
+                      <p className={`text-sm font-medium ${
+                        isDark ? 'text-white' : 'text-gray-900'
+                      }`}>{agent.name}</p>
+                      <p className={`text-xs ${
+                        isDark ? 'text-gray-400' : 'text-gray-500'
+                      }`}>{agent.position}</p>
+                      <p className={`text-xs ${
+                        isDark ? 'text-gray-400' : 'text-gray-500'
+                      }`}>{agent.email}</p>
+                      <p className={`text-xs ${
+                        isDark ? 'text-gray-400' : 'text-gray-500'
+                      }`}>{agent.phone}</p>
                     </div>
                   </div>
                 )}

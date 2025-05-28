@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { MessageSquare, X, Check } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 // Mock data for agent in charge
 const getMockAgentById = (id) => {
@@ -38,6 +39,7 @@ const getMockAgentById = (id) => {
 // Component for the contact agent modal
 const ContactAgentModal = ({ isOpen, onClose, shipmentId, agent }) => {
   const { t } = useLanguage();
+  const { theme } = useTheme();
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
@@ -65,16 +67,22 @@ const ContactAgentModal = ({ isOpen, onClose, shipmentId, agent }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+      <div className={`rounded-lg shadow-xl w-full max-w-md overflow-hidden transition-colors ${
+        theme === 'dark' ? 'bg-gray-800' : 'bg-white'
+      }`}>
         {/* Header */}
-        <div className="px-4 py-3 bg-blue-600 text-white flex justify-between items-center">
+        <div className={`px-4 py-3 text-white flex justify-between items-center ${
+          theme === 'dark' ? 'bg-blue-700' : 'bg-blue-600'
+        }`}>
           <h3 className="text-lg font-medium flex items-center">
             <MessageSquare size={18} className="mr-2" />
             {t('contact_the_agent_in_charge')}
           </h3>
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-blue-700 transition-colors"
+            className={`p-1 rounded-full transition-colors ${
+              theme === 'dark' ? 'hover:bg-blue-800' : 'hover:bg-blue-700'
+            }`}
           >
             <X size={20} />
           </button>
@@ -84,12 +92,22 @@ const ContactAgentModal = ({ isOpen, onClose, shipmentId, agent }) => {
         <div className="p-4">
           {/* Shipment reference */}
           <div className="mb-4">
-            <p className="text-xs font-medium text-gray-500">{t('shipment_reference')}</p>
-            <p className="text-sm font-medium text-gray-900">{shipmentId}</p>
+            <p className={`text-xs font-medium ${
+              theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+            }`}>
+              {t('shipment_reference')}
+            </p>
+            <p className={`text-sm font-medium ${
+              theme === 'dark' ? 'text-white' : 'text-gray-900'
+            }`}>
+              {shipmentId}
+            </p>
           </div>
 
           {/* Agent info */}
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+          <div className={`mb-6 p-4 rounded-lg ${
+            theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'
+          }`}>
             <div className="flex items-start space-x-3">
               <div className="flex-shrink-0">
                 <img
@@ -99,11 +117,29 @@ const ContactAgentModal = ({ isOpen, onClose, shipmentId, agent }) => {
                 />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-900">{agent.name}</p>
-                <p className="text-xs text-gray-500">{agent.position}</p>
-                <p className="text-xs text-gray-500">{agent.email}</p>
-                <p className="text-xs text-gray-500">{agent.phone}</p>
-                <div className="mt-1 flex items-center text-xs text-gray-500">
+                <p className={`text-sm font-medium ${
+                  theme === 'dark' ? 'text-white' : 'text-gray-900'
+                }`}>
+                  {agent.name}
+                </p>
+                <p className={`text-xs ${
+                  theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+                }`}>
+                  {agent.position}
+                </p>
+                <p className={`text-xs ${
+                  theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+                }`}>
+                  {agent.email}
+                </p>
+                <p className={`text-xs ${
+                  theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+                }`}>
+                  {agent.phone}
+                </p>
+                <div className={`mt-1 flex items-center text-xs ${
+                  theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+                }`}>
                   <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-1"></span>
                   {t('available')} {agent.availability}
                 </div>
@@ -113,13 +149,19 @@ const ContactAgentModal = ({ isOpen, onClose, shipmentId, agent }) => {
 
           {/* Message input */}
           <div className="mb-4">
-            <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="message" className={`block text-sm font-medium mb-1 ${
+              theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+            }`}>
               {t('message')}
             </label>
             <textarea
               id="message"
               rows={4}
-              className="shadow-sm block w-full focus:ring-blue-500 focus:border-blue-500 sm:text-sm border border-gray-300 rounded-md p-2"
+              className={`shadow-sm block w-full focus:ring-blue-500 focus:border-blue-500 sm:text-sm border rounded-md p-2 transition-colors ${
+                theme === 'dark' 
+                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+              }`}
               placeholder={t('write_your_message_here')}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
@@ -134,7 +176,9 @@ const ContactAgentModal = ({ isOpen, onClose, shipmentId, agent }) => {
               onClick={handleSend}
               className={`inline-flex justify-center items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white
                 ${isSending || !message.trim() ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}
-                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors`}
+                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors ${
+                  theme === 'dark' ? 'focus:ring-offset-gray-800' : 'focus:ring-offset-white'
+                }`}
             >
               {isSending ? (
                 <>
@@ -153,7 +197,11 @@ const ContactAgentModal = ({ isOpen, onClose, shipmentId, agent }) => {
 
         {/* Success notification */}
         {showNotification && (
-          <div className="absolute bottom-4 right-4 bg-green-50 border border-green-200 text-green-800 rounded-lg p-4 shadow-lg flex items-center space-x-2 animate-fade-in">
+          <div className={`absolute bottom-4 right-4 border rounded-lg p-4 shadow-lg flex items-center space-x-2 animate-fade-in ${
+            theme === 'dark' 
+              ? 'bg-green-900/80 border-green-700 text-green-300' 
+              : 'bg-green-50 border-green-200 text-green-800'
+          }`}>
             <Check size={16} className="text-green-500" />
             <span className="text-sm">{t('message_sent_successfully')}</span>
           </div>
@@ -192,6 +240,7 @@ export const useContactAgent = () => {
 // Example implementation in a component
 const ContactAgentButton = ({ shipmentId, agentId = "agent1", variant = "primary" }) => {
   const { t } = useLanguage();
+  const { theme } = useTheme();
   const { openContactModal, closeContactModal, isModalOpen, selectedAgent, ContactAgentModal } = useContactAgent();
   
   return (
@@ -200,7 +249,9 @@ const ContactAgentButton = ({ shipmentId, agentId = "agent1", variant = "primary
         <button
           type="button"
           onClick={() => openContactModal(agentId)}
-          className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+          className={`w-full inline-flex justify-center items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors ${
+            theme === 'dark' ? 'focus:ring-offset-gray-800' : 'focus:ring-offset-white'
+          }`}
         >
           <MessageSquare size={16} className="mr-2" />
           {t('contact_the_agent_in_charge')}
@@ -209,7 +260,11 @@ const ContactAgentButton = ({ shipmentId, agentId = "agent1", variant = "primary
         <button
           type="button"
           onClick={() => openContactModal(agentId)}
-          className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors"
+          className={`inline-flex items-center text-sm transition-colors ${
+            theme === 'dark' 
+              ? 'text-blue-400 hover:text-blue-300' 
+              : 'text-blue-600 hover:text-blue-800'
+          }`}
         >
           <MessageSquare size={16} className="mr-1" />
           {t('contact_agent')}

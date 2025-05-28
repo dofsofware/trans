@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { Camera, X, Check, Move, Upload } from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const AvatarUploader = ({ currentAvatar, onSave }) => {
+  const { theme } = useTheme();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -139,7 +141,11 @@ const AvatarUploader = ({ currentAvatar, onSave }) => {
       <button
         type="button"
         onClick={() => setIsModalOpen(true)}
-        className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+        className={`inline-flex items-center px-3 py-2 border shadow-sm text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+          theme === 'dark'
+            ? 'border-gray-600 text-gray-300 bg-gray-800 hover:bg-gray-700 focus:ring-offset-gray-900'
+            : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+        }`}
       >
         <Camera size={16} className="mr-2" />
         Modifier l'avatar
@@ -158,10 +164,18 @@ const AvatarUploader = ({ currentAvatar, onSave }) => {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center p-4">
           {/* Modal */}
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden transform transition-all">
+          <div className={`rounded-xl shadow-xl max-w-md w-full overflow-hidden transform transition-all ${
+            theme === 'dark' ? 'bg-gray-800' : 'bg-white'
+          }`}>
             {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">Modifier votre avatar</h3>
+            <div className={`px-6 py-4 border-b ${
+              theme === 'dark' ? 'border-gray-700' : 'border-gray-200'
+            }`}>
+              <h3 className={`text-lg font-medium ${
+                theme === 'dark' ? 'text-white' : 'text-gray-900'
+              }`}>
+                Modifier votre avatar
+              </h3>
             </div>
 
             {/* Modal Body */}
@@ -170,19 +184,29 @@ const AvatarUploader = ({ currentAvatar, onSave }) => {
                 <div className="flex flex-col items-center justify-center p-8">
                   <div
                     onClick={openFileSelector}
-                    className="w-40 h-40 rounded-full border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:border-blue-500 hover:text-blue-500 transition-colors"
+                    className={`w-40 h-40 rounded-full border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-colors ${
+                      theme === 'dark'
+                        ? 'border-gray-600 text-gray-400 hover:border-blue-400 hover:text-blue-400'
+                        : 'border-gray-300 text-gray-400 hover:border-blue-500 hover:text-blue-500'
+                    }`}
                   >
                     <Upload size={32} />
                     <span className="mt-2 text-sm">Choisir une image</span>
                   </div>
-                  <p className="mt-4 text-sm text-gray-500">JPG, PNG ou GIF. 5 MB maximum.</p>
+                  <p className={`mt-4 text-sm ${
+                    theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                  }`}>
+                    JPG, PNG ou GIF. 5 MB maximum.
+                  </p>
                 </div>
               ) : (
                 <div className="flex flex-col items-center">
                   {/* Preview container */}
                   <div
                     ref={containerRef}
-                    className="w-52 h-52 rounded-full overflow-hidden border-2 border-gray-200 relative mb-4 cursor-move"
+                    className={`w-52 h-52 rounded-full overflow-hidden border-2 relative mb-4 cursor-move ${
+                      theme === 'dark' ? 'border-gray-600' : 'border-gray-200'
+                    }`}
                     onMouseDown={handleMouseDown}
                     onTouchStart={handleTouchStart}
                   >
@@ -207,7 +231,9 @@ const AvatarUploader = ({ currentAvatar, onSave }) => {
                   
                   {/* Zoom control */}
                   <div className="w-full max-w-xs mb-4">
-                    <label htmlFor="zoom" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="zoom" className={`block text-sm font-medium mb-1 ${
+                      theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                    }`}>
                       Zoom
                     </label>
                     <input
@@ -219,14 +245,20 @@ const AvatarUploader = ({ currentAvatar, onSave }) => {
                       step="0.1"
                       value={scale}
                       onChange={(e) => setScale(parseFloat(e.target.value))}
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                      className={`w-full h-2 rounded-lg appearance-none cursor-pointer ${
+                        theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200'
+                      }`}
                     />
                   </div>
                   
                   <button
                     type="button"
                     onClick={openFileSelector}
-                    className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                    className={`inline-flex items-center px-3 py-2 border text-sm font-medium rounded-md transition-colors ${
+                      theme === 'dark'
+                        ? 'border-gray-600 text-gray-300 bg-gray-700 hover:bg-gray-600'
+                        : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+                    }`}
                   >
                     Choisir une autre image
                   </button>
@@ -235,11 +267,19 @@ const AvatarUploader = ({ currentAvatar, onSave }) => {
             </div>
             
             {/* Modal Footer */}
-            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+            <div className={`px-6 py-4 border-t flex justify-end space-x-3 ${
+              theme === 'dark' 
+                ? 'bg-gray-700 border-gray-600' 
+                : 'bg-gray-50 border-gray-200'
+            }`}>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                className={`inline-flex justify-center px-4 py-2 border shadow-sm text-sm font-medium rounded-md transition-colors ${
+                  theme === 'dark'
+                    ? 'border-gray-600 text-gray-300 bg-gray-800 hover:bg-gray-700'
+                    : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+                }`}
               >
                 <X size={16} className="mr-2" />
                 Annuler
@@ -248,8 +288,12 @@ const AvatarUploader = ({ currentAvatar, onSave }) => {
                 type="button"
                 onClick={handleSave}
                 disabled={!previewUrl}
-                className={`inline-flex justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${
-                  previewUrl ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-400 cursor-not-allowed'
+                className={`inline-flex justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white transition-colors ${
+                  previewUrl 
+                    ? 'bg-blue-600 hover:bg-blue-700' 
+                    : theme === 'dark'
+                      ? 'bg-blue-500 cursor-not-allowed'
+                      : 'bg-blue-400 cursor-not-allowed'
                 }`}
               >
                 <Check size={16} className="mr-2" />

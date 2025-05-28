@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getMockShipments } from '../../services/shipmentService';
 import { Shipment } from '../../types/shipment';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import ShipmentCard from '../../components/shipments/ShipmentCard';
 import { Filter, Plus, Search, X } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -9,6 +10,7 @@ import LoadingScreen from '../../components/common/LoadingScreen';
 
 const ShipmentsPage = () => {
   const { user } = useAuth();
+  const { theme } = useTheme();
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
@@ -79,6 +81,20 @@ const ShipmentsPage = () => {
       );
     });
 
+  // Theme-aware classes
+  const isDark = theme === 'dark';
+  const bgPrimary = isDark ? 'bg-gray-900' : 'bg-white';
+  const bgSecondary = isDark ? 'bg-gray-800' : 'bg-white';
+  const textPrimary = isDark ? 'text-white' : 'text-gray-900';
+  const textSecondary = isDark ? 'text-gray-300' : 'text-gray-600';
+  const textMuted = isDark ? 'text-gray-400' : 'text-gray-500';
+  const borderColor = isDark ? 'border-gray-700' : 'border-gray-300';
+  const borderLight = isDark ? 'border-gray-600' : 'border-gray-200';
+  const shadowClass = isDark ? 'shadow-gray-900/20' : 'shadow-sm';
+  const hoverShadow = isDark ? 'hover:shadow-gray-900/30' : 'hover:shadow-md';
+  const focusRing = isDark ? 'focus:ring-blue-400 focus:border-blue-400' : 'focus:ring-blue-500 focus:border-blue-500';
+  const placeholderColor = isDark ? 'placeholder-gray-400' : 'placeholder-gray-500';
+
   return (
     <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 transition-all duration-700 ${pageLoaded ? 'opacity-100' : 'opacity-0'}`}>
       <div
@@ -90,14 +106,14 @@ const ShipmentsPage = () => {
         }}
       >
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 animate-charFadeIn">{t('my_shipments')}</h1>
-          <p className="mt-1 text-sm md:text-base text-gray-600">{t('hereIsOverview')}</p>
+          <h1 className={`text-2xl md:text-3xl font-bold ${textPrimary} animate-charFadeIn`}>{t('my_shipments')}</h1>
+          <p className={`mt-1 text-sm md:text-base ${textSecondary}`}>{t('hereIsOverview')}</p>
         </div>
       </div>
 
       {/* Search and Filters */}
       <div
-        className="bg-white rounded-lg shadow-sm p-4 mb-6 transform transition-all duration-500 hover:shadow-md"
+        className={`${bgSecondary} rounded-lg ${shadowClass} p-4 mb-6 transform transition-all duration-500 ${hoverShadow}`}
         style={{
           animationName: 'fadeInUp',
           animationDuration: '0.6s',
@@ -108,19 +124,19 @@ const ShipmentsPage = () => {
         <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
           <div className="flex-1 relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search size={18} className="text-gray-400 animate-pulse" />
+              <Search size={18} className={`${isDark ? 'text-gray-500' : 'text-gray-400'} animate-pulse`} />
             </div>
             <input
               type="text"
               placeholder={t('search_shipments')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-300 focus:shadow-inner"
+              className={`block w-full pl-10 pr-10 py-2 border ${borderColor} rounded-lg leading-5 ${bgPrimary} ${placeholderColor} ${textPrimary} focus:outline-none focus:placeholder-gray-400 focus:ring-1 ${focusRing} sm:text-sm transition-all duration-300 focus:shadow-inner`}
             />
             {searchQuery && (
               <button
                 onClick={clearSearch}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                className={`absolute inset-y-0 right-0 pr-3 flex items-center ${isDark ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'} transition-colors duration-200`}
                 aria-label="Clear search"
               >
                 <X size={16} className="transform transition-transform duration-200 hover:rotate-90" />
@@ -130,7 +146,7 @@ const ShipmentsPage = () => {
           <div className="flex space-x-2">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 hover:shadow transform hover:scale-105"
+              className={`inline-flex items-center px-4 py-2 border ${borderColor} rounded-lg ${shadowClass} text-sm font-medium ${isDark ? 'text-gray-300 bg-gray-700 hover:bg-gray-600' : 'text-gray-700 bg-white hover:bg-gray-50'} focus:outline-none focus:ring-2 focus:ring-offset-2 ${isDark ? 'focus:ring-blue-400' : 'focus:ring-blue-500'} transition-all duration-300 hover:shadow transform hover:scale-105`}
             >
               <Filter size={16} className={`mr-2 transition-transform duration-300 ${showFilters ? 'rotate-180' : 'rotate-0'}`} />
               <span>{t('filters')}</span>
@@ -138,7 +154,7 @@ const ShipmentsPage = () => {
             {statusFilter !== 'all' && (
               <button
                 onClick={clearFilters}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-red-600 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-300 hover:shadow transform hover:scale-105"
+                className={`inline-flex items-center px-4 py-2 border ${borderColor} rounded-lg ${shadowClass} text-sm font-medium ${isDark ? 'text-red-400 bg-gray-700 hover:bg-red-900/20' : 'text-red-600 bg-white hover:bg-red-50'} focus:outline-none focus:ring-2 focus:ring-offset-2 ${isDark ? 'focus:ring-red-400' : 'focus:ring-red-500'} transition-all duration-300 hover:shadow transform hover:scale-105`}
               >
                 <X size={16} className="mr-1 animate-spin-slow" />
                 <span>{t('clear')}</span>
@@ -149,17 +165,17 @@ const ShipmentsPage = () => {
 
         {/* Expanded Filters */}
         {showFilters && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
+          <div className={`mt-4 pt-4 border-t ${borderLight}`}>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
-                <label htmlFor="status-filter" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="status-filter" className={`block text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-1`}>
                   {t('status')}
                 </label>
                 <select
                   id="status-filter"
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-lg"
+                  className={`block w-full pl-3 pr-10 py-2 text-base border ${borderColor} ${bgPrimary} ${textPrimary} focus:outline-none ${focusRing} sm:text-sm rounded-lg transition-all duration-200`}
                 >
                   <option value="all">{t('all')}</option>
                   <option value="draft">{t('draft')}</option>
@@ -187,7 +203,7 @@ const ShipmentsPage = () => {
           animationDelay: '0.4s'
         }}
       >
-        <p className="text-sm text-gray-600 animate-pulse-slow">
+        <p className={`text-sm ${textSecondary} animate-pulse-slow`}>
           {filteredShipments.length} {filteredShipments.length < 2 ? t('shipment_found') : t('shipments_found')}
         </p>
         {/* Sort options could go here */}
@@ -222,7 +238,7 @@ const ShipmentsPage = () => {
         </div>
       ) : (
         <div
-          className="bg-white rounded-lg shadow-sm p-8 text-center transform transition-all duration-500 hover:shadow-md"
+          className={`${bgSecondary} rounded-lg ${shadowClass} p-8 text-center transform transition-all duration-500 ${hoverShadow}`}
           style={{
             animationName: 'fadeInUp',
             animationDuration: '0.6s',
@@ -230,11 +246,11 @@ const ShipmentsPage = () => {
             animationDelay: '0.5s'
           }}
         >
-          <div className="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-blue-100 mb-4 animate-pulse-slow">
-            <Search size={36} className="text-blue-600 animate-bounce-slow" />
+          <div className={`mx-auto flex items-center justify-center h-24 w-24 rounded-full ${isDark ? 'bg-blue-900/30' : 'bg-blue-100'} mb-4 animate-pulse-slow`}>
+            <Search size={36} className={`${isDark ? 'text-blue-400' : 'text-blue-600'} animate-bounce-slow`} />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-1">{t('no_shipments_found')}</h3>
-          <p className="text-gray-500">{t('try_adjusting_filters')}</p>
+          <h3 className={`text-lg font-medium ${textPrimary} mb-1`}>{t('no_shipments_found')}</h3>
+          <p className={textMuted}>{t('try_adjusting_filters')}</p>
         </div>
       )}
 

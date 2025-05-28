@@ -67,7 +67,7 @@ const Layout = () => {
       {/* Main content */}
       <div className={`flex flex-col flex-1 w-full overflow-hidden transition-all duration-300 ${sidebarOpen ? 'lg:ml-64' : ''}`}>
         <Header toggleSidebar={toggleSidebar} user={user} />
-        <main className="flex-1 overflow-auto bg-gray-50 dark:bg-gray-200 p-4 md:p-6">
+        <main className="flex-1 overflow-auto bg-gray-50 dark:bg-gray-700 p-4 md:p-6">
           <Outlet />
         </main>
       </div>

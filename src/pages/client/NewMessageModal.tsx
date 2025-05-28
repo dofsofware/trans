@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Send, Paperclip, MessageSquare, Info, AlertCircle } from 'lucide-react';
+import { X, Send, Paperclip, MessageSquare, Info, AlertCircle, FileText, Download } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import FileUploadModal from '../../components/common/FileUploadModal';
 
 // Mock shipments data
@@ -81,6 +82,8 @@ const StatusIndicator = ({ status }) => {
 
 // Modal composant réutilisable avec animation améliorée
 const Modal = ({ isOpen, onClose, title, children }) => {
+  const { theme } = useTheme();
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -104,7 +107,9 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 
       <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
         <div
-          className="relative transform overflow-hidden rounded-lg bg-white shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-lg w-full max-w-md"
+          className={`relative transform overflow-hidden rounded-lg shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-lg w-full max-w-md ${
+            theme === 'dark' ? 'bg-gray-800' : 'bg-white'
+          }`}
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-headline"
@@ -127,11 +132,15 @@ const FormInput = ({
   className = "",
   inputType = "text",
 }) => {
+  const { theme } = useTheme();
+
   return (
     <div className="mb-4">
       <label
         htmlFor={id}
-        className="block text-sm font-medium text-gray-700 mb-1"
+        className={`block text-sm font-medium mb-1 ${
+          theme === 'dark' ? 'text-gray-200' : 'text-gray-700'
+        }`}
       >
         {label}
       </label>
@@ -142,7 +151,11 @@ const FormInput = ({
           type={inputType}
           value={value}
           onChange={onChange}
-          className={`shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border ${error ? 'border-red-300' : 'border-gray-300'} rounded-md py-2.5 ${className}`}
+          className={`shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border rounded-md py-2.5 ${
+            error ? 'border-red-300' : theme === 'dark' ? 'border-gray-600' : 'border-gray-300'
+          } ${
+            theme === 'dark' ? 'bg-gray-700 text-white placeholder-gray-400' : 'bg-white text-gray-900 placeholder-gray-500'
+          } ${className}`}
           placeholder={placeholder}
           aria-invalid={error ? "true" : "false"}
         />
@@ -167,11 +180,15 @@ const FormSelect = ({
   placeholder = "",
   className = "",
 }) => {
+  const { theme } = useTheme();
+
   return (
     <div className="mb-4">
       <label
         htmlFor={id}
-        className="block text-sm font-medium text-gray-700 mb-1"
+        className={`block text-sm font-medium mb-1 ${
+          theme === 'dark' ? 'text-gray-200' : 'text-gray-700'
+        }`}
       >
         {label}
       </label>
@@ -181,7 +198,11 @@ const FormSelect = ({
           name={id}
           value={value}
           onChange={onChange}
-          className={`shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border ${error ? 'border-red-300' : 'border-gray-300'} rounded-md py-2.5 ${className}`}
+          className={`shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border rounded-md py-2.5 ${
+            error ? 'border-red-300' : theme === 'dark' ? 'border-gray-600' : 'border-gray-300'
+          } ${
+            theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-white text-gray-900'
+          } ${className}`}
           aria-invalid={error ? "true" : "false"}
         >
           <option value="">{placeholder}</option>
@@ -213,71 +234,81 @@ const FormTextarea = ({
   inputRef,
   onAttachFiles = null,
 }) => {
-        const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-        const { t } = useLanguage();
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const { t } = useLanguage();
+  const { theme } = useTheme();
 
-        const openUploadModal = () => {
-          setIsUploadModalOpen(true);
-        };
+  const openUploadModal = () => {
+    setIsUploadModalOpen(true);
+  };
 
-        const closeUploadModal = () => {
-          setIsUploadModalOpen(false);
-        };
+  const closeUploadModal = () => {
+    setIsUploadModalOpen(false);
+  };
 
-        const handleFileUpload = (files) => {
-          if (onAttachFiles) {
-            onAttachFiles(files);
-          }
-          closeUploadModal();
-        };
+  const handleFileUpload = (files) => {
+    if (onAttachFiles) {
+      onAttachFiles(files);
+    }
+    closeUploadModal();
+  };
 
-        return (
-          <div className="mb-4">
-            <label
-              htmlFor={id}
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              {label}
-            </label>
-            <div className="relative">
-              <textarea
-                id={id}
-                name={id}
-                value={value}
-                onChange={onChange}
-                ref={inputRef}
-                className={`shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border ${error ? 'border-red-300' : 'border-gray-300'} rounded-md py-2.5 resize-none pr-10 ${className}`}
-                placeholder={placeholder}
-                aria-invalid={error ? "true" : "false"}
-              ></textarea>
-              <button
-                type="button"
-                className="absolute right-3 bottom-3 text-gray-400 hover:text-gray-600 focus:outline-none"
-                title={t('attach_file') || "Attach file"}
-                onClick={openUploadModal}
-              >
-                <Paperclip size={18} />
-              </button>
-            </div>
-            {error && (
-              <p className="mt-1 text-sm text-red-600" id={`${id}-error`}>
-                {error}
-              </p>
-            )}
+  return (
+    <div className="mb-4">
+      <label
+        htmlFor={id}
+        className={`block text-sm font-medium mb-1 ${
+          theme === 'dark' ? 'text-gray-200' : 'text-gray-700'
+        }`}
+      >
+        {label}
+      </label>
+      <div className="relative">
+        <textarea
+          id={id}
+          name={id}
+          value={value}
+          onChange={onChange}
+          ref={inputRef}
+          className={`shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border rounded-md py-2.5 resize-none pr-10 ${
+            error ? 'border-red-300' : theme === 'dark' ? 'border-gray-600' : 'border-gray-300'
+          } ${
+            theme === 'dark' ? 'bg-gray-700 text-white placeholder-gray-400' : 'bg-white text-gray-900 placeholder-gray-500'
+          } ${className}`}
+          placeholder={placeholder}
+          aria-invalid={error ? "true" : "false"}
+        ></textarea>
+        <button
+          type="button"
+          className={`absolute right-3 bottom-3 hover:text-gray-600 focus:outline-none ${
+            theme === 'dark' ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'
+          }`}
+          title={t('attach_file') || "Attach file"}
+          onClick={openUploadModal}
+        >
+          <Paperclip size={18} />
+        </button>
+      </div>
+      {error && (
+        <p className="mt-1 text-sm text-red-600" id={`${id}-error`}>
+          {error}
+        </p>
+      )}
 
-            {/* Modal d'upload intégré directement dans le composant */}
-            <FileUploadModal
-              isOpen={isUploadModalOpen}
-              onClose={closeUploadModal}
-              onFileUpload={handleFileUpload}
-            />
-          </div>
-        );
-      };
+      {/* Modal d'upload intégré directement dans le composant */}
+      <FileUploadModal
+        isOpen={isUploadModalOpen}
+        onClose={closeUploadModal}
+        onFileUpload={handleFileUpload}
+      />
+    </div>
+  );
+};
 
 // New Message Form Component avec gestion des pièces jointes
 const NewMessageForm = ({ onClose, onSendMessage }) => {
   const { t } = useLanguage();
+  const { theme } = useTheme();
   const [selectedShipment, setSelectedShipment] = useState('');
   const [messageText, setMessageText] = useState('');
   const [textareaHeight, setTextareaHeight] = useState(80);
@@ -373,6 +404,7 @@ const NewMessageForm = ({ onClose, onSendMessage }) => {
 
   const MessageAttachment = ({ attachment }) => {
     const { t } = useLanguage();
+    const { theme } = useTheme();
 
     // Déterminer le type d'icône en fonction du type de fichier
     const getAttachmentIcon = (fileType) => {
@@ -404,7 +436,11 @@ const NewMessageForm = ({ onClose, onSendMessage }) => {
           href={attachment.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="block bg-gray-50 border border-gray-200 rounded-md p-2 hover:bg-gray-100 transition-colors"
+          className={`block border rounded-md p-2 transition-colors ${
+            theme === 'dark' 
+              ? 'bg-gray-700 border-gray-600 hover:bg-gray-600' 
+              : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+          }`}
         >
           <div className="flex items-center">
             {attachment.type.startsWith('image/') ? (
@@ -421,11 +457,17 @@ const NewMessageForm = ({ onClose, onSendMessage }) => {
               </div>
             )}
             <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-medium text-gray-700 truncate">{attachment.name}</p>
-              <p className="text-xs text-gray-500">{formatFileSize(attachment.size)}</p>
+              <p className={`text-sm font-medium truncate ${
+                theme === 'dark' ? 'text-gray-200' : 'text-gray-700'
+              }`}>{attachment.name}</p>
+              <p className={`text-xs ${
+                theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+              }`}>{formatFileSize(attachment.size)}</p>
             </div>
             <div className="ml-2">
-              <Download size={16} className="text-gray-500" />
+              <Download size={16} className={`${
+                theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+              }`} />
             </div>
           </div>
         </a>
@@ -434,21 +476,35 @@ const NewMessageForm = ({ onClose, onSendMessage }) => {
   };
 
   const MessageItem = ({ message, isCurrentUser }) => {
+    const { theme } = useTheme();
+    
     return (
       <div className={`mb-4 flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
-        <div className={`max-w-3/4 p-3 rounded-lg ${isCurrentUser ? 'bg-blue-100 text-blue-900' : 'bg-gray-100 text-gray-900'}`}>
+        <div className={`max-w-3/4 p-3 rounded-lg ${
+          isCurrentUser 
+            ? theme === 'dark' 
+              ? 'bg-blue-700 text-blue-100' 
+              : 'bg-blue-100 text-blue-900'
+            : theme === 'dark'
+              ? 'bg-gray-700 text-gray-100'
+              : 'bg-gray-100 text-gray-900'
+        }`}>
           <p className="text-sm">{message.content}</p>
 
           {/* Afficher les pièces jointes si présentes */}
           {message.attachments && message.attachments.length > 0 && (
-            <div className="mt-2 border-t border-gray-200 pt-2">
+            <div className={`mt-2 border-t pt-2 ${
+              theme === 'dark' ? 'border-gray-600' : 'border-gray-200'
+            }`}>
               {message.attachments.map((attachment) => (
                 <MessageAttachment key={attachment.id} attachment={attachment} />
               ))}
             </div>
           )}
 
-          <p className="text-xs text-gray-500 mt-1">
+          <p className={`text-xs mt-1 ${
+            theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+          }`}>
             {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </p>
         </div>
@@ -466,8 +522,14 @@ const NewMessageForm = ({ onClose, onSendMessage }) => {
   return (
     <>
       <div className="p-5">
-        <div className="mb-4 flex items-start bg-blue-50 border border-blue-100 rounded-md p-3 text-blue-800">
-          <Info size={18} className="mr-2 mt-0.5 flex-shrink-0 text-blue-600" />
+        <div className={`mb-4 flex items-start border rounded-md p-3 ${
+          theme === 'dark' 
+            ? 'bg-blue-900 border-blue-800 text-blue-200' 
+            : 'bg-blue-50 border-blue-100 text-blue-800'
+        }`}>
+          <Info size={18} className={`mr-2 mt-0.5 flex-shrink-0 ${
+            theme === 'dark' ? 'text-blue-300' : 'text-blue-600'
+          }`} />
           <p className="text-sm">
             {t('new_message_instruction') || 'Select a shipment and write your message. Your inquiry will be sent to the assigned agent.'}
           </p>
@@ -485,8 +547,14 @@ const NewMessageForm = ({ onClose, onSendMessage }) => {
 
         {/* Agent Info (shown only when shipment is selected) */}
         {selectedShipmentData && (
-          <div className="mb-4 bg-gray-50 border border-gray-200 rounded-md p-3">
-            <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+          <div className={`mb-4 border rounded-md p-3 ${
+            theme === 'dark' 
+              ? 'bg-gray-700 border-gray-600' 
+              : 'bg-gray-50 border-gray-200'
+          }`}>
+            <h4 className={`text-sm font-medium mb-2 flex items-center ${
+              theme === 'dark' ? 'text-gray-200' : 'text-gray-700'
+            }`}>
               {t('assigned_agent') || 'Assigned Agent'}
             </h4>
             <div className="flex items-center">
@@ -505,10 +573,14 @@ const NewMessageForm = ({ onClose, onSendMessage }) => {
                 <StatusIndicator status={selectedShipmentData.agent.status} />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-900">
+                <p className={`text-sm font-medium ${
+                  theme === 'dark' ? 'text-gray-100' : 'text-gray-900'
+                }`}>
                   {selectedShipmentData.agent.name}
                 </p>
-                <p className="text-xs text-gray-500 flex items-center">
+                <p className={`text-xs flex items-center ${
+                  theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                }`}>
                   <span className={`inline-block h-2 w-2 rounded-full mr-1 ${
                     selectedShipmentData.agent.status === 'online' ? 'bg-green-500' :
                     selectedShipmentData.agent.status === 'away' ? 'bg-yellow-500' : 'bg-gray-400'
@@ -536,12 +608,18 @@ const NewMessageForm = ({ onClose, onSendMessage }) => {
         {/* Affichage des fichiers attachés */}
         {attachedFiles.length > 0 && (
           <div className="mt-2 mb-4">
-            <p className="text-sm font-medium text-gray-700 mb-2">
+            <p className={`text-sm font-medium mb-2 ${
+              theme === 'dark' ? 'text-gray-200' : 'text-gray-700'
+            }`}>
               {t('attached_files') || 'Attached Files'} ({attachedFiles.length})
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
               {attachedFiles.map((file, index) => (
-                <div key={index} className="bg-gray-50 border border-gray-200 rounded-md p-2 relative">
+                <div key={index} className={`border rounded-md p-2 relative ${
+                  theme === 'dark' 
+                    ? 'bg-gray-700 border-gray-600' 
+                    : 'bg-gray-50 border-gray-200'
+                }`}>
                   <button
                     className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
                     onClick={() => removeAttachedFile(index)}
@@ -563,8 +641,12 @@ const NewMessageForm = ({ onClose, onSendMessage }) => {
                       </div>
                     )}
                     <div className="flex-1 overflow-hidden">
-                      <p className="text-xs font-medium text-gray-700 truncate">{file.name}</p>
-                      <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                      <p className={`text-xs font-medium truncate ${
+                        theme === 'dark' ? 'text-gray-200' : 'text-gray-700'
+                      }`}>{file.name}</p>
+                      <p className={`text-xs ${
+                        theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                      }`}>{formatFileSize(file.size)}</p>
                     </div>
                   </div>
                 </div>
@@ -575,7 +657,11 @@ const NewMessageForm = ({ onClose, onSendMessage }) => {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md flex items-start animate-fadeIn">
+          <div className={`mb-4 border px-4 py-3 rounded-md flex items-start animate-fadeIn ${
+            theme === 'dark' 
+              ? 'bg-red-900 border-red-700 text-red-200' 
+              : 'bg-red-50 border-red-200 text-red-700'
+          }`}>
             <AlertCircle size={16} className="mr-2 mt-0.5 flex-shrink-0" />
             <span className="text-sm">{error}</span>
           </div>
@@ -585,7 +671,11 @@ const NewMessageForm = ({ onClose, onSendMessage }) => {
         <div className="flex flex-col-reverse sm:flex-row sm:justify-end space-y-reverse space-y-3 sm:space-y-0 sm:space-x-3 mt-6">
           <button
             type="button"
-            className="py-2.5 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors w-full sm:w-auto"
+            className={`py-2.5 px-4 border rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors w-full sm:w-auto ${
+              theme === 'dark'
+                ? 'border-gray-600 text-gray-200 bg-gray-700 hover:bg-gray-600'
+                : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+            }`}
             disabled={isSubmitting}
             onClick={onClose}
           >
@@ -626,11 +716,14 @@ const NewMessageForm = ({ onClose, onSendMessage }) => {
 // Composant NewMessageModal redesigné
 const NewMessageModal = ({ isOpen, onClose, onSendMessage }) => {
   const { t } = useLanguage();
+  const { theme } = useTheme();
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       {/* Header */}
-      <div className="px-4 py-3 bg-blue-600 text-white flex justify-between items-center">
+      <div className={`px-4 py-3 text-white flex justify-between items-center ${
+        theme === 'dark' ? 'bg-blue-700' : 'bg-blue-600'
+      }`}>
         <h3 className="text-lg font-medium flex items-center" id="modal-headline">
           <MessageSquare size={18} className="mr-2" />
           {t('new_message') || 'New Message'}

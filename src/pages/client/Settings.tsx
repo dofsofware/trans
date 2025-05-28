@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { User, Globe, Bell, ShieldCheck, Camera, Save } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import AvatarUploader from '../../components/common/AvatarUploader';
@@ -7,6 +8,7 @@ import { PasswordChangeModal } from '../../components/common/PasswordChangeModal
 
 const SettingsPage = () => {
   const { user, updateUser } = useAuth();
+  const { theme } = useTheme();
   const { t, language, setLanguage } = useLanguage();
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
@@ -51,8 +53,12 @@ const SettingsPage = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{t('settings')}</h1>
-        <p className="mt-2 text-gray-600">{t('manage_account_preferences')}</p>
+        <h1 className={`text-2xl md:text-3xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+          {t('settings')}
+        </h1>
+        <p className={`mt-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+          {t('manage_account_preferences')}
+        </p>
       </div>
 
       {/* Tabs for mobile view */}
@@ -63,7 +69,11 @@ const SettingsPage = () => {
         <select
           id="settings-tabs"
           name="settings-tabs"
-          className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+          className={`block w-full pl-3 pr-10 py-2 text-base focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md ${
+            theme === 'dark' 
+              ? 'bg-gray-800 border-gray-600 text-white' 
+              : 'bg-white border-gray-300 text-gray-900'
+          }`}
           value={activeTab}
           onChange={(e) => setActiveTab(e.target.value)}
         >
@@ -77,17 +87,19 @@ const SettingsPage = () => {
 
       {/* Tabs for desktop view */}
       <div className="hidden sm:block mb-6">
-        <div className="border-b border-gray-200">
+        <div className={`border-b ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
           <nav className="-mb-px flex space-x-8" aria-label="Tabs">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`
-                  flex items-center whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+                  flex items-center whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors
                   ${activeTab === tab.id
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : theme === 'dark'
+                      ? 'border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }
                 `}
               >
@@ -99,21 +111,31 @@ const SettingsPage = () => {
         </div>
       </div>
 
-      <div className="bg-white shadow rounded-xl border border-gray-200 overflow-hidden">
-        <form onSubmit={handleSubmit} className="divide-y divide-gray-200">
+      <div className={`shadow rounded-xl border overflow-hidden ${
+        theme === 'dark' 
+          ? 'bg-gray-800 border-gray-700' 
+          : 'bg-white border-gray-200'
+      }`}>
+        <form onSubmit={handleSubmit} className={`divide-y ${theme === 'dark' ? 'divide-gray-700' : 'divide-gray-200'}`}>
           {/* Profile Section */}
           <div className={activeTab === 'profile' ? 'block' : 'hidden'}>
             <div className="px-6 py-6">
-              <h3 className="text-lg font-medium leading-6 text-gray-900 flex items-center">
+              <h3 className={`text-lg font-medium leading-6 flex items-center ${
+                theme === 'dark' ? 'text-white' : 'text-gray-900'
+              }`}>
                 <User className="mr-2 text-blue-600" size={20} />
                 {t('profile')}
               </h3>
-              <p className="mt-1 text-sm text-gray-500">{t('update_personal_information')}</p>
+              <p className={`mt-1 text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                {t('update_personal_information')}
+              </p>
             </div>
 
-            <div className="px-6 py-5 bg-gray-50">
+            <div className={`px-6 py-5 ${theme === 'dark' ? 'bg-gray-900/50' : 'bg-gray-50'}`}>
               <div className="flex flex-col sm:flex-row items-center sm:space-x-6 mb-6">
-                <div className="h-24 w-24 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden relative group mb-4 sm:mb-0">
+                <div className={`h-24 w-24 rounded-full flex items-center justify-center overflow-hidden relative group mb-4 sm:mb-0 ${
+                  theme === 'dark' ? 'bg-blue-900/30' : 'bg-blue-100'
+                }`}>
                   {avatar ? (
                     <img
                       src={avatar}
@@ -128,8 +150,14 @@ const SettingsPage = () => {
                   </div>
                 </div>
                 <div>
-                  <h4 className="text-base font-medium text-gray-900 mb-1">{name || user?.name || 'Your Name'}</h4>
-                  <p className="text-sm text-gray-500 mb-3">{email || user?.email || 'your.email@example.com'}</p>
+                  <h4 className={`text-base font-medium mb-1 ${
+                    theme === 'dark' ? 'text-white' : 'text-gray-900'
+                  }`}>
+                    {name || user?.name || 'Your Name'}
+                  </h4>
+                  <p className={`text-sm mb-3 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {email || user?.email || 'your.email@example.com'}
+                  </p>
                   <AvatarUploader
                     currentAvatar={avatar}
                     onSave={handleAvatarSave}
@@ -140,8 +168,10 @@ const SettingsPage = () => {
 
             <div className="px-6 py-5">
               <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                <div className="sm:col-span-3">
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                <div className="sm:col-span-4">
+                  <label htmlFor="name" className={`block text-sm font-medium ${
+                    theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                  }`}>
                     {t('name')}
                   </label>
                   <div className="mt-1">
@@ -151,14 +181,20 @@ const SettingsPage = () => {
                       id="name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg px-4 py-2.5"
+                      className={`shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm rounded-lg px-4 py-2.5 ${
+                        theme === 'dark'
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
                       placeholder="John Doe"
                     />
                   </div>
                 </div>
 
                 <div className="sm:col-span-4">
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="email" className={`block text-sm font-medium ${
+                    theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                  }`}>
                     {t('email')}
                   </label>
                   <div className="mt-1">
@@ -168,7 +204,11 @@ const SettingsPage = () => {
                       id="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg px-4 py-2.5"
+                      className={`shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm rounded-lg px-4 py-2.5 ${
+                        theme === 'dark'
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                          : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      }`}
                       placeholder="john.doe@example.com"
                     />
                   </div>
@@ -180,17 +220,23 @@ const SettingsPage = () => {
           {/* Preferences Section */}
           <div className={activeTab === 'preferences' ? 'block' : 'hidden'}>
             <div className="px-6 py-6">
-              <h3 className="text-lg font-medium leading-6 text-gray-900 flex items-center">
+              <h3 className={`text-lg font-medium leading-6 flex items-center ${
+                theme === 'dark' ? 'text-white' : 'text-gray-900'
+              }`}>
                 <Globe className="mr-2 text-blue-600" size={20} />
                 {t('preferences')}
               </h3>
-              <p className="mt-1 text-sm text-gray-500">{t('customize_your_experience')}</p>
+              <p className={`mt-1 text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                {t('customize_your_experience')}
+              </p>
             </div>
 
             <div className="px-6 py-5">
               <div className="max-w-xl space-y-6">
                 <div>
-                  <label htmlFor="language" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="language" className={`block text-sm font-medium ${
+                    theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                  }`}>
                     {t('language_preference')}
                   </label>
                   <div className="mt-1">
@@ -199,7 +245,11 @@ const SettingsPage = () => {
                       name="language"
                       value={language}
                       onChange={(e) => setLanguage(e.target.value)}
-                      className="mt-1 block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-lg"
+                      className={`mt-1 block w-full pl-3 pr-10 py-2.5 text-base focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-lg ${
+                        theme === 'dark'
+                          ? 'bg-gray-700 border-gray-600 text-white'
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
                     >
                       <option value="en">English</option>
                       <option value="fr">Français</option>
@@ -207,16 +257,18 @@ const SettingsPage = () => {
                   </div>
                 </div>
 
-                <div className="border-t border-gray-200 pt-5">
+                <div className={`border-t pt-5 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
                   <div className="flex items-start">
                     <div className="flex-shrink-0">
                       <Bell size={20} className="text-blue-600" />
                     </div>
                     <div className="ml-3">
-                      <h4 className="text-base font-medium text-gray-900">
+                      <h4 className={`text-base font-medium ${
+                        theme === 'dark' ? 'text-white' : 'text-gray-900'
+                      }`}>
                         {t('notification_settings')}
                       </h4>
-                      <p className="text-sm text-gray-500 mb-3">
+                      <p className={`text-sm mb-3 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
                         {t('manage_how_we_contact_you')}
                       </p>
                     </div>
@@ -231,14 +283,20 @@ const SettingsPage = () => {
                           type="checkbox"
                           checked={notifications}
                           onChange={(e) => setNotifications(e.target.checked)}
-                          className="focus:ring-blue-500 h-5 w-5 text-blue-600 border-gray-300 rounded"
+                          className={`focus:ring-blue-500 h-5 w-5 text-blue-600 rounded ${
+                            theme === 'dark' ? 'border-gray-600 bg-gray-700' : 'border-gray-300 bg-white'
+                          }`}
                         />
                       </div>
                       <div className="ml-3 text-sm">
-                        <label htmlFor="notifications" className="font-medium text-gray-700">
+                        <label htmlFor="notifications" className={`font-medium ${
+                          theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                        }`}>
                           {t('email_notifications')}
                         </label>
-                        <p className="text-gray-500">{t('receive_notifications')}</p>
+                        <p className={theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}>
+                          {t('receive_notifications')}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -250,56 +308,88 @@ const SettingsPage = () => {
           {/* Security Section */}
           <div className={activeTab === 'security' ? 'block' : 'hidden'}>
             <div className="px-6 py-6">
-              <h3 className="text-lg font-medium leading-6 text-gray-900 flex items-center">
+              <h3 className={`text-lg font-medium leading-6 flex items-center ${
+                theme === 'dark' ? 'text-white' : 'text-gray-900'
+              }`}>
                 <ShieldCheck className="mr-2 text-blue-600" size={20} />
                 {t('security')}
               </h3>
-              <p className="mt-1 text-sm text-gray-500">{t('manage_security_settings')}</p>
+              <p className={`mt-1 text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                {t('manage_security_settings')}
+              </p>
             </div>
 
             <div className="px-6 py-5">
-              <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
-                <h4 className="text-base font-medium text-gray-900 mb-1">
+              <div className={`rounded-lg p-5 border ${
+                theme === 'dark' 
+                  ? 'bg-gray-900/50 border-gray-600' 
+                  : 'bg-gray-50 border-gray-200'
+              }`}>
+                <h4 className={`text-base font-medium mb-1 ${
+                  theme === 'dark' ? 'text-white' : 'text-gray-900'
+                }`}>
                   {t('password')}
                 </h4>
-                <p className="text-sm text-gray-500 mb-4">
+                <p className={`text-sm mb-4 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
                   {t('last_changed')}: 3 {t('months_ago')}
                 </p>
 
                 <button
                   type="button"
                   onClick={openPasswordModal}
-                  className="inline-flex items-center px-4 py-2.5 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                  className={`inline-flex items-center px-4 py-2.5 border shadow-sm text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors ${
+                    theme === 'dark'
+                      ? 'border-gray-600 text-gray-300 bg-gray-700 hover:bg-gray-600 focus:ring-offset-gray-800'
+                      : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+                  }`}
                 >
                   {t('change_password')}
                 </button>
               </div>
 
               <div className="mt-6">
-                <h4 className="text-base font-medium text-gray-900 mb-3">
+                <h4 className={`text-base font-medium mb-3 ${
+                  theme === 'dark' ? 'text-white' : 'text-gray-900'
+                }`}>
                   {t('connected_devices')}
                 </h4>
-                <div className="border border-gray-200 rounded-lg divide-y divide-gray-200">
+                <div className={`border rounded-lg divide-y ${
+                  theme === 'dark' 
+                    ? 'border-gray-600 divide-gray-600' 
+                    : 'border-gray-200 divide-gray-200'
+                }`}>
                   <div className="p-4 flex justify-between items-center">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">Chrome on Windows</p>
-                      <p className="text-xs text-gray-500">Active now</p>
+                      <p className={`text-sm font-medium ${
+                        theme === 'dark' ? 'text-white' : 'text-gray-900'
+                      }`}>
+                        Chrome on Windows
+                      </p>
+                      <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                        Active now
+                      </p>
                     </div>
                     <button
                       type="button"
-                      className="text-sm text-red-600 hover:text-red-800"
+                      className="text-sm text-red-600 hover:text-red-800 transition-colors"
                     >
                       {t('logout')}
                     </button>
                   </div>
                   <div className="p-4 flex justify-between items-center">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">Safari on iPhone</p>
-                      <p className="text-xs text-gray-500">Last active: 2 days ago</p>
+                      <p className={`text-sm font-medium ${
+                        theme === 'dark' ? 'text-white' : 'text-gray-900'
+                      }`}>
+                        Safari on iPhone
+                      </p>
+                      <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                        Last active: 2 days ago
+                      </p>
                     </div>
                     <button
                       type="button"
-                      className="text-sm text-red-600 hover:text-red-800"
+                      className="text-sm text-red-600 hover:text-red-800 transition-colors"
                     >
                       {t('logout')}
                     </button>
@@ -310,11 +400,19 @@ const SettingsPage = () => {
           </div>
 
           {/* Form Actions - Fixed at bottom */}
-          <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row-reverse sm:justify-between sm:items-center gap-3">
+          <div className={`px-6 py-4 border-t flex flex-col sm:flex-row-reverse sm:justify-between sm:items-center gap-3 ${
+            theme === 'dark' 
+              ? 'bg-gray-900/50 border-gray-700' 
+              : 'bg-gray-50 border-gray-200'
+          }`}>
             <div className="flex flex-col sm:flex-row gap-3">
               <button
                 type="button"
-                className="sm:order-1 py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                className={`sm:order-1 py-2.5 px-4 border shadow-sm text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors ${
+                  theme === 'dark'
+                    ? 'border-gray-600 text-gray-300 bg-gray-700 hover:bg-gray-600 focus:ring-offset-gray-800'
+                    : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+                }`}
               >
                 {t('cancel')}
               </button>
@@ -327,7 +425,7 @@ const SettingsPage = () => {
               </button>
             </div>
 
-            <div className="text-xs text-gray-500 mt-3 sm:mt-0">
+            <div className={`text-xs mt-3 sm:mt-0 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
               {t('last_updated')}: {new Date().toLocaleDateString()}
             </div>
           </div>

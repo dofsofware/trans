@@ -296,6 +296,7 @@ const translations = {
     offline: 'Offline',
     files_attached: 'Files attached',
     attached_files: 'Attached files',
+    filters: 'filters',
   },
   fr: {
     dashboard: 'Tableau de bord',
@@ -583,7 +584,8 @@ const translations = {
     away: 'Absent',
     offline: 'Hors ligne',
     files_attached: 'Fichier joint',
-    attached_files: 'Fichiers joints',
+    attached_files: 'Fichiers joints',    
+    filters: 'filtres',
   }
 };
 

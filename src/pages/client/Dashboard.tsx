@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getMockShipments } from '../../services/shipmentService';
 import { Shipment } from '../../types/shipment';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import LoadingScreen from '../../components/common/LoadingScreen';
 import {
   BarChart,
@@ -21,6 +22,7 @@ import backImage from '../../utils/backGround_hearder.png';
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { theme } = useTheme();
   const { t } = useLanguage();
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -57,23 +59,36 @@ const Dashboard = () => {
   const totalShipments = shipments.length;
   const issuesCount = issueShipments.length;
 
+  // Theme-aware classes
+  const isDark = theme === 'dark';
+  const bgPrimary = isDark ? 'bg-gray-900' : 'bg-white';
+  const bgSecondary = isDark ? 'bg-gray-800' : 'bg-white';
+  const textPrimary = isDark ? 'text-white' : 'text-gray-900';
+  const textSecondary = isDark ? 'text-gray-300' : 'text-gray-600';
+  const textMuted = isDark ? 'text-gray-400' : 'text-gray-500';
+  const borderColor = isDark ? 'border-gray-700' : 'border-gray-200';
+  const shadowClass = isDark ? 'shadow-gray-900/20' : 'shadow-sm';
+  const hoverShadow = isDark ? 'hover:shadow-gray-900/30' : 'hover:shadow-md';
+
   return (
     <div className={`max-w-7xl mx-auto transition-opacity duration-700 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
       {/* Header with background image */}
       <div 
-        className="mb-8 rounded-xl p-6 shadow-sm transform transition-all duration-500 hover:shadow-md hover:scale-[1.01] animate-fadeIn"
+        className={`mb-8 rounded-xl p-6 ${shadowClass} transform transition-all duration-500 ${hoverShadow} hover:scale-[1.01] animate-fadeIn`}
         style={{
-          backgroundImage: `linear-gradient(to right, rgba(239, 246, 255, 0.85), rgba(224, 231, 255, 0.85)), url(${backImage})`,
+          backgroundImage: isDark 
+            ? `linear-gradient(to right, rgba(17, 24, 39, 0.85), rgba(31, 41, 55, 0.85)), url(${backImage})`
+            : `linear-gradient(to right, rgba(239, 246, 255, 0.85), rgba(224, 231, 255, 0.85)), url(${backImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'
         }}
       >
         <div className="p-4">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 flex items-center">
-            {t('welcome')}, <span className="text-blue-700 ml-2">{user?.name}</span>
+          <h1 className={`text-2xl md:text-3xl font-bold ${textPrimary} flex items-center`}>
+            {t('welcome')}, <span className="text-blue-400 ml-2">{user?.name}</span>
           </h1>
-          <p className="mt-2 text-gray-600 text-lg">{t('hereIsOverview')}</p>
+          <p className={`mt-2 ${textSecondary} text-lg`}>{t('hereIsOverview')}</p>
         </div>
       </div>
 
@@ -86,40 +101,40 @@ const Dashboard = () => {
             {[
               {
                 icon: <Truck size={24} strokeWidth={2}  />,
-                bgColor: "bg-blue-100",
-                textColor: "text-blue-600",
+                bgColor: isDark ? "bg-blue-900/50" : "bg-blue-100",
+                textColor: isDark ? "text-blue-400" : "text-blue-600",
                 title: t('statsInTransit'),
                 value: inTransitCount,
-                trend: <TrendingUp size={16} className="ml-2 text-blue-500" />
+                trend: <TrendingUp size={16} className={`ml-2 ${isDark ? 'text-blue-400' : 'text-blue-500'}`} />
               },
               {
                 icon: <Package size={24} strokeWidth={2}  />,
-                bgColor: "bg-indigo-100",
-                textColor: "text-indigo-600",
+                bgColor: isDark ? "bg-indigo-900/50" : "bg-indigo-100",
+                textColor: isDark ? "text-indigo-400" : "text-indigo-600",
                 title: t('statsInWarehouse'),
                 value: inWarehouseCount,
-                trend: <TrendingUp size={16} className="ml-2 text-indigo-500" />
+                trend: <TrendingUp size={16} className={`ml-2 ${isDark ? 'text-indigo-400' : 'text-indigo-500'}`} />
               },
               {
                 icon: <BarChart size={24} strokeWidth={2}  />,
-                bgColor: "bg-gray-100",
-                textColor: "text-gray-600",
+                bgColor: isDark ? "bg-gray-700/50" : "bg-gray-100",
+                textColor: isDark ? "text-gray-300" : "text-gray-600",
                 title: t('statsTotalShipments'),
                 value: totalShipments,
-                trend: <TrendingUp size={16} className="ml-2 text-gray-500" />
+                trend: <TrendingUp size={16} className={`ml-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
               },
               {
                 icon: <AlertTriangle size={24} strokeWidth={2} />,
-                bgColor: "bg-red-100",
-                textColor: "text-red-600",
+                bgColor: isDark ? "bg-red-900/50" : "bg-red-100",
+                textColor: isDark ? "text-red-400" : "text-red-600",
                 title: t('statsIssues'),
                 value: issuesCount,
-                trend: issuesCount > 0 && <span className="ml-2 animate-ping text-red-500">●</span>
+                trend: issuesCount > 0 && <span className={`ml-2 animate-ping ${isDark ? 'text-red-400' : 'text-red-500'}`}>●</span>
               }
             ].map((stat, index) => (
               <div
                 key={index}
-                className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 transform hover:translate-y-[-2px] hover:scale-105"
+                className={`${bgSecondary} p-6 rounded-xl ${shadowClass} border ${borderColor} ${hoverShadow} transition-all duration-300 transform hover:translate-y-[-2px] hover:scale-105`}
                 style={{
                   animationName: 'fadeInUp',
                   animationDuration: '0.5s',
@@ -132,9 +147,9 @@ const Dashboard = () => {
                     {stat.icon}
                   </div>
                   <div className="ml-4">
-                    <h3 className="text-sm font-medium text-gray-500">{stat.title}</h3>
+                    <h3 className={`text-sm font-medium ${textMuted}`}>{stat.title}</h3>
                     <div className="flex items-baseline">
-                      <p className="text-3xl font-semibold text-gray-900">{stat.value}</p>
+                      <p className={`text-3xl font-semibold ${textPrimary}`}>{stat.value}</p>
                       {stat.trend}
                     </div>
                   </div>
@@ -154,11 +169,14 @@ const Dashboard = () => {
             }}
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-                <Truck size={20} className="mr-2 text-blue-600" />
+              <h2 className={`text-xl font-semibold ${textPrimary} flex items-center`}>
+                <Truck size={20} className="mr-2 text-blue-500" />
                 {t('activeShipments')}
               </h2>
-              <Link to="/shipments" className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors hover:scale-105 transform duration-300">
+              <Link 
+                to="/shipments" 
+                className={`flex items-center text-sm font-medium text-blue-500 hover:text-blue-400 ${isDark ? 'bg-blue-900/30 hover:bg-blue-900/50' : 'bg-blue-50 hover:bg-blue-100'} px-3 py-1.5 rounded-lg transition-colors hover:scale-105 transform duration-300`}
+              >
                 {t('viewAll')}
                 <ChevronRight size={16} className="ml-1 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
@@ -181,8 +199,8 @@ const Dashboard = () => {
                 ))}
               </div>
             ) : (
-              <div className="text-gray-500 bg-white p-6 rounded-lg border border-gray-200 flex items-center justify-center transition-all duration-300 hover:shadow-md">
-                <Package size={20} className="mr-2 text-gray-400" />
+              <div className={`${textMuted} ${bgSecondary} p-6 rounded-lg border ${borderColor} flex items-center justify-center transition-all duration-300 ${hoverShadow}`}>
+                <Package size={20} className={`mr-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                 <p>{t('noActiveShipments')}</p>
               </div>
             )}
@@ -197,16 +215,16 @@ const Dashboard = () => {
               animationDelay: '0.5s'
             }}
           >
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-              <Clock size={20} className="mr-2 text-blue-600" />
+            <h2 className={`text-xl font-semibold ${textPrimary} mb-4 flex items-center`}>
+              <Clock size={20} className="mr-2 text-blue-500" />
               {t('recentActivity')}
             </h2>
-            <div className="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-200 transition-all duration-300 hover:shadow-md">
-              <ul className="divide-y divide-gray-200">
+            <div className={`${bgSecondary} overflow-hidden ${shadowClass} rounded-xl border ${borderColor} transition-all duration-300 ${hoverShadow}`}>
+              <ul className={`divide-y ${isDark ? 'divide-gray-700' : 'divide-gray-200'}`}>
                 {recentShipments.map((shipment, index) => (
                   <li
                     key={shipment.id}
-                    className="hover:bg-blue-50 transition-all duration-300"
+                    className={`${isDark ? 'hover:bg-gray-700/50' : 'hover:bg-blue-50'} transition-all duration-300`}
                     style={{
                       animationName: 'fadeIn',
                       animationDuration: '0.5s',
@@ -217,12 +235,12 @@ const Dashboard = () => {
                     <Link to={`/shipments/${shipment.id}`} className="block">
                       <div className="px-4 py-4 sm:px-6 transition-all duration-300 hover:translate-x-1">
                         <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium text-blue-600 truncate flex items-center">
+                          <p className="text-sm font-medium text-blue-500 truncate flex items-center">
                             <Package size={16} className="mr-2 flex-shrink-0 transition-transform duration-300 hover:rotate-12" />
                             {shipment.reference}
                           </p>
                           <div className="ml-2 flex-shrink-0 flex">
-                            <p className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 items-center transition-all duration-300 hover:bg-blue-200">
+                            <p className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${isDark ? 'bg-blue-900/50 text-blue-300' : 'bg-blue-100 text-blue-800'} items-center transition-all duration-300 ${isDark ? 'hover:bg-blue-900/70' : 'hover:bg-blue-200'}`}>
                               {shipment.origin}
                               <ArrowRightCircle size={12} className="mx-1 animate-pulse" />
                               {shipment.destination}
@@ -231,13 +249,13 @@ const Dashboard = () => {
                         </div>
                         <div className="mt-2 sm:flex sm:justify-between">
                           <div className="sm:flex">
-                            <p className="flex items-center text-sm text-gray-500 line-clamp-1">
+                            <p className={`flex items-center text-sm ${textMuted} line-clamp-1`}>
                               {shipment.description.substring(0, 50)}
                               {shipment.description.length > 50 ? '...' : ''}
                             </p>
                           </div>
-                          <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                            <Calendar size={16} className="flex-shrink-0 mr-1.5 text-gray-400" />
+                          <div className={`mt-2 flex items-center text-sm ${textMuted} sm:mt-0`}>
+                            <Calendar size={16} className={`flex-shrink-0 mr-1.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                             <p>{t('updatedOn')} {new Date(shipment.updatedAt).toLocaleDateString()}</p>
                           </div>
                         </div>
@@ -247,7 +265,7 @@ const Dashboard = () => {
                 ))}
               </ul>
               {recentShipments.length === 0 && (
-                <div className="p-6 text-center text-gray-500">
+                <div className={`p-6 text-center ${textMuted}`}>
                   <p>{t('noRecentActivity')}</p>
                 </div>
               )}

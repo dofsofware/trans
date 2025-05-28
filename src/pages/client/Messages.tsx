@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { MessageSquare, Send, Search, PlusCircle, Paperclip, ArrowLeft, Calendar, Tag, Clock, ChevronUp } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { NewMessageModal } from './NewMessageModal'; // Importation explicite depuis le fichier séparé
 import FileUploadModal from '../../components/common/FileUploadModal'; // Ajout de l'import du composant FileUploadModal
 
@@ -169,12 +170,13 @@ const StatusIndicator = ({ status }) => {
   };
 
   return (
-    <span className={`absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white ${statusColors[status]}`}></span>
+    <span className={`absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-gray-800 ${statusColors[status]}`}></span>
   );
 };
 
 const MessagesPage = () => {
   const { t, language } = useLanguage();
+  const { theme } = useTheme();
   const user = { id: '1', name: 'Current User' };
 
   const [activeThread, setActiveThread] = useState(null);
@@ -417,11 +419,11 @@ const MessagesPage = () => {
     <div className="h-full flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900">{t('messages') || 'Messages'}</h1>
-          <p className="mt-1 text-sm text-gray-600">{t('manage_messages') || 'Manage your conversations'}</p>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{t('messages') || 'Messages'}</h1>
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{t('manage_messages') || 'Manage your conversations'}</p>
         </div>
         <button
-          className="inline-flex items-center px-3 py-1.5 md:px-4 md:py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="inline-flex items-center px-3 py-1.5 md:px-4 md:py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800"
           onClick={() => setIsNewMessageModalOpen(true)}
         >
           <PlusCircle size={16} className="mr-1 md:mr-2" />
@@ -430,19 +432,19 @@ const MessagesPage = () => {
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 flex-1 flex flex-col min-h-0 h-full">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 flex-1 flex flex-col min-h-0 h-full">
         <div className="flex flex-col md:grid md:grid-cols-12 h-full">
           {/* Liste des conversations (toujours visible sur desktop, conditionnellement sur mobile) */}
           {(showDesktopLayout || showMobileThreadsList) && (
-            <div className="md:col-span-4 lg:col-span-3 bg-gray-50 border-r border-gray-200 flex flex-col h-full">
-              <div className="p-3 md:p-4 border-b border-gray-200 bg-white">
+            <div className="md:col-span-4 lg:col-span-3 bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 flex flex-col h-full">
+              <div className="p-3 md:p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search size={18} className="text-gray-400" />
+                    <Search size={18} className="text-gray-400 dark:text-gray-500" />
                   </div>
                   <input
                     type="text"
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
                     placeholder={t('search_messages') || 'Search messages'}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -452,11 +454,11 @@ const MessagesPage = () => {
 
               <div className="overflow-y-auto flex-1 custom-scrollbar" style={{ maxHeight: 'calc(100vh - 200px)' }}>
                 {filteredThreads.length > 0 ? (
-                  <ul className="divide-y divide-gray-200">
+                  <ul className="divide-y divide-gray-200 dark:divide-gray-700">
                     {filteredThreads.map((thread) => (
                       <li
                         key={thread.id}
-                        className={`hover:bg-gray-100 cursor-pointer transition-colors duration-150 ${activeThread?.id === thread.id ? 'bg-blue-50 border-l-4 border-blue-600' : ''}`}
+                        className={`hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer transition-colors duration-150 ${activeThread?.id === thread.id ? 'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-600' : ''}`}
                         onClick={() => handleThreadClick(thread)}
                       >
                         <div className="p-3 md:p-4 relative">
@@ -477,15 +479,15 @@ const MessagesPage = () => {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex justify-between items-baseline">
-                                <h3 className="text-sm font-medium text-gray-900 truncate">{thread.agent.name}</h3>
-                                <span className="text-xs text-gray-500 whitespace-nowrap ml-2">
+                                <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">{thread.agent.name}</h3>
+                                <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap ml-2">
                                   {formatThreadDate(thread.lastMessageTime)}
                                 </span>
                               </div>
-                              <p className="text-xs text-gray-500 mt-0.5 mb-1">
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-1">
                                 {thread.shipmentId}
                               </p>
-                              <p className={`text-sm ${thread.unreadCount > 0 ? 'font-medium text-gray-900' : 'text-gray-600'} truncate`}>
+                              <p className={`text-sm ${thread.unreadCount > 0 ? 'font-medium text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-300'} truncate`}>
                                 {thread.lastMessage}
                               </p>
                             </div>
@@ -501,7 +503,7 @@ const MessagesPage = () => {
                     ))}
                   </ul>
                 ) : (
-                  <div className="p-4 text-center text-gray-500">
+                  <div className="p-4 text-center text-gray-500 dark:text-gray-400">
                     {t('no_conversations') || 'No conversations found'}
                   </div>
                 )}
@@ -511,11 +513,11 @@ const MessagesPage = () => {
 
           {/* Détail d'une conversation (toujours visible sur desktop, conditionnellement sur mobile) */}
           {(showDesktopLayout || showMobileConversation) && activeThread && (
-            <div className="md:col-span-8 lg:col-span-9 flex flex-col h-full bg-white">
-              <div className="px-4 py-3 md:px-6 md:py-4 border-b border-gray-200 flex items-center bg-white shadow-sm">
+            <div className="md:col-span-8 lg:col-span-9 flex flex-col h-full bg-white dark:bg-gray-800">
+              <div className="px-4 py-3 md:px-6 md:py-4 border-b border-gray-200 dark:border-gray-700 flex items-center bg-white dark:bg-gray-800 shadow-sm">
                 {windowWidth < 768 && (
                   <button
-                    className="mr-3 text-gray-600 hover:text-gray-900"
+                    className="mr-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                     onClick={() => setShowThreadsList(true)}
                   >
                     <ArrowLeft size={20} />
@@ -538,13 +540,13 @@ const MessagesPage = () => {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-base md:text-lg font-medium text-gray-900 flex items-center">
+                  <h2 className="text-base md:text-lg font-medium text-gray-900 dark:text-white flex items-center">
                     {activeThread.agent.name}
                     {activeThread.agent.status === 'online' && (
-                      <span className="ml-2 text-xs font-normal text-green-600">{t('online') || 'Online'}</span>
+                      <span className="ml-2 text-xs font-normal text-green-600 dark:text-green-400">{t('online') || 'Online'}</span>
                     )}
                   </h2>
-                  <div className="flex items-center text-xs md:text-sm text-gray-500 truncate">
+                  <div className="flex items-center text-xs md:text-sm text-gray-500 dark:text-gray-400 truncate">
                     <Tag size={14} className="mr-1 flex-shrink-0" />
                     <span className="truncate">{activeThread.shipmentId}</span>
                   </div>
@@ -553,14 +555,14 @@ const MessagesPage = () => {
 
               <div
                 ref={messagesContainerRef}
-                className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 custom-scrollbar relative"
+                className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 dark:bg-gray-900 custom-scrollbar relative"
                 onScroll={handleMessagesScroll}
                 style={{ maxHeight: 'calc(100vh - 350px)' }}
               >
                 {Object.keys(groupedMessages).map(date => (
                   <div key={date} className="mb-6">
                     <div className="flex justify-center mb-4">
-                      <span className="px-3 py-1 bg-gray-200 rounded-full text-xs font-medium text-gray-700">
+                      <span className="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-full text-xs font-medium text-gray-700 dark:text-gray-300">
                         {formatDateHeader(date)}
                       </span>
                     </div>
@@ -596,11 +598,11 @@ const MessagesPage = () => {
                                 relative max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg rounded-2xl px-3 py-2 md:px-4 md:py-3 shadow-sm
                                 ${isOwnMessage
                                   ? 'bg-blue-600 text-white'
-                                  : 'bg-white text-gray-800 border border-gray-100'}
+                                  : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-gray-600'}
                               `}
                             >
                               <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
-                              <div className={`text-xs md:text-xs mt-1 opacity-0 group-hover:opacity-100 transition-opacity ${isOwnMessage ? 'text-blue-200' : 'text-gray-400'}`}>
+                              <div className={`text-xs md:text-xs mt-1 opacity-0 group-hover:opacity-100 transition-opacity ${isOwnMessage ? 'text-blue-200' : 'text-gray-400 dark:text-gray-500'}`}>
                                 <div className="flex items-center">
                                   <Clock size={10} className="mr-1" />
                                   {new Date(message.timestamp).toLocaleTimeString(language === 'fr' ? 'fr-FR' : 'en-US', {
@@ -619,13 +621,13 @@ const MessagesPage = () => {
                 <div ref={messagesEndRef} />
               </div>
 
-              <div className="border-t border-gray-200 p-3 md:p-4 bg-white">
+              <div className="border-t border-gray-200 dark:border-gray-700 p-3 md:p-4 bg-white dark:bg-gray-800">
                 <div className="flex space-x-2 md:space-x-3">
                   <div className="flex-1 relative">
                     <textarea
                       ref={textareaRef}
                       rows={1}
-                      className="block w-full pl-3 pr-10 py-2 md:pl-4 md:pr-12 md:py-3 border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm resize-none custom-scrollbar"
+                      className="block w-full pl-3 pr-10 py-2 md:pl-4 md:pr-12 md:py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm resize-none custom-scrollbar bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                       placeholder={t('write_message') || 'Write a message...'}
                       value={messageText}
                       onChange={(e) => {
@@ -641,7 +643,7 @@ const MessagesPage = () => {
                       style={{ height: `${textareaHeight}px` }}
                     ></textarea>
                     <button
-                     className="absolute right-3 bottom-2 md:bottom-3 text-gray-400 hover:text-gray-600"
+                     className="absolute right-3 bottom-2 md:bottom-3 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
                      title={t('attach_file') || 'Attach file'}
                      onClick={() => setIsFileUploadModalOpen(true)} >
                      <Paperclip size={18} />
