@@ -7,6 +7,7 @@ import ShipmentCard from '../../components/shipments/ShipmentCard';
 import { Filter, Plus, Search, X } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import LoadingScreen from '../../components/common/LoadingScreen';
+import backImage from '../../utils/shipments.png';
 
 const ShipmentsPage = () => {
   const { user } = useAuth();
@@ -97,17 +98,23 @@ const ShipmentsPage = () => {
 
   return (
     <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 transition-all duration-700 ${pageLoaded ? 'opacity-100' : 'opacity-0'}`}>
-      <div
-        className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+      {/* New Header Section */}
+      <div 
+        className={`mb-8 rounded-xl p-6 ${shadowClass} transform transition-all duration-500 ${hoverShadow} hover:scale-[1.01] animate-fadeIn`}
         style={{
-          animationName: 'slideInDown',
-          animationDuration: '0.6s',
-          animationFillMode: 'both'
+          backgroundImage: isDark 
+            ? `linear-gradient(to right, rgba(17, 24, 39, 0.85), rgba(31, 41, 55, 0.85)), url(${backImage})`
+            : `linear-gradient(to right, rgba(239, 246, 255, 0.85), rgba(224, 231, 255, 0.85)), url(${backImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
         }}
       >
-        <div>
-          <h1 className={`text-2xl md:text-3xl font-bold ${textPrimary} animate-charFadeIn`}>{t('my_shipments')}</h1>
-          <p className={`mt-1 text-sm md:text-base ${textSecondary}`}>{t('hereIsOverview')}</p>
+        <div className="p-4">
+          <h1 className={`text-2xl md:text-3xl font-bold ${textPrimary}`}>
+            {t('my_shipments')}
+          </h1>
+          <p className={`mt-2 ${textSecondary} text-lg`}>{t('hereIsOverview')}</p>
         </div>
       </div>
 
@@ -350,26 +357,6 @@ const ShipmentsPage = () => {
           }
         }
       `}</style>
-
-      {/* Script for character-by-character animation */}
-      <script dangerouslySetInnerHTML={{
-        __html: `
-          document.addEventListener('DOMContentLoaded', function() {
-            const animateText = document.querySelector('.animate-charFadeIn');
-            if (animateText) {
-              const text = animateText.textContent || '';
-              animateText.textContent = '';
-
-              for (let i = 0; i < text.length; i++) {
-                const span = document.createElement('span');
-                span.textContent = text[i];
-                span.style.animationDelay = \`\${i * 0.05}s\`;
-                animateText.appendChild(span);
-              }
-            }
-          });
-        `
-      }} />
     </div>
   );
 };

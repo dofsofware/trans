@@ -5,6 +5,7 @@ import { Search, Filter, Download, Eye, CreditCard, ChevronDown, X, AlertCircle,
 import { format } from 'date-fns';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import backImage from '../../utils/invoices.png';
 
 interface Invoice {
   id: string;
@@ -158,48 +159,59 @@ const InvoicesPage = () => {
     setIsFilterOpen(false);
   };
 
+  // Theme-aware classes
+  const isDark = theme === 'dark';
+  const shadowClass = isDark ? 'shadow-gray-900/20' : 'shadow-sm';
+  const hoverShadow = isDark ? 'hover:shadow-gray-900/30' : 'hover:shadow-md';
+  const textPrimary = isDark ? 'text-white' : 'text-gray-900';
+  const textSecondary = isDark ? 'text-gray-300' : 'text-gray-600';
+
   const themeClasses = {
-    container: theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900',
-    card: theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100',
-    cardHover: theme === 'dark' ? 'hover:bg-gray-700' : 'hover:bg-gray-50',
+    container: isDark ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900',
+    card: isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100',
+    cardHover: isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-50',
     text: {
-      primary: theme === 'dark' ? 'text-white' : 'text-gray-900',
-      secondary: theme === 'dark' ? 'text-gray-300' : 'text-gray-500',
-      muted: theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+      primary: isDark ? 'text-white' : 'text-gray-900',
+      secondary: isDark ? 'text-gray-300' : 'text-gray-500',
+      muted: isDark ? 'text-gray-400' : 'text-gray-500'
     },
-    input: theme === 'dark' 
+    input: isDark 
       ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-blue-400 focus:border-blue-400' 
       : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500',
-    button: theme === 'dark' 
+    button: isDark 
       ? 'bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700' 
       : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50',
     table: {
-      header: theme === 'dark' ? 'bg-gray-800' : 'bg-gray-50',
-      row: theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200',
-      rowHover: theme === 'dark' ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
+      header: isDark ? 'bg-gray-800' : 'bg-gray-50',
+      row: isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200',
+      rowHover: isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
     },
-    dropdown: theme === 'dark' 
+    dropdown: isDark 
       ? 'bg-gray-800 border-gray-600 shadow-xl' 
       : 'bg-white border-gray-200 shadow-lg'
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className={`p-4 sm:p-6 max-w-7xl mx-auto min-h-screen `}
-    >
-      <motion.div
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="flex flex-col md:flex-row md:items-center md:justify-between mb-8"
+    <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 transition-opacity duration-500 ease-in-out`}>
+      {/* New Header Section */}
+      <div 
+        className={`mb-8 rounded-xl p-6 ${shadowClass} transform transition-all duration-500 ${hoverShadow} hover:scale-[1.01] animate-fadeIn`}
+        style={{
+          backgroundImage: isDark 
+            ? `linear-gradient(to right, rgba(17, 24, 39, 0.85), rgba(31, 41, 55, 0.85)), url(${backImage})`
+            : `linear-gradient(to right, rgba(239, 246, 255, 0.85), rgba(224, 231, 255, 0.85)), url(${backImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
       >
-        <h1 className={`text-2xl md:text-3xl font-bold mb-4 md:mb-0 ${themeClasses.text.primary}`}>
-          {t('my_invoices')}
-        </h1>
-      </motion.div>
+        <div className="p-4">
+          <h1 className={`text-2xl md:text-3xl font-bold ${textPrimary}`}>
+            {t('my_invoices')}
+          </h1>
+          <p className={`mt-2 ${textSecondary} text-lg`}>{t('manage_invoices')}</p>
+        </div>
+      </div>
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
@@ -337,44 +349,44 @@ const InvoicesPage = () => {
               >
                 <div className="py-1">
                   <motion.button
-                    whileHover={{ backgroundColor: theme === 'dark' ? (statusFilter === 'all' ? '#1e40af' : '#374151') : (statusFilter === 'all' ? '#dbeafe' : '#f9fafb') }}
+                    whileHover={{ backgroundColor: isDark ? (statusFilter === 'all' ? '#1e40af' : '#374151') : (statusFilter === 'all' ? '#dbeafe' : '#f9fafb') }}
                     className={`block px-4 py-2 text-sm w-full text-left ${
                       statusFilter === 'all' 
-                        ? theme === 'dark' ? 'bg-blue-900 text-blue-300' : 'bg-blue-50 text-blue-700'
-                        : theme === 'dark' ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-50'
+                        ? isDark ? 'bg-blue-900 text-blue-300' : 'bg-blue-50 text-blue-700'
+                        : isDark ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-50'
                     }`}
                     onClick={() => handleStatusFilter('all')}
                   >
                     {t('all')}
                   </motion.button>
                   <motion.button
-                    whileHover={{ backgroundColor: theme === 'dark' ? (statusFilter === 'paid' ? '#1e40af' : '#374151') : (statusFilter === 'paid' ? '#dbeafe' : '#f9fafb') }}
+                    whileHover={{ backgroundColor: isDark ? (statusFilter === 'paid' ? '#1e40af' : '#374151') : (statusFilter === 'paid' ? '#dbeafe' : '#f9fafb') }}
                     className={`flex items-center px-4 py-2 text-sm w-full text-left ${
                       statusFilter === 'paid' 
-                        ? theme === 'dark' ? 'bg-blue-900 text-blue-300' : 'bg-blue-50 text-blue-700'
-                        : theme === 'dark' ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-50'
+                        ? isDark ? 'bg-blue-900 text-blue-300' : 'bg-blue-50 text-blue-700'
+                        : isDark ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-50'
                     }`}
                     onClick={() => handleStatusFilter('paid')}
                   >
                     {getStatusIcon('paid')} {t('paid')}
                   </motion.button>
                   <motion.button
-                    whileHover={{ backgroundColor: theme === 'dark' ? (statusFilter === 'unpaid' ? '#1e40af' : '#374151') : (statusFilter === 'unpaid' ? '#dbeafe' : '#f9fafb') }}
+                    whileHover={{ backgroundColor: isDark ? (statusFilter === 'unpaid' ? '#1e40af' : '#374151') : (statusFilter === 'unpaid' ? '#dbeafe' : '#f9fafb') }}
                     className={`flex items-center px-4 py-2 text-sm w-full text-left ${
                       statusFilter === 'unpaid' 
-                        ? theme === 'dark' ? 'bg-blue-900 text-blue-300' : 'bg-blue-50 text-blue-700'
-                        : theme === 'dark' ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-50'
+                        ? isDark ? 'bg-blue-900 text-blue-300' : 'bg-blue-50 text-blue-700'
+                        : isDark ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-50'
                     }`}
                     onClick={() => handleStatusFilter('unpaid')}
                   >
                     {getStatusIcon('unpaid')} {t('unpaid')}
                   </motion.button>
                   <motion.button
-                    whileHover={{ backgroundColor: theme === 'dark' ? (statusFilter === 'overdue' ? '#1e40af' : '#374151') : (statusFilter === 'overdue' ? '#dbeafe' : '#f9fafb') }}
+                    whileHover={{ backgroundColor: isDark ? (statusFilter === 'overdue' ? '#1e40af' : '#374151') : (statusFilter === 'overdue' ? '#dbeafe' : '#f9fafb') }}
                     className={`flex items-center px-4 py-2 text-sm w-full text-left ${
                       statusFilter === 'overdue' 
-                        ? theme === 'dark' ? 'bg-blue-900 text-blue-300' : 'bg-blue-50 text-blue-700'
-                        : theme === 'dark' ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-50'
+                        ? isDark ? 'bg-blue-900 text-blue-300' : 'bg-blue-50 text-blue-700'
+                        : isDark ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-50'
                     }`}
                     onClick={() => handleStatusFilter('overdue')}
                   >
@@ -475,14 +487,14 @@ const InvoicesPage = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody className={`divide-y ${theme === 'dark' ? 'divide-gray-700' : 'divide-gray-200'}`}>
+              <tbody className={`divide-y ${isDark ? 'divide-gray-700' : 'divide-gray-200'}`}>
                 {filteredInvoices.map((invoice, index) => (
                   <motion.tr
                     key={invoice.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: 0.1 * index }}
-                    whileHover={{ backgroundColor: theme === 'dark' ? '#374151' : '#f9fafb' }}
+                    whileHover={{ backgroundColor: isDark ? '#374151' : '#f9fafb' }}
                     className={`transition-colors ${themeClasses.table.rowHover}`}
                   >
                     <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${themeClasses.text.primary}`}>
@@ -511,7 +523,7 @@ const InvoicesPage = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end space-x-3">
                         <motion.button
-                          whileHover={{ scale: 1.15, backgroundColor: theme === 'dark' ? '#1e40af' : '#dbeafe' }}
+                          whileHover={{ scale: 1.15, backgroundColor: isDark ? '#1e40af' : '#dbeafe' }}
                           whileTap={{ scale: 0.95 }}
                           className="text-blue-600 hover:text-blue-900 p-1.5 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
                           onClick={() => handleViewInvoice(invoice.id)}
@@ -520,7 +532,7 @@ const InvoicesPage = () => {
                           <Eye size={18} />
                         </motion.button>
                         <motion.button
-                          whileHover={{ scale: 1.15, backgroundColor: theme === 'dark' ? '#1e40af' : '#dbeafe' }}
+                          whileHover={{ scale: 1.15, backgroundColor: isDark ? '#1e40af' : '#dbeafe' }}
                           whileTap={{ scale: 0.95 }}
                           className="text-blue-600 hover:text-blue-900 p-1.5 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
                           title={t('download_invoice')}
@@ -529,7 +541,7 @@ const InvoicesPage = () => {
                         </motion.button>
                         {invoice.status !== 'paid' && (
                           <motion.button
-                            whileHover={{ scale: 1.15, backgroundColor: theme === 'dark' ? '#14532d' : '#dcfce7' }}
+                            whileHover={{ scale: 1.15, backgroundColor: isDark ? '#14532d' : '#dcfce7' }}
                             whileTap={{ scale: 0.95 }}
                             className="text-green-600 hover:text-green-900 p-1.5 rounded-full hover:bg-green-50 dark:hover:bg-green-900/30 transition-colors"
                             title={t('pay_invoice')}
@@ -558,7 +570,7 @@ const InvoicesPage = () => {
               transition={{ duration: 0.3, delay: 0.1 * index }}
               whileHover={{ 
                 scale: 1.01, 
-                boxShadow: theme === 'dark' 
+                boxShadow: isDark 
                   ? "0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)" 
                   : "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)" 
               }}
@@ -595,7 +607,7 @@ const InvoicesPage = () => {
 
               <div className="flex justify-end space-x-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                 <motion.button
-                  whileHover={{ scale: 1.15, backgroundColor: theme === 'dark' ? '#1e40af' : '#dbeafe' }}
+                  whileHover={{ scale: 1.15, backgroundColor: isDark ? '#1e40af' : '#dbeafe' }}
                   whileTap={{ scale: 0.95 }}
                   className="text-blue-600 hover:text-blue-900 p-2 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
                   onClick={() => handleViewInvoice(invoice.id)}
@@ -604,7 +616,7 @@ const InvoicesPage = () => {
                   <Eye size={18} />
                 </motion.button>
                 <motion.button
-                  whileHover={{ scale: 1.15, backgroundColor: theme === 'dark' ? '#1e40af' : '#dbeafe' }}
+                  whileHover={{ scale: 1.15, backgroundColor: isDark ? '#1e40af' : '#dbeafe' }}
                   whileTap={{ scale: 0.95 }}
                   className="text-blue-600 hover:text-blue-900 p-2 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
                   title={t('download_invoice')}
@@ -613,7 +625,7 @@ const InvoicesPage = () => {
                 </motion.button>
                 {invoice.status !== 'paid' && (
                   <motion.button
-                    whileHover={{ scale: 1.15, backgroundColor: theme === 'dark' ? '#14532d' : '#dcfce7' }}
+                    whileHover={{ scale: 1.15, backgroundColor: isDark ? '#14532d' : '#dcfce7' }}
                     whileTap={{ scale: 0.95 }}
                     className="text-green-600 hover:text-green-900 p-2 rounded-full hover:bg-green-50 dark:hover:bg-green-900/30 transition-colors"
                     title={t('pay_invoice')}
@@ -626,7 +638,7 @@ const InvoicesPage = () => {
           ))}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

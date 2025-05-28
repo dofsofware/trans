@@ -7,6 +7,7 @@ import { FileText, Download, Plus, Search, ChevronDown, Filter, X } from 'lucide
 import { format } from 'date-fns';
 import { useLanguage } from '../../contexts/LanguageContext';
 import LoadingScreen from '../../components/common/LoadingScreen';
+import backImage from '../../utils/documents.png';
 
 const DocumentsPage = () => {
   const { user } = useAuth();
@@ -120,16 +121,32 @@ const DocumentsPage = () => {
     );
   };
 
+  // Theme-aware classes
+  const isDark = theme === 'dark';
+  const shadowClass = isDark ? 'shadow-gray-900/20' : 'shadow-sm';
+  const hoverShadow = isDark ? 'hover:shadow-gray-900/30' : 'hover:shadow-md';
+  const textPrimary = isDark ? 'text-white' : 'text-gray-900';
+  const textSecondary = isDark ? 'text-gray-300' : 'text-gray-600';
+
   return (
     <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 transition-opacity duration-500 ease-in-out ${isPageMounted ? 'opacity-100' : 'opacity-0'}`}>
-      <div className="mb-6 md:mb-8 flex flex-col md:flex-row md:justify-between md:items-center gap-4 animate-fadeIn">
-        <div>
-          <h1 className={`text-2xl md:text-3xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+      {/* New Header Section */}
+      <div 
+        className={`mb-8 rounded-xl p-6 ${shadowClass} transform transition-all duration-500 ${hoverShadow} hover:scale-[1.01] animate-fadeIn`}
+        style={{
+          backgroundImage: isDark 
+            ? `linear-gradient(to right, rgba(17, 24, 39, 0.85), rgba(31, 41, 55, 0.85)), url(${backImage})`
+            : `linear-gradient(to right, rgba(239, 246, 255, 0.85), rgba(224, 231, 255, 0.85)), url(${backImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        <div className="p-4">
+          <h1 className={`text-2xl md:text-3xl font-bold ${textPrimary}`}>
             {t('documents')}
           </h1>
-          <p className={`mt-1 text-sm md:text-base ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
-            {t('manage_documents')}
-          </p>
+          <p className={`mt-2 ${textSecondary} text-lg`}>{t('manage_documents')}</p>
         </div>
       </div>
 
@@ -143,7 +160,7 @@ const DocumentsPage = () => {
             type="text"
             placeholder={t('search_documents')}
             className={`block w-full pl-10 pr-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm transition-all duration-300 hover:shadow-md focus:shadow-md ${
-              theme === 'dark' 
+              isDark 
                 ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
                 : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
             }`}
@@ -159,7 +176,7 @@ const DocumentsPage = () => {
             value={activeFilter}
             onChange={(e) => setActiveFilter(e.target.value)}
             className={`block w-full pl-10 pr-10 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm appearance-none transition-all duration-300 hover:shadow-md focus:shadow-md ${
-              theme === 'dark' 
+              isDark 
                 ? 'bg-gray-800 border-gray-600 text-white' 
                 : 'bg-white border-gray-300 text-gray-900'
             }`}
@@ -184,18 +201,18 @@ const DocumentsPage = () => {
             <>
               {/* Desktop table view - hidden on mobile */}
               <div className={`hidden md:block shadow rounded-lg border overflow-hidden transition-all duration-500 ease-in-out transform hover:shadow-lg ${
-                theme === 'dark' 
+                isDark 
                   ? 'bg-gray-800 border-gray-700' 
                   : 'bg-white border-gray-200'
               }`}>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
-                    <thead className={theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'}>
+                    <thead className={isDark ? 'bg-gray-700' : 'bg-gray-50'}>
                       <tr>
                         <th
                           scope="col"
                           className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors duration-200 ${
-                            theme === 'dark' 
+                            isDark 
                               ? 'text-gray-300 hover:bg-gray-600' 
                               : 'text-gray-500 hover:bg-gray-100'
                           }`}
@@ -209,7 +226,7 @@ const DocumentsPage = () => {
                         <th
                           scope="col"
                           className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors duration-200 ${
-                            theme === 'dark' 
+                            isDark 
                               ? 'text-gray-300 hover:bg-gray-600' 
                               : 'text-gray-500 hover:bg-gray-100'
                           }`}
@@ -223,7 +240,7 @@ const DocumentsPage = () => {
                         <th
                           scope="col"
                           className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors duration-200 ${
-                            theme === 'dark' 
+                            isDark 
                               ? 'text-gray-300 hover:bg-gray-600' 
                               : 'text-gray-500 hover:bg-gray-100'
                           }`}
@@ -237,7 +254,7 @@ const DocumentsPage = () => {
                         <th
                           scope="col"
                           className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer transition-colors duration-200 ${
-                            theme === 'dark' 
+                            isDark 
                               ? 'text-gray-300 hover:bg-gray-600' 
                               : 'text-gray-500 hover:bg-gray-100'
                           }`}
@@ -253,12 +270,12 @@ const DocumentsPage = () => {
                         </th>
                       </tr>
                     </thead>
-                    <tbody className={`divide-y ${theme === 'dark' ? 'bg-gray-800 divide-gray-700' : 'bg-white divide-gray-200'}`}>
+                    <tbody className={`divide-y ${isDark ? 'bg-gray-800 divide-gray-700' : 'bg-white divide-gray-200'}`}>
                       {filteredDocuments.map((document, index) => (
                         <tr
                           key={`desktop-${document.id}`}
                           className={`transition-colors duration-150 ${
-                            theme === 'dark' ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
+                            isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-50'
                           }`}
                           style={{
                             animationDelay: `${index * 50}ms`,
@@ -269,41 +286,41 @@ const DocumentsPage = () => {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
                               <div className={`flex-shrink-0 h-8 w-8 flex items-center justify-center rounded-md transition-all duration-300 ${
-                                theme === 'dark' 
+                                isDark 
                                   ? 'bg-blue-900 hover:bg-blue-800' 
                                   : 'bg-blue-100 hover:bg-blue-200'
                               }`}>
                                 <FileText size={16} className="text-blue-600" />
                               </div>
                               <div className="ml-3 truncate max-w-xs">
-                                <div className={`text-sm font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                                <div className={`text-sm font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                   {document.name}
                                 </div>
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className={`text-sm truncate max-w-xs ${theme === 'dark' ? 'text-gray-300' : 'text-gray-900'}`}>
+                            <div className={`text-sm truncate max-w-xs ${isDark ? 'text-gray-300' : 'text-gray-900'}`}>
                               {shipmentMap[document.shipmentId]?.reference || document.shipmentId}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full transition-all duration-300 ${
-                              theme === 'dark' 
+                              isDark 
                                 ? 'bg-blue-900 text-blue-200 hover:bg-blue-800' 
                                 : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
                             }`}>
                               {t(document.type)}
                             </span>
                           </td>
-                          <td className={`px-6 py-4 whitespace-nowrap text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                          <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                             {format(new Date(document.uploadedAt), 'MMM d, yyyy')}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <button
                               type="button"
                               className={`inline-flex items-center transition-colors duration-300 group ${
-                                theme === 'dark' 
+                                isDark 
                                   ? 'text-blue-400 hover:text-blue-300' 
                                   : 'text-blue-600 hover:text-blue-900'
                               }`}
@@ -322,12 +339,12 @@ const DocumentsPage = () => {
               {/* Mobile card view - shown only on mobile */}
               <div className="md:hidden space-y-4">
                 <div className={`shadow rounded-lg overflow-hidden border p-4 transition-all duration-300 hover:shadow-md ${
-                  theme === 'dark' 
+                  isDark 
                     ? 'bg-gray-800 border-gray-700' 
                     : 'bg-white border-gray-200'
                 }`}>
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <h3 className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                       {t('sort_by')}
                     </h3>
                     <div className="relative w-40">
@@ -335,7 +352,7 @@ const DocumentsPage = () => {
                         value={sortConfig.key}
                         onChange={(e) => setSortConfig({ key: e.target.value, direction: sortConfig.direction })}
                         className={`block w-full pr-10 py-2 text-sm border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 appearance-none transition-all duration-300 ${
-                          theme === 'dark' 
+                          isDark 
                             ? 'bg-gray-700 border-gray-600 text-white' 
                             : 'bg-white border-gray-300 text-gray-900'
                         }`}
@@ -364,7 +381,7 @@ const DocumentsPage = () => {
                   <div
                     key={`mobile-${document.id}`}
                     className={`shadow rounded-lg overflow-hidden border transition-all duration-300 hover:shadow-lg transform hover:scale-[1.01] ${
-                      theme === 'dark' 
+                      isDark 
                         ? 'bg-gray-800 border-gray-700' 
                         : 'bg-white border-gray-200'
                     }`}
@@ -379,20 +396,20 @@ const DocumentsPage = () => {
                       <div className="flex items-start justify-between">
                         <div className="flex items-center">
                           <div className={`h-10 w-10 flex items-center justify-center rounded-md transition-all duration-300 ${
-                            theme === 'dark' 
+                            isDark 
                               ? 'bg-blue-900 hover:bg-blue-800' 
                               : 'bg-blue-100 hover:bg-blue-200'
                           }`}>
                             <FileText size={20} className="text-blue-600" />
                           </div>
                           <div className="ml-3">
-                            <h3 className={`text-sm font-medium break-words pr-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                            <h3 className={`text-sm font-medium break-words pr-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                               {document.name}
                             </h3>
                           </div>
                         </div>
                         <span className={`px-2 py-1 text-xs font-semibold rounded-full whitespace-nowrap transition-all duration-300 ${
-                          theme === 'dark' 
+                          isDark 
                             ? 'bg-blue-900 text-blue-200 hover:bg-blue-800' 
                             : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
                         }`}>
@@ -402,25 +419,25 @@ const DocumentsPage = () => {
 
                       <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                          <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                             {t('shipment')}
                           </p>
-                          <p className={`font-medium truncate ${theme === 'dark' ? 'text-gray-200' : 'text-gray-900'}`}>
+                          <p className={`font-medium truncate ${isDark ? 'text-gray-200' : 'text-gray-900'}`}>
                             {shipmentMap[document.shipmentId]?.reference || document.shipmentId}
                           </p>
                         </div>
                         <div>
-                          <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                          <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                             {t('uploaded')}
                           </p>
-                          <p className={`font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-gray-900'}`}>
+                          <p className={`font-medium ${isDark ? 'text-gray-200' : 'text-gray-900'}`}>
                             {format(new Date(document.uploadedAt), 'MMM d, yyyy')}
                           </p>
                         </div>
                       </div>
                     </div>
 
-                    <div className={`px-4 py-3 flex justify-end ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                    <div className={`px-4 py-3 flex justify-end ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
                       <button
                         type="button"
                         className="inline-flex items-center px-3 py-1 border border-transparent text-sm rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 transform hover:translate-y-px"
@@ -435,20 +452,20 @@ const DocumentsPage = () => {
             </>
           ) : (
             <div className={`shadow rounded-lg border p-6 transition-all duration-500 ease-in-out transform hover:shadow-lg animate-fadeIn ${
-              theme === 'dark' 
+              isDark 
                 ? 'bg-gray-800 border-gray-700' 
                 : 'bg-white border-gray-200'
             }`}>
               <div className="text-center py-12">
                 <div className={`mx-auto h-12 w-12 flex items-center justify-center rounded-full animate-pulse ${
-                  theme === 'dark' ? 'bg-blue-900' : 'bg-blue-100'
+                  isDark ? 'bg-blue-900' : 'bg-blue-100'
                 }`}>
                   <FileText size={24} className="text-blue-600" />
                 </div>
-                <h3 className={`mt-4 text-lg font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                <h3 className={`mt-4 text-lg font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   {t('no_documents_found')}
                 </h3>
-                <p className={`mt-2 text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                <p className={`mt-2 text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                   {searchTerm || activeFilter !== 'all'
                     ? t('no_documents_match_filters')
                     : t('no_documents_yet')}
@@ -462,7 +479,7 @@ const DocumentsPage = () => {
       {/* Document count display */}
       {filteredDocuments.length > 0 && (
         <div className={`mt-4 text-sm text-right transition-opacity duration-500 ease-in-out ${
-          theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+          isDark ? 'text-gray-400' : 'text-gray-500'
         }`}>
           {t('showing_documents', { count: filteredDocuments.length })}
           {(searchTerm || activeFilter !== 'all') && ` ${t('filtered')}`}

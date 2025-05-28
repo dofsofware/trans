@@ -297,6 +297,7 @@ const translations = {
     files_attached: 'Files attached',
     attached_files: 'Attached files',
     filters: 'filters',
+    manage_invoices: 'Manage all your invoices',
   },
   fr: {
     dashboard: 'Tableau de bord',
@@ -586,6 +587,7 @@ const translations = {
     files_attached: 'Fichier joint',
     attached_files: 'Fichiers joints',    
     filters: 'filtres',
+    manage_invoices: 'Gérez toutes vos factures',
   }
 };
 
