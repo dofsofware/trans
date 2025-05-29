@@ -230,22 +230,38 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
 
               {isNotificationsOpen && (
                 <div
-                  className="fixed md:absolute inset-x-0 md:inset-auto md:right-0 top-16 md:top-full mt-1 w-[95%] md:w-96 bg-white dark:bg-gray-700 rounded-lg shadow-xl py-1 z-10 border border-gray-200 dark:border-gray-600 mx-auto md:mx-0 transform origin-top transition-all duration-200"
+                  className={`fixed md:absolute inset-x-0 md:inset-auto md:right-0 top-16 md:top-full mt-1 w-[95%] md:w-96 rounded-lg shadow-xl py-1 z-10 border mx-auto md:mx-0 transform origin-top transition-all duration-200 ${
+                    theme === 'dark' 
+                      ? 'bg-gray-800 border-gray-700' 
+                      : 'bg-white border-gray-200'
+                  }`}
                   style={{
                     maxHeight: 'calc(100vh - 80px)',
                     overflowY: 'auto'
                   }}
                 >
-                  <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-600 flex justify-between items-center">
+                  <div className={`px-4 py-3 border-b flex justify-between items-center ${
+                    theme === 'dark' ? 'border-gray-700' : 'border-gray-200'
+                  }`}>
                     <div>
-                      <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{t('notifications')}</h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      <h3 className={`text-sm font-semibold ${
+                        theme === 'dark' ? 'text-white' : 'text-gray-900'
+                      }`}>
+                        {t('notifications')}
+                      </h3>
+                      <p className={`text-xs mt-1 ${
+                        theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                      }`}>
                         {t('unread_count', { count: unreadCount })}
                       </p>
                     </div>
                     <button
                       onClick={() => {/* Handle mark all as read */}}
-                      className="p-2 rounded-md text-gray-400 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`p-2 rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        theme === 'dark'
+                          ? 'text-gray-300 hover:bg-gray-700'
+                          : 'text-gray-400 hover:bg-gray-100'
+                      }`}
                       title={t('mark_all_as_read')}
                     >
                       <Check size={18} />
@@ -256,23 +272,43 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
                       notifications.map((notification) => (
                         <div
                           key={notification.id}
-                          className={`px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer border-b border-gray-100 dark:border-gray-600 last:border-0 transition-colors duration-150 ${notification.unread ? 'bg-blue-50 dark:bg-gray-600/50' : ''}`}
+                          className={`px-4 py-3 cursor-pointer border-b last:border-0 transition-colors duration-150 ${
+                            notification.unread 
+                              ? theme === 'dark' 
+                                ? 'bg-blue-900/20 hover:bg-blue-900/30 border-gray-700' 
+                                : 'bg-blue-50 hover:bg-blue-100 border-gray-100'
+                              : theme === 'dark'
+                                ? 'hover:bg-gray-700 border-gray-700'
+                                : 'hover:bg-gray-50 border-gray-100'
+                          }`}
                         >
                           <div className="flex items-start">
                             <div className="flex-1 min-w-0">
-                              <p className={`text-sm font-medium ${notification.unread ? 'text-blue-700 dark:text-blue-300' : 'text-gray-800 dark:text-gray-200'}`}>
+                              <p className={`text-sm font-medium ${
+                                notification.unread 
+                                  ? theme === 'dark' 
+                                    ? 'text-blue-200' 
+                                    : 'text-blue-900'
+                                  : theme === 'dark' 
+                                    ? 'text-white' 
+                                    : 'text-gray-900'
+                              }`}>
                                 {notification.title}
                               </p>
-                              <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">
+                              <p className={`text-sm mt-0.5 line-clamp-2 ${
+                                theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                              }`}>
                                 {notification.message}
                               </p>
-                              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                              <p className={`text-xs mt-1 ${
+                                theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                              }`}>
                                 {notification.time}
                               </p>
                             </div>
                             {notification.unread && (
                               <div className="ml-3 flex-shrink-0">
-                                <div className="w-2 h-2 bg-blue-600 dark:bg-blue-500 rounded-full"></div>
+                                <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                               </div>
                             )}
                           </div>
@@ -280,14 +316,26 @@ const Header = ({ toggleSidebar, user }: HeaderProps) => {
                       ))
                     ) : (
                       <div className="py-6 px-4 text-center">
-                        <p className="text-gray-500 dark:text-gray-400 text-sm">{t('no_notifications') || 'No notifications'}</p>
+                        <p className={`text-sm ${
+                          theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                        }`}>
+                          {t('no_notifications') || 'No notifications'}
+                        </p>
                       </div>
                     )}
                   </div>
-                  <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-600">
+                  <div className={`px-4 py-3 border-t ${
+                    theme === 'dark' 
+                      ? 'border-gray-700 bg-gray-700' 
+                      : 'border-gray-200 bg-gray-50'
+                  }`}>
                     <Link
                       to="/notifications"
-                      className="block text-sm text-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors duration-150"
+                      className={`block text-sm text-center font-medium transition-colors duration-150 ${
+                        theme === 'dark'
+                          ? 'text-blue-300 hover:text-blue-200'
+                          : 'text-blue-600 hover:text-blue-800'
+                      }`}
                       onClick={() => setIsNotificationsOpen(false)}
                     >
                       {t('view_all_notifications')}

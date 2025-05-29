@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { Search, Filter, Download, Eye, CreditCard, ChevronDown, X, AlertCircle, Calendar } from 'lucide-react';
+import { Search, Filter, TrendingUp, Download, Eye, CreditCard, ChevronDown, X, AlertCircle, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -24,7 +24,7 @@ const mockInvoices: Invoice[] = [
   {
     id: '1',
     number: 'INV-2024-001',
-    amount: 2500.00,
+    amount: 2500000.00,
     currency: 'XOF',
     dueDate: '2024-03-15',
     status: 'unpaid',
@@ -35,7 +35,7 @@ const mockInvoices: Invoice[] = [
   {
     id: '2',
     number: 'INV-2024-002',
-    amount: 1800.00,
+    amount: 180000.00,
     currency: 'XOF',
     dueDate: '2024-02-28',
     status: 'overdue',
@@ -46,7 +46,7 @@ const mockInvoices: Invoice[] = [
   {
     id: '3',
     number: 'INV-2024-003',
-    amount: 3200.00,
+    amount: 3250000.00,
     currency: 'XOF',
     dueDate: '2024-01-30',
     status: 'paid',
@@ -58,7 +58,7 @@ const mockInvoices: Invoice[] = [
   {
     id: '4',
     number: 'INV-2024-004',
-    amount: 1500.00,
+    amount: 1500000.00,
     currency: 'XOF',
     dueDate: '2024-03-20',
     status: 'unpaid',
@@ -69,7 +69,7 @@ const mockInvoices: Invoice[] = [
   {
     id: '5',
     number: 'INV-2024-005',
-    amount: 2800.00,
+    amount: 2800000.00,
     currency: 'XOF',
     dueDate: '2024-01-15',
     status: 'paid',
@@ -165,6 +165,7 @@ const InvoicesPage = () => {
   const hoverShadow = isDark ? 'hover:shadow-gray-900/30' : 'hover:shadow-md';
   const textPrimary = isDark ? 'text-white' : 'text-gray-900';
   const textSecondary = isDark ? 'text-gray-300' : 'text-gray-600';
+  const borderColor = isDark ? 'border-gray-700' : 'border-gray-200';
 
   const themeClasses = {
     container: isDark ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900',
@@ -213,83 +214,82 @@ const InvoicesPage = () => {
         </div>
       </div>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        <motion.div
-          initial={{ x: -30, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-          className={`${themeClasses.card} rounded-xl shadow p-4 transition-all hover:shadow-md`}
-        >
-          <div className="flex items-center">
-            <motion.div
-              whileHover={{ rotate: 10 }}
-              className="p-3 rounded-full bg-green-100 text-green-600"
-            >
-              <CreditCard size={20} />
-            </motion.div>
-            <div className="ml-4">
-              <h3 className={`text-sm font-medium ${themeClasses.text.secondary}`}>
-                {t('total_paid')}
-              </h3>
-              <p className={`text-xl font-semibold ${themeClasses.text.primary}`}>
-                {totalPaid.toLocaleString('fr-FR', { style: 'currency', currency: 'XOF' })}
-              </p>
-            </div>
+      {/* Statistics Cards - Version Redesignée */}
+{/* Statistics Cards - Version Harmonisée */}
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+  {[
+    {
+      icon: <CreditCard size={24} strokeWidth={2} />,
+      iconBg: isDark ? "bg-green-500/20" : "bg-green-50",
+      iconColor: "text-green-500",
+      title: t('total_paid'),
+      value: totalPaid.toLocaleString('fr-FR', { style: 'currency', currency: 'XOF' }),
+      trend: <ChevronDown size={16} className="ml-2 text-green-500 rotate-180" />,
+      accentColor: "bg-gradient-to-r from-green-500 to-emerald-600"
+    },
+    {
+      icon: <Calendar size={24} strokeWidth={2} />,
+      iconBg: isDark ? "bg-yellow-500/20" : "bg-yellow-50",
+      iconColor: "text-yellow-500",
+      title: t('total_unpaid'),
+      value: totalUnpaid.toLocaleString('fr-FR', { style: 'currency', currency: 'XOF' }),
+      trend: <ChevronDown size={16} className="ml-2 text-yellow-500 rotate-180" />,
+      accentColor: "bg-gradient-to-r from-yellow-500 to-orange-500"
+    },
+    {
+      icon: <AlertCircle size={24} strokeWidth={2} />,
+      iconBg: isDark ? "bg-red-500/20" : "bg-red-50",
+      iconColor: totalOverdue > 0 ? "text-red-500" : "text-gray-500",
+      title: t('total_overdue'),
+      value: totalOverdue.toLocaleString('fr-FR', { style: 'currency', currency: 'XOF' }),
+      trend: totalOverdue > 0 && <span className="ml-2 animate-ping text-red-500">●</span>,
+      accentColor: totalOverdue > 0 
+        ? "bg-gradient-to-r from-red-500 to-pink-500" 
+        : "bg-gradient-to-r from-gray-500 to-gray-600"
+    }
+  ].map((stat, index) => (
+    <div
+    
+      key={index}
+      className={`${themeClasses.card} rounded-xl ${shadowClass} border ${isDark ? 'border-gray-700' : borderColor} ${hoverShadow} transition-all duration-300 transform hover:translate-y-[-2px] hover:scale-105 overflow-hidden group`}
+      style={{
+        animationName: 'fadeInUp',
+        animationDuration: '0.5s',
+        animationFillMode: 'both',
+        animationDelay: `${index * 0.1}s`
+      }}
+    >
+      {/* Accent bar en haut */}
+      <div className={`h-1 ${stat.accentColor} transition-all duration-300 group-hover:h-2`}></div>
+      
+      {/* Contenu de la carte */}
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className={`p-3 rounded-xl ${stat.iconBg} ${stat.iconColor} shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-110 group-hover:rotate-3`}>
+            {stat.icon}
           </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ x: -30, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-          className={`${themeClasses.card} rounded-xl shadow p-4 transition-all hover:shadow-md`}
-        >
-          <div className="flex items-center">
-            <motion.div
-              whileHover={{ rotate: 10 }}
-              className="p-3 rounded-full bg-yellow-100 text-yellow-600"
-            >
-              <Calendar size={20} />
-            </motion.div>
-            <div className="ml-4">
-              <h3 className={`text-sm font-medium ${themeClasses.text.secondary}`}>
-                {t('total_unpaid')}
-              </h3>
-              <p className={`text-xl font-semibold ${themeClasses.text.primary}`}>
-                {totalUnpaid.toLocaleString('fr-FR', { style: 'currency', currency: 'XOF' })}
-              </p>
+          {stat.trend && (
+            <div className="transition-all duration-300 group-hover:scale-110">
+              {stat.trend}
             </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ x: -30, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-          className={`${themeClasses.card} rounded-xl shadow p-4 transition-all hover:shadow-md sm:col-span-2 lg:col-span-1`}
-        >
-          <div className="flex items-center">
-            <motion.div
-              whileHover={{ rotate: 10 }}
-              className="p-3 rounded-full bg-red-100 text-red-600"
-            >
-              <AlertCircle size={20} />
-            </motion.div>
-            <div className="ml-4">
-              <h3 className={`text-sm font-medium ${themeClasses.text.secondary}`}>
-                {t('total_overdue')}
-              </h3>
-              <p className={`text-xl font-semibold ${themeClasses.text.primary}`}>
-                {totalOverdue.toLocaleString('fr-FR', { style: 'currency', currency: 'XOF' })}
-              </p>
-            </div>
-          </div>
-        </motion.div>
+          )}
+        </div>
+        
+        <div className="space-y-2">
+          <h3 className={`text-sm font-medium ${themeClasses.text.secondary} uppercase tracking-wide`}>
+            {stat.title}
+          </h3>
+          <p className={`text-3xl font-bold ${themeClasses.text.primary} transition-all duration-300 group-hover:scale-105`}>
+            {stat.value}
+          </p>
+        </div>
       </div>
+      
+      {/* Effet de glow subtil au hover */}
+      <div className={`absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300 pointer-events-none ${stat.accentColor.replace('bg-gradient-to-r', 'bg-gradient-to-br')}`}></div>
+    </div>
+  ))}
+</div>
 
       {/* Search and Filters */}
       <motion.div

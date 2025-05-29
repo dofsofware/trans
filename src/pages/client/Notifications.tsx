@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { Bell, Check, X, Clock, AlertCircle, Package, FileText, CreditCard, MessageSquare } from 'lucide-react';
 
 const NotificationsPage = () => {
   const { t } = useLanguage();
+  const { theme } = useTheme();
   const [notifications, setNotifications] = useState([
     {
       id: 1,
@@ -98,23 +100,41 @@ const NotificationsPage = () => {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">{t('notifications')}</h1>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          <h1 className={`text-2xl font-bold ${
+            theme === 'dark' ? 'text-white' : 'text-gray-900'
+          }`}>
+            {t('notifications')}
+          </h1>
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            theme === 'dark' 
+              ? 'bg-blue-900 text-blue-200' 
+              : 'bg-blue-100 text-blue-800'
+          }`}>
             {unreadCount > 0 ? t('unread_count', { count: unreadCount }) : t('all_read')}
           </span>
         </div>
-        <p className="mt-1 text-gray-600">
+        <p className={`mt-1 ${
+          theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+        }`}>
           {t('notifications_description')}
         </p>
       </div>
 
-      <div className="bg-white shadow rounded-lg border border-gray-200 overflow-hidden">
+      <div className={`shadow rounded-lg border overflow-hidden ${
+        theme === 'dark' 
+          ? 'bg-gray-800 border-gray-700' 
+          : 'bg-white border-gray-200'
+      }`}>
         <div className="px-4 py-5 sm:px-6 flex flex-wrap justify-between items-center gap-4">
           <div>
-            <h3 className="text-lg leading-6 font-medium text-gray-900">
+            <h3 className={`text-lg leading-6 font-medium ${
+              theme === 'dark' ? 'text-white' : 'text-gray-900'
+            }`}>
               {t('all_notifications')}
             </h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className={`mt-1 text-sm ${
+              theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+            }`}>
               {unreadCount > 0
                 ? t('unread_count', { count: unreadCount })
                 : t('no_unread_notifications')}
@@ -131,46 +151,72 @@ const NotificationsPage = () => {
             </button>
           )}
         </div>
-        <div className="border-t border-gray-200">
+        <div className={`border-t ${
+          theme === 'dark' ? 'border-gray-700' : 'border-gray-200'
+        }`}>
           {notifications.length > 0 ? (
-            <ul className="divide-y divide-gray-200">
+            <ul className={`divide-y ${
+              theme === 'dark' ? 'divide-gray-700' : 'divide-gray-200'
+            }`}>
               {notifications.map((notification) => (
                 <li
                   key={notification.id}
                   className={`relative transition-all ${
-                    notification.unread ? 'bg-blue-50' : ''
+                    notification.unread 
+                      ? theme === 'dark' 
+                        ? 'bg-blue-900/20' 
+                        : 'bg-blue-50'
+                      : ''
                   }`}
                 >
                   <div className="px-4 py-4 sm:px-6 flex items-start">
                     <div className={`flex-shrink-0 p-2 rounded-full ${
                       notification.unread
-                        ? 'bg-blue-100 text-blue-600'
-                        : 'bg-gray-100 text-gray-500'
+                        ? theme === 'dark'
+                          ? 'bg-blue-900/40 text-blue-300'
+                          : 'bg-blue-100 text-blue-600'
+                        : theme === 'dark'
+                          ? 'bg-gray-700 text-gray-400'
+                          : 'bg-gray-100 text-gray-500'
                     }`}>
                       {getNotificationIcon(notification.type)}
                     </div>
                     <div className="ml-3 flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
                         <h4 className={`text-sm font-medium truncate ${
-                          notification.unread ? 'text-blue-900' : 'text-gray-900'
+                          notification.unread 
+                            ? theme === 'dark' 
+                              ? 'text-blue-200' 
+                              : 'text-blue-900'
+                            : theme === 'dark' 
+                              ? 'text-white' 
+                              : 'text-gray-900'
                         }`}>
                           {notification.title}
                         </h4>
                         <div className="flex items-center ml-2 flex-shrink-0">
-                          <span className="flex items-center text-xs text-gray-500">
+                          <span className={`flex items-center text-xs ${
+                            theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                          }`}>
                             <Clock className="h-3 w-3 mr-1" />
                             {notification.time}
                           </span>
                         </div>
                       </div>
-                      <p className="text-sm text-gray-700 line-clamp-2">
+                      <p className={`text-sm line-clamp-2 ${
+                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                      }`}>
                         {notification.message}
                       </p>
                       <div className="mt-2 flex justify-between items-center">
                         {notification.unread && (
                           <button
                             onClick={() => markAsRead(notification.id)}
-                            className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center"
+                            className={`text-xs font-medium flex items-center ${
+                              theme === 'dark'
+                                ? 'text-blue-300 hover:text-blue-200'
+                                : 'text-blue-600 hover:text-blue-800'
+                            }`}
                           >
                             <Check className="h-3 w-3 mr-1" />
                             {t('mark_as_read')}
@@ -178,7 +224,11 @@ const NotificationsPage = () => {
                         )}
                         <button
                           onClick={() => dismissNotification(notification.id)}
-                          className="text-xs text-gray-500 hover:text-gray-700 flex items-center ml-auto"
+                          className={`text-xs flex items-center ml-auto ${
+                            theme === 'dark'
+                              ? 'text-gray-400 hover:text-gray-300'
+                              : 'text-gray-500 hover:text-gray-700'
+                          }`}
                         >
                           <X className="h-3 w-3 mr-1" />
                           {t('dismiss')}
@@ -196,9 +246,19 @@ const NotificationsPage = () => {
             </ul>
           ) : (
             <div className="px-4 py-12 text-center">
-              <Bell className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">{t('no_notifications')}</h3>
-              <p className="mt-1 text-sm text-gray-500">{t('no_notifications_description')}</p>
+              <Bell className={`mx-auto h-12 w-12 ${
+                theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
+              }`} />
+              <h3 className={`mt-2 text-sm font-medium ${
+                theme === 'dark' ? 'text-white' : 'text-gray-900'
+              }`}>
+                {t('no_notifications')}
+              </h3>
+              <p className={`mt-1 text-sm ${
+                theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+              }`}>
+                {t('no_notifications_description')}
+              </p>
             </div>
           )}
         </div>

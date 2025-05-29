@@ -7,6 +7,7 @@ import { User, Package, TrendingUp, Clock, Calendar, PieChart, Key } from 'lucid
 import Status from '../../components/common/Status';
 import { useLanguage } from '../../contexts/LanguageContext';
 import LoadingScreen from '../../components/common/LoadingScreen';
+import backImage from '../../utils/profile.png'; // Image pour le profil
 
 const ProfilePage = () => {
   const { user } = useAuth();
@@ -233,16 +234,42 @@ const ProfilePage = () => {
     );
   }
 
+  // Variables pour le style de l'image de fond
+  const isDark = theme === 'dark';
+  const shadowClass = isDark 
+    ? 'shadow-lg shadow-gray-800/20' 
+    : 'shadow-lg shadow-gray-200/30';
+  const hoverShadow = isDark 
+    ? 'hover:shadow-xl hover:shadow-gray-800/30' 
+    : 'hover:shadow-xl hover:shadow-gray-200/40';
+
   return (
     <div className={`min-h-screen  transition-colors duration-300`}>
-        {/* Profile Header with Tabs - Fade in animation */}
-        <div className={`${themeClasses.card} rounded-lg overflow-hidden mb-6 opacity-0 animate-fade-in transition-colors duration-300`}>
-          <div className={`${themeClasses.gradient} px-6 py-8 sm:px-8 relative overflow-hidden`}>
-            {/* Background animation */}
-            <div className={`absolute inset-0 ${themeClasses.gradientOverlay} animate-pulse-slow opacity-50`}></div>
+        {/* Profile Header with Background Image - Fade in animation */}
+        <div 
+          className={`rounded-xl overflow-hidden mb-6 ${shadowClass} transform transition-all duration-500 ${hoverShadow} hover:scale-[1.01] animate-fade-in`}
+          style={{
+            backgroundImage: isDark 
+              ? `linear-gradient(to right, rgba(17, 24, 39, 0.85), rgba(31, 41, 55, 0.85)), url(${backImage})`
+              : `linear-gradient(to right, rgba(59, 130, 246, 0.85), rgba(29, 78, 216, 0.85)), url(${backImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        >
+          <div className="px-6 py-8 sm:px-8 relative overflow-hidden">
+            {/* Background animation overlay */}
+            <div 
+              className="absolute inset-0 animate-pulse-slow opacity-30"
+              style={{
+                backgroundImage: isDark 
+                  ? `linear-gradient(to right, rgba(30, 58, 138, 0.3), rgba(30, 64, 175, 0.3))`
+                  : `linear-gradient(to right, rgba(37, 99, 235, 0.3), rgba(29, 78, 216, 0.3))`
+              }}
+            ></div>
 
             <div className="flex flex-col sm:flex-row items-center relative z-10">
-              <div className="h-24 w-24 rounded-full bg-white flex items-center justify-center p-1 border-4 border-white shadow-md transition-transform duration-300 hover:scale-110">
+              <div className="h-24 w-24 rounded-full bg-white flex items-center justify-center p-1 border-4 border-white shadow-xl transition-transform duration-300 hover:scale-110">
                 {user?.avatar ? (
                   <img
                     src={user.avatar}
@@ -254,17 +281,17 @@ const ProfilePage = () => {
                 )}
               </div>
               <div className="mt-4 sm:mt-0 sm:ml-6 text-center sm:text-left">
-                <h2 className="text-2xl font-bold text-white animate-fade-in-up">
+                <h2 className="text-2xl font-bold text-white animate-fade-in-up drop-shadow-lg">
                   {user?.name}
                 </h2>
-                <p className="text-blue-100 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                <p className="text-blue-100 animate-fade-in-up drop-shadow-md" style={{ animationDelay: '0.2s' }}>
                   {user?.email}
                 </p>
-                <p className="mt-1 text-sm text-blue-50 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+                <p className="mt-1 text-sm text-blue-50 animate-fade-in-up drop-shadow-md" style={{ animationDelay: '0.3s' }}>
                   {t('member_since')} {new Date().getFullYear()}
                 </p>
                 {/* Affichage de l'identifiant utilisateur */}
-                <div className="mt-2 flex items-center text-blue-50 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+                <div className="mt-2 flex items-center text-blue-50 animate-fade-in-up drop-shadow-md" style={{ animationDelay: '0.4s' }}>
                   <Key className="h-4 w-4 mr-1" />
                   <p className="text-sm">
                     <span className="font-mono"><b>{user?.identifiant || 'XXXXXXXXXXXXXXXXXXXXXXXXX'}</b></span>
@@ -274,14 +301,14 @@ const ProfilePage = () => {
             </div>
           </div>
 
-          <div className={`${themeClasses.border} border-b`}>
+          <div className={`${themeClasses.border} border-b bg-white/10 backdrop-blur-sm`}>
             <nav className="flex -mb-px overflow-x-auto scrollbar-hide">
               <button
                 onClick={() => handleTabChange('overview')}
                 className={`whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-all duration-300 ${
                   activeTab === 'overview'
-                    ? themeClasses.tabActive
-                    : themeClasses.tabInactive
+                    ? 'border-white text-white'
+                    : 'border-transparent text-blue-100 hover:text-white hover:border-blue-200'
                 }`}
               >
                 {t('overview')}
@@ -290,8 +317,8 @@ const ProfilePage = () => {
                 onClick={() => handleTabChange('analytics')}
                 className={`whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-all duration-300 ${
                   activeTab === 'analytics'
-                    ? themeClasses.tabActive
-                    : themeClasses.tabInactive
+                    ? 'border-white text-white'
+                    : 'border-transparent text-blue-100 hover:text-white hover:border-blue-200'
                 }`}
               >
                 {t('analytics')}

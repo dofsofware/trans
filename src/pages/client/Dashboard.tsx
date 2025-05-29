@@ -97,66 +97,89 @@ const Dashboard = () => {
       ) : (
         <>
           {/* Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {[
-              {
-                icon: <Truck size={24} strokeWidth={2}  />,
-                bgColor: isDark ? "bg-blue-900/50" : "bg-blue-100",
-                textColor: isDark ? "text-blue-400" : "text-blue-600",
-                title: t('statsInTransit'),
-                value: inTransitCount,
-                trend: <TrendingUp size={16} className={`ml-2 ${isDark ? 'text-blue-400' : 'text-blue-500'}`} />
-              },
-              {
-                icon: <Package size={24} strokeWidth={2}  />,
-                bgColor: isDark ? "bg-indigo-900/50" : "bg-indigo-100",
-                textColor: isDark ? "text-indigo-400" : "text-indigo-600",
-                title: t('statsInWarehouse'),
-                value: inWarehouseCount,
-                trend: <TrendingUp size={16} className={`ml-2 ${isDark ? 'text-indigo-400' : 'text-indigo-500'}`} />
-              },
-              {
-                icon: <BarChart size={24} strokeWidth={2}  />,
-                bgColor: isDark ? "bg-gray-700/50" : "bg-gray-100",
-                textColor: isDark ? "text-gray-300" : "text-gray-600",
-                title: t('statsTotalShipments'),
-                value: totalShipments,
-                trend: <TrendingUp size={16} className={`ml-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
-              },
-              {
-                icon: <AlertTriangle size={24} strokeWidth={2} />,
-                bgColor: isDark ? "bg-red-900/50" : "bg-red-100",
-                textColor: isDark ? "text-red-400" : "text-red-600",
-                title: t('statsIssues'),
-                value: issuesCount,
-                trend: issuesCount > 0 && <span className={`ml-2 animate-ping ${isDark ? 'text-red-400' : 'text-red-500'}`}>●</span>
-              }
-            ].map((stat, index) => (
-              <div
-                key={index}
-                className={`${bgSecondary} p-6 rounded-xl ${shadowClass} border ${borderColor} ${hoverShadow} transition-all duration-300 transform hover:translate-y-[-2px] hover:scale-105`}
-                style={{
-                  animationName: 'fadeInUp',
-                  animationDuration: '0.5s',
-                  animationFillMode: 'both',
-                  animationDelay: `${index * 0.1}s`
-                }}
-              >
-                <div className="flex items-center">
-                  <div className={`p-3 rounded-full ${stat.bgColor} ${stat.textColor} shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-110`}>
-                    {stat.icon}
-                  </div>
-                  <div className="ml-4">
-                    <h3 className={`text-sm font-medium ${textMuted}`}>{stat.title}</h3>
-                    <div className="flex items-baseline">
-                      <p className={`text-3xl font-semibold ${textPrimary}`}>{stat.value}</p>
-                      {stat.trend}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+          {/* Stats Section Redesignée */}
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+  {[
+    {
+      icon: <Truck size={24} strokeWidth={2} />,
+      iconBg: isDark ? "bg-blue-500/20" : "bg-blue-50",
+      iconColor: "text-blue-500",
+      title: t('statsInTransit'),
+      value: inTransitCount,
+      trend: <TrendingUp size={16} className="ml-2 text-blue-500" />,
+      accentColor: "bg-gradient-to-r from-blue-500 to-blue-600"
+    },
+    {
+      icon: <Package size={24} strokeWidth={2} />,
+      iconBg: isDark ? "bg-blue-500/20" : "bg-blue-50",
+      iconColor: "text-blue-500",
+      title: t('statsInWarehouse'),
+      value: inWarehouseCount,
+      trend: <TrendingUp size={16} className="ml-2 text-blue-500" />,
+      accentColor: "bg-gradient-to-r from-blue-500 to-indigo-600"
+    },
+    {
+      icon: <BarChart size={24} strokeWidth={2} />,
+      iconBg: isDark ? "bg-blue-500/20" : "bg-blue-50",
+      iconColor: "text-blue-500",
+      title: t('statsTotalShipments'),
+      value: totalShipments,
+      trend: <TrendingUp size={16} className="ml-2 text-blue-500" />,
+      accentColor: "bg-gradient-to-r from-blue-600 to-cyan-500"
+    },
+    {
+      icon: <AlertTriangle size={24} strokeWidth={2} />,
+      iconBg: isDark ? "bg-blue-500/20" : "bg-blue-50",
+      iconColor: issuesCount > 0 ? "text-red-500" : "text-blue-500",
+      title: t('statsIssues'),
+      value: issuesCount,
+      trend: issuesCount > 0 && <span className="ml-2 animate-ping text-red-500">●</span>,
+      accentColor: issuesCount > 0 
+        ? "bg-gradient-to-r from-red-500 to-orange-500" 
+        : "bg-gradient-to-r from-blue-500 to-purple-600"
+    }
+  ].map((stat, index) => (
+    <div
+      key={index}
+      className={`${bgSecondary} rounded-xl ${shadowClass} border ${borderColor} ${hoverShadow} transition-all duration-300 transform hover:translate-y-[-2px] hover:scale-105 overflow-hidden group`}
+      style={{
+        animationName: 'fadeInUp',
+        animationDuration: '0.5s',
+        animationFillMode: 'both',
+        animationDelay: `${index * 0.1}s`
+      }}
+    >
+      {/* Accent bar en haut */}
+      <div className={`h-1 ${stat.accentColor} transition-all duration-300 group-hover:h-2`}></div>
+      
+      {/* Contenu de la carte */}
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className={`p-3 rounded-xl ${stat.iconBg} ${stat.iconColor} shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-110 group-hover:rotate-3`}>
+            {stat.icon}
           </div>
+          {stat.trend && (
+            <div className="transition-all duration-300 group-hover:scale-110">
+              {stat.trend}
+            </div>
+          )}
+        </div>
+        
+        <div className="space-y-2">
+          <h3 className={`text-sm font-medium ${textMuted} uppercase tracking-wide`}>
+            {stat.title}
+          </h3>
+          <p className={`text-3xl font-bold ${textPrimary} transition-all duration-300 group-hover:scale-105`}>
+            {stat.value}
+          </p>
+        </div>
+      </div>
+      
+      {/* Effet de glow subtil au hover */}
+      <div className={`absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300 pointer-events-none ${stat.accentColor.replace('bg-gradient-to-r', 'bg-gradient-to-br')}`}></div>
+    </div>
+  ))}
+</div>
 
           {/* Active Shipments */}
           <div
