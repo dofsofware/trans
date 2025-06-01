@@ -2,10 +2,15 @@ import { useState } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Bell, Check, X, Clock, AlertCircle, Package, FileText, CreditCard, MessageSquare } from 'lucide-react';
+import backImage from '../../utils/invoices.png';
 
 const NotificationsPage = () => {
   const { t } = useLanguage();
   const { theme } = useTheme();
+  const shadowClass = theme === 'dark' ? 'shadow-lg shadow-gray-900/30' : 'shadow-lg shadow-gray-200/30';
+  const hoverShadow = theme === 'dark' ? 'hover:shadow-xl hover:shadow-gray-900/40' : 'hover:shadow-xl hover:shadow-gray-300/40';
+  const textPrimary = theme === 'dark' ? 'text-white' : 'text-gray-900';
+  const textSecondary = theme === 'dark' ? 'text-gray-300' : 'text-gray-600';
   const [notifications, setNotifications] = useState([
     {
       id: 1,
@@ -98,26 +103,33 @@ const NotificationsPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-6">
+      {/* New Header Section */}
+      <div 
+        className={`mb-8 rounded-xl p-6 ${shadowClass} transform transition-all duration-500 ${hoverShadow} hover:scale-[1.01] animate-fadeIn`}
+        style={{
+          backgroundImage: theme === 'dark' 
+            ? `linear-gradient(to right, rgba(17, 24, 39, 0.85), rgba(31, 41, 55, 0.85)), url(${backImage})`
+            : `linear-gradient(to right, rgba(239, 246, 255, 0.85), rgba(224, 231, 255, 0.85)), url(${backImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
         <div className="flex items-center justify-between">
-          <h1 className={`text-2xl font-bold ${
-            theme === 'dark' ? 'text-white' : 'text-gray-900'
-          }`}>
-            {t('notifications')}
-          </h1>
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+          <div className="p-4">
+            <h1 className={`text-2xl md:text-3xl font-bold ${textPrimary}`}>
+              {t('notifications')}
+            </h1>
+            <p className={`mt-2 ${textSecondary} text-lg`}>{t('notifications_description')}</p>
+          </div>
+          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
             theme === 'dark' 
-              ? 'bg-blue-900 text-blue-200' 
+              ? 'bg-blue-900/80 text-blue-200' 
               : 'bg-blue-100 text-blue-800'
           }`}>
             {unreadCount > 0 ? t('unread_count', { count: unreadCount }) : t('all_read')}
           </span>
         </div>
-        <p className={`mt-1 ${
-          theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-        }`}>
-          {t('notifications_description')}
-        </p>
       </div>
 
       <div className={`shadow rounded-lg border overflow-hidden ${

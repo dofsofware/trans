@@ -298,6 +298,9 @@ const translations = {
     attached_files: 'Attached files',
     filters: 'filters',
     manage_invoices: 'Manage all your invoices',
+    all_read: "All read",
+    no_unread_notifications: "No unread notifications",
+    dismiss: "Dismiss",
   },
   fr: {
     dashboard: 'Tableau de bord',
@@ -588,6 +591,9 @@ const translations = {
     attached_files: 'Fichiers joints',    
     filters: 'filtres',
     manage_invoices: 'Gérez toutes vos factures',
+    all_read: "Tout lu",
+    no_unread_notifications: "Aucune notification non lue",
+    dismiss: "Fermer",
   }
 };
 
