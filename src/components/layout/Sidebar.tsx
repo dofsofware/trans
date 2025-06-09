@@ -53,31 +53,31 @@ const Sidebar = ({ role, onNavigate }: SidebarProps) => {
 
   const agentLinks: NavLink[] = [
     { name: t('dashboard'), to: '/', icon: Home },
-    { name: 'Dossiers de transit', to: '/transit-files', icon: FolderOpen },
-    { name: 'Clients', to: '/clients', icon: Users },
+    { name: t('transit_files'), to: '/transit-files', icon: FolderOpen },
+    { name: t('clients'), to: '/clients', icon: Users },
     { name: t('messages'), to: '/messages', icon: MessageSquare, unreadCount: 5 },
   ];
 
   const operationsLinks: NavLink[] = [
     ...agentLinks,
-    { name: 'Warehouse', to: '/warehouse', icon: TruckIcon },
+    { name: t('warehouse'), to: '/warehouse', icon: TruckIcon },
   ];
 
   const customsLinks: NavLink[] = [
     ...agentLinks,
-    { name: 'Declarations', to: '/declarations', icon: Clipboard },
+    { name: t('declarations'), to: '/declarations', icon: Clipboard },
   ];
 
   const financeLinks: NavLink[] = [
     ...agentLinks,
-    { name: 'Invoices', to: '/invoices', icon: FileText },
+    { name: t('invoices'), to: '/invoices', icon: FileText },
   ];
 
   const supervisorLinks: NavLink[] = [
     ...agentLinks,
-    { name: 'Staff', to: '/staff', icon: Users },
-    { name: 'Analytics', to: '/analytics', icon: BarChart },
-    { name: 'Issues', to: '/issues', icon: AlertTriangle },
+    { name: t('staff'), to: '/staff', icon: Users },
+    { name: t('analytics'), to: '/analytics', icon: BarChart },
+    { name: t('issues'), to: '/issues', icon: AlertTriangle },
   ];
 
   const adminLinks: NavLink[] = [
