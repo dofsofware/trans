@@ -18,7 +18,8 @@ import {
   RefreshCw,
   Download,
   Share2,
-  Printer
+  Printer,
+  Ruler
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -378,7 +379,7 @@ const ShipmentDetails = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-4 mb-6">
               {renderDetailItem(
                 <Hash size={16} className="text-blue-600" />,
                 t('tracking_number'),
@@ -410,6 +411,11 @@ const ShipmentDetails = () => {
                 <Package size={16} className="text-blue-600" />,
                 t('volume'),
                 `${shipment.volume.toLocaleString()} m³`
+              )}
+              {renderDetailItem(
+                <Ruler size={16} className="text-blue-600" />,
+                t('dimensions'),
+                `${shipment.dimensions?.length || 120} × ${shipment.dimensions?.width || 80} × ${shipment.dimensions?.height || 90} cm`
               )}
             </div>
 

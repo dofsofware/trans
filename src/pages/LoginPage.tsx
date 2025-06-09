@@ -7,6 +7,7 @@ import { useTheme } from '../contexts/ThemeContext';
 
 import darkLogo from '../utils/ShipTrack_dark_mode.png';
 import lightLogo from '../utils/ShipTrack_light_mode.png';
+import loginBackground from '../utils/login_background.png';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -22,6 +23,7 @@ const LoginPage = () => {
   const { language, setLanguage, t } = useLanguage();
 
   const logo = theme === 'dark' ? darkLogo : lightLogo;
+  const background = loginBackground;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -65,7 +67,7 @@ const LoginPage = () => {
     <div
       className={`min-h-screen w-full flex items-center justify-center px-4 py-8 bg-cover bg-center ${backgroundImageClass}`}
       style={{
-        backgroundImage: 'url(https://www.basenton.com/wp-content/uploads/2023/11/image-23.png)',
+        backgroundImage: `url(${background})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center'
       }}
