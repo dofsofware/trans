@@ -28,6 +28,8 @@ import {
 import { format } from 'date-fns';
 import backImage from '../../utils/backGround_hearder.png';
 
+
+
 interface FilterState {
   search: string;
   status: string;
@@ -70,12 +72,15 @@ const AgentDashboard = () => {
     priority: ''
   });
 
+  // Get translations for current language
+  // const t = translations[language as keyof typeof translations] || translations.fr;
+
   // Mock agents data
   const agents = [
-    { id: '1', name: 'Sophie Martin', role: 'Operations' },
-    { id: '2', name: 'Thomas Dubois', role: 'Customs' },
-    { id: '3', name: 'Marie Lefebvre', role: 'Finance' },
-    { id: '4', name: 'Pierre Durand', role: 'Operations' }
+    { id: '1', name: 'Sophie Martin', role: t('operations') },
+    { id: '2', name: 'Thomas Dubois', role: t('customs') },
+    { id: '3', name: 'Marie Lefebvre', role: t('finance') },
+    { id: '4', name: 'Pierre Durand', role: t('operations') }
   ];
 
   const isDark = theme === 'dark';
@@ -224,10 +229,10 @@ const AgentDashboard = () => {
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
           <div className="p-4">
             <h1 className={`text-2xl md:text-3xl font-bold ${textPrimary} mb-2`}>
-              {t('dashboard')} - Agent
+              {t('dashboard')} - {t('agent')}
             </h1>
             <p className={`${textSecondary} text-lg`}>
-              Gérez vos dossiers de transit et clients
+              {t('manageFilesAndClients')}
             </p>
           </div>
           
@@ -235,11 +240,11 @@ const AgentDashboard = () => {
           <div className="flex flex-col sm:flex-row gap-3 p-4">
             <button className="inline-flex items-center px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
               <Users size={18} className="mr-2" />
-              Créer un client
+              {t('createClient')}
             </button>
             <button className="inline-flex items-center px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm">
               <FileText size={18} className="mr-2" />
-              Nouveau dossier
+              {t('newFile')}
             </button>
           </div>
         </div>
@@ -255,7 +260,7 @@ const AgentDashboard = () => {
             </div>
             <input
               type="text"
-              placeholder="Rechercher par référence, origine, destination..."
+              placeholder={t('searchPlaceholder')}
               value={filters.search}
               onChange={(e) => handleFilterChange('search', e.target.value)}
               className={`block w-full pl-10 pr-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200`}
@@ -269,7 +274,7 @@ const AgentDashboard = () => {
               className={`inline-flex items-center px-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors relative`}
             >
               <Filter size={18} className="mr-2" />
-              Filtres
+              {t('filters')}
               {activeFiltersCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {activeFiltersCount}
@@ -283,7 +288,7 @@ const AgentDashboard = () => {
                 className="inline-flex items-center px-3 py-2 text-sm text-red-600 hover:text-red-800 transition-colors"
               >
                 <X size={16} className="mr-1" />
-                Effacer tout
+                {t('clearAll')}
               </button>
             )}
 
@@ -299,51 +304,51 @@ const AgentDashboard = () => {
             {/* Status Filter */}
             <div>
               <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-                Statut
+                {t('status')}
               </label>
               <select
                 value={filters.status}
                 onChange={(e) => handleFilterChange('status', e.target.value)}
                 className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
               >
-                <option value="">Tous les statuts</option>
-                <option value="draft">Brouillon</option>
-                <option value="processing">En traitement</option>
-                <option value="warehouse">En entrepôt</option>
-                <option value="customs">Dédouanement</option>
-                <option value="in_transit">En transit</option>
-                <option value="delivered">Livré</option>
-                <option value="issue">Problème</option>
+                <option value="">{t('allStatuses')}</option>
+                <option value="draft">{t('draft')}</option>
+                <option value="processing">{t('processing')}</option>
+                <option value="warehouse">{t('warehouse')}</option>
+                <option value="customs">{t('customs')}</option>
+                <option value="in_transit">{t('inTransit')}</option>
+                <option value="delivered">{t('delivered')}</option>
+                <option value="issue">{t('issue')}</option>
               </select>
             </div>
 
             {/* Type Filter */}
             <div>
               <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-                Type de transport
+                {t('transportType')}
               </label>
               <select
                 value={filters.type}
                 onChange={(e) => handleFilterChange('type', e.target.value)}
                 className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
               >
-                <option value="">Tous les types</option>
-                <option value="air">Aérien</option>
-                <option value="sea">Maritime</option>
+                <option value="">{t('allTypes')}</option>
+                <option value="air">{t('air')}</option>
+                <option value="sea">{t('sea')}</option>
               </select>
             </div>
 
             {/* Client Filter */}
             <div>
               <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-                Client
+                {t('client')}
               </label>
               <select
                 value={filters.client}
                 onChange={(e) => handleFilterChange('client', e.target.value)}
                 className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
               >
-                <option value="">Tous les clients</option>
+                <option value="">{t('allClients')}</option>
                 {clients.map(client => (
                   <option key={client.id} value={client.id}>
                     {client.name}
@@ -355,14 +360,14 @@ const AgentDashboard = () => {
             {/* Assigned To Filter */}
             <div>
               <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-                Assigné à
+                {t('assignedTo')}
               </label>
               <select
                 value={filters.assignedTo}
                 onChange={(e) => handleFilterChange('assignedTo', e.target.value)}
                 className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
               >
-                <option value="">Tous les agents</option>
+                <option value="">{t('allAgents')}</option>
                 {agents.map(agent => (
                   <option key={agent.id} value={agent.id}>
                     {agent.name} ({agent.role})
@@ -374,11 +379,11 @@ const AgentDashboard = () => {
             {/* Origin Filter */}
             <div>
               <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-                Origine
+                {t('origin')}
               </label>
               <input
                 type="text"
-                placeholder="Ville, pays..."
+                placeholder={t('cityCountryPlaceholder')}
                 value={filters.origin}
                 onChange={(e) => handleFilterChange('origin', e.target.value)}
                 className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
@@ -388,11 +393,11 @@ const AgentDashboard = () => {
             {/* Destination Filter */}
             <div>
               <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-                Destination
+                {t('destination')}
               </label>
               <input
                 type="text"
-                placeholder="Ville, pays..."
+                placeholder={t('cityCountryPlaceholder')}
                 value={filters.destination}
                 onChange={(e) => handleFilterChange('destination', e.target.value)}
                 className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
@@ -402,7 +407,7 @@ const AgentDashboard = () => {
             {/* Date From Filter */}
             <div>
               <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-                Date de création (de)
+                {t('creationDateFrom')}
               </label>
               <input
                 type="date"
@@ -415,7 +420,7 @@ const AgentDashboard = () => {
             {/* Date To Filter */}
             <div>
               <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-                Date de création (à)
+                {t('creationDateTo')}
               </label>
               <input
                 type="date"
@@ -429,58 +434,93 @@ const AgentDashboard = () => {
 
         {/* Active Filters Display */}
         {activeFiltersCount > 0 && (
-          <div className={`mt-4 pt-4 border-t ${borderColor}`}>
-            <div className="flex flex-wrap gap-2">
-              <span className={`text-sm ${textMuted}`}>Filtres actifs:</span>
-              {Object.entries(filters).map(([key, value]) => {
-                if (!value) return null;
-                
-                const filterLabels = {
-                  search: 'Recherche',
-                  status: 'Statut',
-                  type: 'Type',
-                  client: 'Client',
-                  assignedTo: 'Assigné à',
-                  origin: 'Origine',
-                  destination: 'Destination',
-                  dateFrom: 'Date de',
-                  dateTo: 'Date à'
-                };
+  <div className={`mt-4 pt-4 border-t ${borderColor}`}>
+    <div className="flex flex-wrap gap-2">
+      <span className={`text-sm ${textMuted}`}>{t('activeFilters')}</span>
+      {Object.entries(filters).map(([key, value]) => {
+        if (!value) return null;
+        
+        const filterLabels = {
+          search: t('search'),
+          status: t('status'),
+          type: t('type'),
+          client: t('client'),
+          assignedTo: t('assignedTo'),
+          origin: t('origin'),
+          destination: t('destination'),
+          dateFrom: t('creationDateFrom'),
+          dateTo: t('creationDateTo')
+        };
 
-                return (
-                  <span
-                    key={key}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                  >
-                    {filterLabels[key as keyof typeof filterLabels]}: {value}
-                    <button
-                      onClick={() => clearFilter(key as keyof FilterState)}
-                      className="ml-2 hover:text-blue-600"
-                    >
-                      <X size={12} />
-                    </button>
-                  </span>
-                );
-              })}
-            </div>
-          </div>
-        )}
+        // Fonction pour obtenir la valeur traduite
+        const getTranslatedValue = (filterKey: string, filterValue: string) => {
+          switch (filterKey) {
+            case 'status':
+              const statusTranslations: { [key: string]: string } = {
+                'draft': t('draft'),
+                'processing': t('processing'),
+                'warehouse': t('warehouse'),
+                'customs': t('customs'),
+                'in_transit': t('inTransit'),
+                'delivered': t('delivered'),
+                'issue': t('issue')
+              };
+              return statusTranslations[filterValue] || filterValue;
+            
+            case 'type':
+              const typeTranslations: { [key: string]: string } = {
+                'air': t('air'),
+                'sea': t('sea')
+              };
+              return typeTranslations[filterValue] || filterValue;
+            
+            case 'client':
+              const client = clients.find(c => c.id === filterValue);
+              return client ? client.name : filterValue;
+            
+            case 'assignedTo':
+              const agent = agents.find(a => a.id === filterValue);
+              return agent ? `${agent.name} (${agent.role})` : filterValue;
+            
+            default:
+              return filterValue;
+          }
+        };
+
+        return (
+          <span
+            key={key}
+            className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+          >
+            {filterLabels[key as keyof typeof filterLabels]}: {getTranslatedValue(key, value)}
+            <button
+              onClick={() => clearFilter(key as keyof FilterState)}
+              className="ml-2 hover:text-blue-600"
+            >
+              <X size={12} />
+            </button>
+          </span>
+        );
+      })}
+    </div>
+  </div>
+)}
       </div>
 
       {/* Results Summary */}
       <div className="mb-6 flex justify-between items-center">
         <p className={`text-sm ${textSecondary}`}>
-          {filteredShipments.length} dossier{filteredShipments.length !== 1 ? 's' : ''} trouvé{filteredShipments.length !== 1 ? 's' : ''}
-          {activeFiltersCount > 0 && ' (filtré)'}
+          {filteredShipments.length} {t('filesFound')}
+          {activeFiltersCount > 0 && ` ${t('filtered')}`}
         </p>
         
         <div className="flex items-center gap-2">
-          <span className={`text-sm ${textMuted}`}>Trier par:</span>
+          <span className={`text-sm ${textMuted}`}>{t('sortBy')}</span>
           <select className={`px-3 py-1 border ${borderColor} rounded ${bgPrimary} ${textPrimary} text-sm focus:outline-none focus:ring-2 focus:ring-blue-500`}>
-            <option>Date de création</option>
-            <option>Référence</option>
-            <option>Statut</option>
-            <option>Client</option>
+            <option>{t('creationDate')}</option>
+            <option>{t('reference')}</option>
+            <option>{t('status')}</option>
+            <option>{t('client')}</option>
           </select>
         </div>
       </div>
@@ -507,12 +547,12 @@ const AgentDashboard = () => {
         <div className={`${bgSecondary} rounded-lg ${shadowClass} p-12 text-center`}>
           <Package size={48} className={`mx-auto mb-4 ${textMuted}`} />
           <h3 className={`text-lg font-medium ${textPrimary} mb-2`}>
-            Aucun dossier trouvé
+            {t('noFilesFound')}
           </h3>
           <p className={textMuted}>
             {activeFiltersCount > 0 
-              ? 'Aucun dossier ne correspond à vos critères de recherche.'
-              : 'Aucun dossier de transit disponible pour le moment.'
+              ? t('noFilesFoundMessage')
+              : t('noFilesAvailable')
             }
           </p>
           {activeFiltersCount > 0 && (
@@ -520,7 +560,7 @@ const AgentDashboard = () => {
               onClick={clearAllFilters}
               className="mt-4 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Effacer les filtres
+              {t('clearFilters')}
             </button>
           )}
         </div>
