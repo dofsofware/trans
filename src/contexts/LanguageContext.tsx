@@ -376,7 +376,8 @@ const translations = {
     noFilesAvailable: 'No transit files available at the moment.',
     clearFilters: 'Clear Filters',
     operations: 'Operations',
-    finance: 'Finance'
+    finance: 'Finance',
+    itemsPerPage: 'Items per page',
   },
   fr: {
     dashboard: 'Tableau de bord',
@@ -744,7 +745,8 @@ const translations = {
     noFilesAvailable: 'Aucun dossier de transit disponible pour le moment.',
     clearFilters: 'Réinitialiser les filtres',
     operations: 'Opérations',
-    finance: 'Finances'
+    finance: 'Finances',
+    itemsPerPage: 'élément par page',
   }
 };
 

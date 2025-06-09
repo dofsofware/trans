@@ -8,6 +8,7 @@ import { Shipment } from '../../types/shipment';
 import { Client } from '../../types/client';
 import ShipmentCard from '../../components/shipments/ShipmentCard';
 import LoadingScreen from '../../components/common/LoadingScreen';
+import { useMediaQuery } from 'react-responsive';
 import {
   Search,
   Filter,
@@ -28,7 +29,11 @@ import {
   ArrowUp,
   ArrowDown,
   SortAsc,
-  List
+  List,
+  Grid,
+  Table,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { format } from 'date-fns';
 import backImage from '../../utils/backGround_hearder.png';
@@ -82,6 +87,11 @@ const AgentDashboard = () => {
     priority: ''
   });
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(9);
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+  const [paginatedShipments, setPaginatedShipments] = useState<Shipment[]>([]);
+  const isMobile = useMediaQuery({ maxWidth: 767 });
   // Mock agents data
   const agents = [
     { id: '1', name: 'Sophie Martin', role: t('operations') },
@@ -154,6 +164,17 @@ const AgentDashboard = () => {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    setPaginatedShipments(sortedShipments.slice(startIndex, endIndex));
+  }, [sortedShipments, currentPage, itemsPerPage]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filteredShipments]);
 
   // Apply filters
   useEffect(() => {
@@ -335,6 +356,121 @@ const AgentDashboard = () => {
     const orderLabel = sortOrder === 'asc' ? '↑' : '↓';
     return `${currentOption?.label} ${orderLabel}`;
   };
+
+  // Pagination functions
+  const totalPages = Math.ceil(sortedShipments.length / itemsPerPage);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleItemsPerPageChange = (items: number) => {
+    setItemsPerPage(items);
+    setCurrentPage(1);
+  };
+
+  const getPaginationNumbers = () => {
+    const delta = 2;
+    const range = [];
+    const rangeWithDots = [];
+
+    for (let i = Math.max(2, currentPage - delta); 
+         i <= Math.min(totalPages - 1, currentPage + delta); 
+         i++) {
+      range.push(i);
+    }
+
+    if (currentPage - delta > 2) {
+      rangeWithDots.push(1, '...');
+    } else {
+      rangeWithDots.push(1);
+    }
+
+    rangeWithDots.push(...range);
+
+    if (currentPage + delta < totalPages - 1) {
+      rangeWithDots.push('...', totalPages);
+    } else if (totalPages > 1) {
+      rangeWithDots.push(totalPages);
+    }
+
+    return rangeWithDots;
+  };
+
+  // Table View Component
+  const TableView = () => (
+    <div className={`${bgSecondary} rounded-lg ${shadowClass} overflow-hidden`}>
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-800">
+            <tr>
+              <th className={`px-6 py-3 text-left text-xs font-medium ${textMuted} uppercase tracking-wider`}>
+                {t('reference')}
+              </th>
+              <th className={`px-6 py-3 text-left text-xs font-medium ${textMuted} uppercase tracking-wider`}>
+                {t('client')}
+              </th>
+              <th className={`px-6 py-3 text-left text-xs font-medium ${textMuted} uppercase tracking-wider`}>
+                {t('status')}
+              </th>
+              <th className={`px-6 py-3 text-left text-xs font-medium ${textMuted} uppercase tracking-wider`}>
+                {t('route')}
+              </th>
+              <th className={`px-6 py-3 text-left text-xs font-medium ${textMuted} uppercase tracking-wider`}>
+                {t('type')}
+              </th>
+              <th className={`px-6 py-3 text-left text-xs font-medium ${textMuted} uppercase tracking-wider`}>
+                {t('creationDate')}
+              </th>
+              <th className={`px-6 py-3 text-left text-xs font-medium ${textMuted} uppercase tracking-wider`}>
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className={`${bgSecondary} divide-y divide-gray-200 dark:divide-gray-700`}>
+            {paginatedShipments.map((shipment) => {
+              const client = clients.find(c => c.id === shipment.clientId);
+              return (
+                <tr key={shipment.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${textPrimary}`}>
+                    {shipment.reference}
+                  </td>
+                  <td className={`px-6 py-4 whitespace-nowrap text-sm ${textSecondary}`}>
+                    {client?.name || 'N/A'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      shipment.status === 'delivered' ? 'bg-green-100 text-green-800' :
+                      shipment.status === 'in_transit' ? 'bg-blue-100 text-blue-800' :
+                      shipment.status === 'issue' ? 'bg-red-100 text-red-800' :
+                      'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {t(shipment.status)}
+                    </span>
+                  </td>
+                  <td className={`px-6 py-4 whitespace-nowrap text-sm ${textSecondary}`}>
+                    {shipment.origin} → {shipment.destination}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {shipment.type === 'air' ? <Plane size={16} /> : <Ship size={16} />}
+                  </td>
+                  <td className={`px-6 py-4 whitespace-nowrap text-sm ${textSecondary}`}>
+                    {format(new Date(shipment.createdAt), 'dd/MM/yyyy')}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button className="text-blue-600 hover:text-blue-900">
+                      {t('view')}
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -564,7 +700,7 @@ const AgentDashboard = () => {
         {activeFiltersCount > 0 && (
           <div className={`mt-4 pt-4 border-t ${borderColor}`}>
             <div className="flex flex-wrap gap-2">
-              <span className={`text-sm ${textMuted}`}>{t('activeFilters')}</span>
+              <span className={`text-sm ${textMuted}`}>{t('activeFilters')}:</span>
               {Object.entries(filters).map(([key, value]) => {
                 if (!value) return null;
                 
@@ -635,86 +771,166 @@ const AgentDashboard = () => {
         )}
       </div>
 
-      {/* Results Summary and Sorting */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <p className={`text-sm ${textSecondary}`}>
-          {sortedShipments.length} {t('filesFound')}
-          {activeFiltersCount > 0 && ` ${t('filtered')}`}
-        </p>
-        
-        {/* Sorting Options */}
-        <div className="flex flex-wrap items-center gap-2">
-          <span className={`text-sm ${textMuted} mr-2`}>{t('sortBy')}</span>
+      {/* Sorting and View Options */}
+      <div className={`${bgSecondary} rounded-lg ${shadowClass} p-4 mb-6 ${borderColor} border`}>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+          {/* Results Summary */}
+          <div className="flex items-center">
+            <p className={`text-sm ${textSecondary}`}>
+              {sortedShipments.length} {t('filesFound')}
+              {activeFiltersCount > 0 && ` ${t('filtered')}`}
+            </p>
+          </div>
           
-          <button
-            onClick={() => handleSortChange('creationDate')}
-            className={`inline-flex items-center px-3 py-1.5 text-sm border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-              sortField === 'creationDate' ? 'ring-2 ring-blue-500 border-blue-500' : ''
-            }`}
-          >
-            {t('creationDate')}
-            {getSortIcon('creationDate')}
-          </button>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            {/* Items per page selector */}
+            <div className="flex items-center gap-2">
+              <span className={`text-sm ${textMuted}`}>{t('itemsPerPage')}:</span>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                className={`px-2 py-1 text-sm border ${borderColor} rounded ${bgPrimary} ${textPrimary}`}
+              >
+                <option value={6}>6</option>
+                <option value={9}>9</option>
+                <option value={12}>12</option>
+                <option value={24}>24</option>
+              </select>
+            </div>
+            
+            {/* View Mode Toggle */}
+            {!isMobile && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setViewMode('cards')}
+                  className={`p-2 rounded-lg transition-colors ${
+                    viewMode === 'cards' 
+                      ? 'bg-blue-600 text-white' 
+                      : `${bgPrimary} ${textMuted} hover:${textPrimary} border ${borderColor}`
+                  }`}
+                >
+                  <Grid size={18} />
+                </button>
+                <button
+                  onClick={() => setViewMode('table')}
+                  className={`p-2 rounded-lg transition-colors ${
+                    viewMode === 'table' 
+                      ? 'bg-blue-600 text-white' 
+                      : `${bgPrimary} ${textMuted} hover:${textPrimary} border ${borderColor}`
+                  }`}
+                >
+                  <Table size={18} />
+                </button>
+              </div>
+            )}
+            
+            {/* Sorting Options */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={`text-sm ${textMuted}`}>{t('sortBy')}</span>
+              
+              <button
+                onClick={() => handleSortChange('creationDate')}
+                className={`inline-flex items-center px-3 py-1.5 text-sm border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                  sortField === 'creationDate' ? 'ring-2 ring-blue-500 border-blue-500' : ''
+                }`}
+              >
+                {t('creationDate')}
+                {getSortIcon('creationDate')}
+              </button>
 
-          <button
-            onClick={() => handleSortChange('reference')}
-            className={`inline-flex items-center px-3 py-1.5 text-sm border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-              sortField === 'reference' ? 'ring-2 ring-blue-500 border-blue-500' : ''
-            }`}
-          >
-            {t('reference')}
-            {getSortIcon('reference')}
-          </button>
+              <button
+                onClick={() => handleSortChange('reference')}
+                className={`inline-flex items-center px-3 py-1.5 text-sm border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                  sortField === 'reference' ? 'ring-2 ring-blue-500 border-blue-500' : ''
+                }`}
+              >
+                {t('reference')}
+                {getSortIcon('reference')}
+              </button>
 
-          <button
-            onClick={() => handleSortChange('status')}
-            className={`inline-flex items-center px-3 py-1.5 text-sm border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-              sortField === 'status' ? 'ring-2 ring-blue-500 border-blue-500' : ''
-            }`}
-          >
-            {t('status')}
-            {getSortIcon('status')}
-          </button>
-
-          <button
-            onClick={() => handleSortChange('client')}
-            className={`inline-flex items-center px-3 py-1.5 text-sm border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-              sortField === 'client' ? 'ring-2 ring-blue-500 border-blue-500' : ''
-            }`}
-          >
-            {t('client')}
-            {getSortIcon('client')}
-          </button>
-
-          <button
-            onClick={() => handleSortChange('destination')}
-            className={`inline-flex items-center px-3 py-1.5 text-sm border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-              sortField === 'destination' ? 'ring-2 ring-blue-500 border-blue-500' : ''
-            }`}
-          >
-            {t('destination')}
-            {getSortIcon('destination')}
-          </button>
+              <button
+                onClick={() => handleSortChange('status')}
+                className={`inline-flex items-center px-3 py-1.5 text-sm border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                  sortField === 'status' ? 'ring-2 ring-blue-500 border-blue-500' : ''
+                }`}
+              >
+                {t('status')}
+                {getSortIcon('status')}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Shipments Grid */}
       {sortedShipments.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sortedShipments.map((shipment, index) => (
-            <div
-              key={shipment.id}
-              className="transform transition-all duration-300 hover:scale-105"
-              style={{
-                animationName: 'fadeInScale',
-                animationDuration: '0.5s',
-                animationFillMode: 'both',
-                animationDelay: `${0.1 * index}s`
-              }}
-            >
-              <ShipmentCard shipment={shipment} />
+        <div className="space-y-6">
+          {viewMode === 'cards' || isMobile ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {paginatedShipments.map((shipment, index) => (
+                <div
+                  key={shipment.id}
+                  className="transform transition-all duration-300 hover:scale-105"
+                  style={{
+                    animationName: 'fadeInScale',
+                    animationDuration: '0.5s',
+                    animationFillMode: 'both',
+                    animationDelay: `${0.1 * index}s`
+                  }}
+                >
+                  <ShipmentCard shipment={shipment} />
+                </div>
+              ))}
             </div>
-          ))}
+          ) : (
+            <TableView />
+          )}
+          
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6">
+              <div className={`text-sm ${textSecondary}`}>
+                Page {currentPage} sur {totalPages}
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`p-2 rounded-lg border ${borderColor} ${bgPrimary} ${textPrimary} disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700`}
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                
+                {getPaginationNumbers().map((page, index) => (
+                  page === '...' ? (
+                    <span key={index} className={`px-3 py-2 ${textMuted}`}>...</span>
+                  ) : (
+                    <button
+                      key={index}
+                      onClick={() => handlePageChange(page as number)}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        currentPage === page
+                         
+                          ? 'bg-blue-600 text-white'
+                          : `border ${borderColor} ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700`
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  )
+                ))}
+                
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`p-2 rounded-lg border ${borderColor} ${bgPrimary} ${textPrimary} disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700`}
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className={`${bgSecondary} rounded-lg ${shadowClass} p-12 text-center`}>
@@ -739,7 +955,7 @@ const AgentDashboard = () => {
         </div>
       )}
 
-      {/* CSS Animations */}
+  {/* CSS Animations */}
       <style jsx global>{`
         @keyframes fadeIn {
           from { opacity: 0; }
@@ -761,7 +977,7 @@ const AgentDashboard = () => {
           animation: fadeIn 0.5s ease-out forwards;
         }
       `}</style>
-    </div>
+      </div>
   );
 };
 
