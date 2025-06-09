@@ -14,7 +14,8 @@ import {
   Clipboard,
   TruckIcon,
   AlertTriangle,
-  Receipt
+  Receipt,
+  FolderOpen
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
@@ -52,25 +53,24 @@ const Sidebar = ({ role, onNavigate }: SidebarProps) => {
 
   const agentLinks: NavLink[] = [
     { name: t('dashboard'), to: '/', icon: Home },
-    { name: t('shipments'), to: '/shipments', icon: Package },
+    { name: 'Dossiers de transit', to: '/transit-files', icon: FolderOpen },
+    { name: 'Clients', to: '/clients', icon: Users },
+    { name: t('messages'), to: '/messages', icon: MessageSquare, unreadCount: 5 },
   ];
 
   const operationsLinks: NavLink[] = [
     ...agentLinks,
     { name: 'Warehouse', to: '/warehouse', icon: TruckIcon },
-    { name: t('messages'), to: '/messages', icon: MessageSquare, unreadCount: 5 },
   ];
 
   const customsLinks: NavLink[] = [
     ...agentLinks,
     { name: 'Declarations', to: '/declarations', icon: Clipboard },
-    { name: t('messages'), to: '/messages', icon: MessageSquare, unreadCount: 5 },
   ];
 
   const financeLinks: NavLink[] = [
     ...agentLinks,
     { name: 'Invoices', to: '/invoices', icon: FileText },
-    { name: t('messages'), to: '/messages', icon: MessageSquare, unreadCount: 5 },
   ];
 
   const supervisorLinks: NavLink[] = [
@@ -78,7 +78,6 @@ const Sidebar = ({ role, onNavigate }: SidebarProps) => {
     { name: 'Staff', to: '/staff', icon: Users },
     { name: 'Analytics', to: '/analytics', icon: BarChart },
     { name: 'Issues', to: '/issues', icon: AlertTriangle },
-    { name: t('messages'), to: '/messages', icon: MessageSquare, unreadCount: 5 },
   ];
 
   const adminLinks: NavLink[] = [

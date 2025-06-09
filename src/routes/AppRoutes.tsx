@@ -10,6 +10,8 @@ import PaymentsPage from '../pages/client/Payments';
 import AgentDashboard from '../pages/agent/Dashboard';
 import AgentShipments from '../pages/agent/Shipments';
 import AgentShipmentDetails from '../pages/agent/ShipmentDetails';
+import ClientsPage from '../pages/agent/Clients';
+import TransitFilesPage from '../pages/agent/TransitFiles';
 import Layout from '../components/layout/Layout';
 import LoadingScreen from '../components/common/LoadingScreen';
 import SettingsPage from '../pages/client/Settings';
@@ -22,19 +24,19 @@ import ResetPasswordPage from '../pages/ResetPasswordPage';
 
 const AppRoutes = () => {
   const { isAuthenticated, isLoading, user } = useAuth();
-
+  
   if (isLoading) {
     return <LoadingScreen />;
   }
-
+  
   return (
     <Routes>
       {!isAuthenticated ? (
         <>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </>
       ) : (
         <>
@@ -58,6 +60,9 @@ const AppRoutes = () => {
               <Route path="/" element={<AgentDashboard />} />
               <Route path="/shipments" element={<AgentShipments />} />
               <Route path="/shipments/:id" element={<AgentShipmentDetails />} />
+              <Route path="/transit-files" element={<TransitFilesPage />} />
+              <Route path="/clients" element={<ClientsPage />} />
+              <Route path="/messages" element={<MessagesPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           )}

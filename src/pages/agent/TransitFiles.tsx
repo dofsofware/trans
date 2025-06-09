@@ -12,18 +12,20 @@ import {
   Search,
   Filter,
   Plus,
-  Users,
-  Package,
-  X,
-  ChevronDown,
   FileText,
-  MapPin,
-  User,
+  X,
   Calendar,
+  User,
+  MapPin,
+  Package,
   Truck,
   Ship,
   Plane,
-  RefreshCw
+  RefreshCw,
+  Download,
+  Eye,
+  Edit,
+  MoreVertical
 } from 'lucide-react';
 import { format } from 'date-fns';
 import backImage from '../../utils/backGround_hearder.png';
@@ -34,16 +36,13 @@ interface FilterState {
   type: string;
   client: string;
   assignedTo: string;
-  createdBy: string;
   origin: string;
   destination: string;
   dateFrom: string;
   dateTo: string;
-  containerType: string;
-  priority: string;
 }
 
-const AgentDashboard = () => {
+const TransitFilesPage = () => {
   const { user } = useAuth();
   const { theme } = useTheme();
   const { t } = useLanguage();
@@ -54,6 +53,7 @@ const AgentDashboard = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
   const [pageLoaded, setPageLoaded] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
 
   const [filters, setFilters] = useState<FilterState>({
     search: '',
@@ -61,13 +61,10 @@ const AgentDashboard = () => {
     type: '',
     client: '',
     assignedTo: '',
-    createdBy: '',
     origin: '',
     destination: '',
     dateFrom: '',
-    dateTo: '',
-    containerType: '',
-    priority: ''
+    dateTo: ''
   });
 
   // Mock agents data
@@ -189,18 +186,25 @@ const AgentDashboard = () => {
       type: '',
       client: '',
       assignedTo: '',
-      createdBy: '',
       origin: '',
       destination: '',
       dateFrom: '',
-      dateTo: '',
-      containerType: '',
-      priority: ''
+      dateTo: ''
     });
   };
 
   const clearFilter = (key: keyof FilterState) => {
     setFilters(prev => ({ ...prev, [key]: '' }));
+  };
+
+  const getClientName = (clientId: string) => {
+    const client = clients.find(c => c.id === clientId);
+    return client ? client.name : 'Client inconnu';
+  };
+
+  const getAgentName = (agentId: string) => {
+    const agent = agents.find(a => a.id === agentId);
+    return agent ? agent.name : 'Agent inconnu';
   };
 
   if (isLoading) {
@@ -224,22 +228,21 @@ const AgentDashboard = () => {
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
           <div className="p-4">
             <h1 className={`text-2xl md:text-3xl font-bold ${textPrimary} mb-2`}>
-              {t('dashboard')} - Agent
+              Dossiers de Transit
             </h1>
             <p className={`${textSecondary} text-lg`}>
-              Gérez vos dossiers de transit et clients
+              Gérez tous vos dossiers de transit et expéditions
             </p>
           </div>
           
-          {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 p-4">
-            <button className="inline-flex items-center px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
-              <Users size={18} className="mr-2" />
-              Créer un client
-            </button>
             <button className="inline-flex items-center px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm">
-              <FileText size={18} className="mr-2" />
+              <Plus size={18} className="mr-2" />
               Nouveau dossier
+            </button>
+            <button className={`inline-flex items-center px-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors`}>
+              <Download size={18} className="mr-2" />
+              Exporter
             </button>
           </div>
         </div>
@@ -260,6 +263,30 @@ const AgentDashboard = () => {
               onChange={(e) => handleFilterChange('search', e.target.value)}
               className={`block w-full pl-10 pr-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200`}
             />
+          </div>
+
+          {/* View Mode Toggle */}
+          <div className={`flex rounded-lg border ${borderColor} p-1`}>
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+                viewMode === 'grid'
+                  ? 'bg-blue-600 text-white'
+                  : `${textMuted} hover:${textPrimary}`
+              }`}
+            >
+              Grille
+            </button>
+            <button
+              onClick={() => setViewMode('table')}
+              className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+                viewMode === 'table'
+                  ? 'bg-blue-600 text-white'
+                  : `${textMuted} hover:${textPrimary}`
+              }`}
+            >
+              Tableau
+            </button>
           </div>
 
           {/* Filter Toggle Button */}
@@ -485,27 +512,118 @@ const AgentDashboard = () => {
         </div>
       </div>
 
-      {/* Shipments Grid */}
+      {/* Content Display */}
       {filteredShipments.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredShipments.map((shipment, index) => (
-            <div
-              key={shipment.id}
-              className="transform transition-all duration-300 hover:scale-105"
-              style={{
-                animationName: 'fadeInScale',
-                animationDuration: '0.5s',
-                animationFillMode: 'both',
-                animationDelay: `${0.1 * index}s`
-              }}
-            >
-              <ShipmentCard shipment={shipment} />
+        viewMode === 'grid' ? (
+          // Grid View
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredShipments.map((shipment, index) => (
+              <div
+                key={shipment.id}
+                className="transform transition-all duration-300 hover:scale-105"
+                style={{
+                  animationName: 'fadeInScale',
+                  animationDuration: '0.5s',
+                  animationFillMode: 'both',
+                  animationDelay: `${0.1 * index}s`
+                }}
+              >
+                <ShipmentCard shipment={shipment} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          // Table View
+          <div className={`${bgSecondary} rounded-lg ${shadowClass} overflow-hidden`}>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className={`${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                  <tr>
+                    <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
+                      Référence
+                    </th>
+                    <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
+                      Client
+                    </th>
+                    <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
+                      Origine → Destination
+                    </th>
+                    <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
+                      Type
+                    </th>
+                    <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
+                      Statut
+                    </th>
+                    <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
+                      Date création
+                    </th>
+                    <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className={`divide-y ${isDark ? 'divide-gray-700' : 'divide-gray-200'}`}>
+                  {filteredShipments.map((shipment) => (
+                    <tr key={shipment.id} className={`${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-50'} transition-colors`}>
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${textPrimary}`}>
+                        {shipment.reference}
+                      </td>
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm ${textSecondary}`}>
+                        {getClientName(shipment.clientId)}
+                      </td>
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm ${textSecondary}`}>
+                        <div className="flex items-center">
+                          <span className="truncate max-w-24">{shipment.origin}</span>
+                          <span className="mx-2">→</span>
+                          <span className="truncate max-w-24">{shipment.destination}</span>
+                        </div>
+                      </td>
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm ${textSecondary}`}>
+                        <div className="flex items-center">
+                          {shipment.type === 'air' ? (
+                            <Plane size={16} className="mr-1 text-blue-600" />
+                          ) : (
+                            <Ship size={16} className="mr-1 text-blue-600" />
+                          )}
+                          {shipment.type === 'air' ? 'Aérien' : 'Maritime'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          shipment.status === 'delivered' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
+                          shipment.status === 'in_transit' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' :
+                          shipment.status === 'issue' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' :
+                          'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+                        }`}>
+                          {shipment.status}
+                        </span>
+                      </td>
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm ${textMuted}`}>
+                        {format(new Date(shipment.createdAt), 'dd/MM/yyyy')}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex items-center justify-end space-x-2">
+                          <button className={`${textMuted} hover:text-blue-600 transition-colors`}>
+                            <Eye size={16} />
+                          </button>
+                          <button className={`${textMuted} hover:text-blue-600 transition-colors`}>
+                            <Edit size={16} />
+                          </button>
+                          <button className={`${textMuted} hover:text-blue-600 transition-colors`}>
+                            <MoreVertical size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          ))}
-        </div>
+          </div>
+        )
       ) : (
         <div className={`${bgSecondary} rounded-lg ${shadowClass} p-12 text-center`}>
-          <Package size={48} className={`mx-auto mb-4 ${textMuted}`} />
+          <FileText size={48} className={`mx-auto mb-4 ${textMuted}`} />
           <h3 className={`text-lg font-medium ${textPrimary} mb-2`}>
             Aucun dossier trouvé
           </h3>
@@ -552,4 +670,4 @@ const AgentDashboard = () => {
   );
 };
 
-export default AgentDashboard;
+export default TransitFilesPage;
