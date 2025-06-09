@@ -26,7 +26,9 @@ import {
   RefreshCw,
   ArrowUpDown,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  SortAsc,
+  List
 } from 'lucide-react';
 import { format } from 'date-fns';
 import backImage from '../../utils/backGround_hearder.png';
@@ -59,6 +61,7 @@ const AgentDashboard = () => {
   const [sortedShipments, setSortedShipments] = useState<Shipment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
+  const [showMobileSortMenu, setShowMobileSortMenu] = useState(false);
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
   const [pageLoaded, setPageLoaded] = useState(false);
   const [sortField, setSortField] = useState<SortField>('creationDate');
@@ -85,6 +88,40 @@ const AgentDashboard = () => {
     { id: '2', name: 'Thomas Dubois', role: t('customs') },
     { id: '3', name: 'Marie Lefebvre', role: t('finance') },
     { id: '4', name: 'Pierre Durand', role: t('operations') }
+  ];
+
+  // Options de tri pour mobile
+  const sortOptions = [
+    { 
+      field: 'creationDate' as SortField, 
+      label: t('creationDate'),
+      icon: Calendar
+    },
+    { 
+      field: 'reference' as SortField, 
+      label: t('reference'),
+      icon: FileText
+    },
+    { 
+      field: 'status' as SortField, 
+      label: t('status'),
+      icon: List
+    },
+    { 
+      field: 'client' as SortField, 
+      label: t('client'),
+      icon: User
+    },
+    { 
+      field: 'destination' as SortField, 
+      label: t('destination'),
+      icon: MapPin
+    },
+    { 
+      field: 'origin' as SortField, 
+      label: t('origin'),
+      icon: MapPin
+    }
   ];
 
   const isDark = theme === 'dark';
@@ -259,6 +296,8 @@ const AgentDashboard = () => {
       setSortField(field);
       setSortOrder('asc');
     }
+    // Fermer le menu mobile après sélection
+    setShowMobileSortMenu(false);
   };
 
   const clearAllFilters = () => {
@@ -289,6 +328,12 @@ const AgentDashboard = () => {
     return sortOrder === 'asc' 
       ? <ArrowUp size={14} className="text-blue-600" />
       : <ArrowDown size={14} className="text-blue-600" />;
+  };
+
+  const getCurrentSortLabel = () => {
+    const currentOption = sortOptions.find(option => option.field === sortField);
+    const orderLabel = sortOrder === 'asc' ? '↑' : '↓';
+    return `${currentOption?.label} ${orderLabel}`;
   };
 
   if (isLoading) {
