@@ -746,7 +746,7 @@ const translations = {
     clearFilters: 'Réinitialiser les filtres',
     operations: 'Opérations',
     finance: 'Finances',
-    itemsPerPage: 'élément par page',
+    itemsPerPage: 'éléments par page',
     view: 'Voir',
     of: 'sur',
   }
