@@ -453,7 +453,10 @@ const AgentDashboard = () => {
                     {shipment.origin} → {shipment.destination}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {shipment.type === 'air' ? <Plane size={16} /> : <Ship size={16} />}
+                    {shipment.type === 'air' ? 
+                      <Plane size={16} className={textSecondary} /> : 
+                      <Ship size={16} className={textSecondary} />
+                    }
                   </td>
                   <td className={`px-6 py-4 whitespace-nowrap text-sm ${textSecondary}`}>
                     {format(new Date(shipment.createdAt), 'dd/MM/yyyy')}
@@ -673,12 +676,18 @@ const AgentDashboard = () => {
               <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
                 {t('creationDateFrom')}
               </label>
-              <input
-                type="date"
-                value={filters.dateFrom}
-                onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
-                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
-              />
+              <div className="relative">
+                <input
+                  type="date"
+                  value={filters.dateFrom}
+                  onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
+                  className={`block w-full px-3 py-2 pr-10 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-2 [&::-webkit-calendar-picker-indicator]:w-5 [&::-webkit-calendar-picker-indicator]:h-5 [&::-webkit-calendar-picker-indicator]:cursor-pointer`}
+                />
+                <Calendar 
+                  size={16} 
+                  className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${textSecondary} pointer-events-none`} 
+                />
+              </div>
             </div>
 
             {/* Date To Filter */}
@@ -686,12 +695,18 @@ const AgentDashboard = () => {
               <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
                 {t('creationDateTo')}
               </label>
-              <input
-                type="date"
-                value={filters.dateTo}
-                onChange={(e) => handleFilterChange('dateTo', e.target.value)}
-                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
-              />
+              <div className="relative">
+                <input
+                  type="date"
+                  value={filters.dateTo}
+                  onChange={(e) => handleFilterChange('dateTo', e.target.value)}
+                  className={`block w-full px-3 py-2 pr-10 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-2 [&::-webkit-calendar-picker-indicator]:w-5 [&::-webkit-calendar-picker-indicator]:h-5 [&::-webkit-calendar-picker-indicator]:cursor-pointer`}
+                />
+                <Calendar 
+                  size={16} 
+                  className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${textSecondary} pointer-events-none`} 
+                />
+              </div>
             </div>
           </div>
         )}
@@ -890,7 +905,7 @@ const AgentDashboard = () => {
           {totalPages > 1 && (
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6">
               <div className={`text-sm ${textSecondary}`}>
-                Page {currentPage} sur {totalPages}
+                Page {currentPage} {t('of')} {totalPages}
               </div>
               
               <div className="flex items-center space-x-2">

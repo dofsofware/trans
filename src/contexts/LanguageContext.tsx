@@ -340,7 +340,6 @@ const translations = {
     phone: 'Phone',
     city: 'City',
     country: 'Country',
-    member_since: 'Member since',
     active: 'Active',
     inactive: 'Inactive',
     no_clients_found: 'No clients found',
@@ -378,6 +377,8 @@ const translations = {
     operations: 'Operations',
     finance: 'Finance',
     itemsPerPage: 'Items per page',
+    view: 'View',
+    of: 'of'
   },
   fr: {
     dashboard: 'Tableau de bord',
@@ -710,7 +711,6 @@ const translations = {
     phone: 'Téléphone',
     city: 'Ville',
     country: 'Pays',
-    member_since: 'Client depuis',
     active: 'Actif',
     inactive: 'Inactif',
     no_clients_found: 'Aucun client trouvé',
@@ -747,16 +747,18 @@ const translations = {
     operations: 'Opérations',
     finance: 'Finances',
     itemsPerPage: 'élément par page',
+    view: 'Voir',
+    of: 'sur',
   }
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguage] = useState<Language>('fr');
 
   const t = (key: string): string => {
-    return translations[language][key as keyof typeof translations['en']] || key;
+    return translations[language][key as keyof typeof translations['fr']] || key;
   };
 
   return (
