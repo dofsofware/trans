@@ -657,7 +657,7 @@ useEffect(() => {
             />
           </div>
 
-          {/* Filter Toggle Button */}
+          {/* Filter Controls */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
@@ -675,16 +675,12 @@ useEffect(() => {
             {activeFiltersCount > 0 && (
               <button
                 onClick={clearAllFilters}
-                className="inline-flex items-center px-3 py-2 text-sm text-red-600 hover:text-red-800 transition-colors"
+                className="inline-flex items-center px-3 py-2 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors"
               >
                 <X size={16} className="mr-1" />
                 {t('clearAll')}
               </button>
             )}
-
-            <button className={`p-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textMuted} hover:${textPrimary} transition-colors`}>
-              <RefreshCw size={18} />
-            </button>
           </div>
         </div>
 
@@ -727,107 +723,108 @@ useEffect(() => {
                 <option value="sea">{t('sea')}</option>
               </select>
             </div>
-{/* Client Filter with Improved Autocomplete */}
-<div className="relative client-autocomplete-container">
-  <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-    {t('client')}
-  </label>
-  <div className="relative">
-    <input
-      type="text"
-      placeholder={t('searchClient')}
-      value={clientSearchValue}
-      onChange={(e) => handleClientSearch(e.target.value)}
-      onFocus={() => {
-        if (clientSearchValue.length >= 2) {
-          setShowClientSuggestions(true);
-        }
-      }}
-      className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
-    />
-    {(clientSearchValue || filters.client) && (
-      <button
-        onClick={() => clearFilter('client')}
-        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-      >
-        <X size={16} />
-      </button>
-    )}
-  </div>
-  {showClientSuggestions && clientSuggestions.length > 0 && (
-    <div className={`absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-md ${bgPrimary} py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm ${borderColor} border`}>
-      {clientSuggestions.map((client) => (
-        <div
-          key={client.id}
-          className={`px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${textPrimary}`}
-          onClick={() => selectClient(client)}
-        >
-          <div className="font-medium">{client.name}</div>
-          {client.company && (
-            <div className={`text-sm ${textMuted}`}>{client.company}</div>
-          )}
-        </div>
-      ))}
-    </div>
-  )}
-  {showClientSuggestions && clientSuggestions.length === 0 && clientSearchValue.length >= 2 && (
-    <div className={`absolute z-10 mt-1 w-full rounded-md ${bgPrimary} py-2 text-base shadow-lg ring-1 ring-black ring-opacity-5 ${borderColor} border`}>
-      <div className={`px-4 py-2 ${textMuted} text-sm`}>
-        {t('noClientsFound')}
-      </div>
-    </div>
-  )}
-</div>
 
-{/* Assigned To Filter with Improved Autocomplete */}
-<div className="relative assigned-to-autocomplete-container">
-  <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-    {t('assignedTo')}
-  </label>
-  <div className="relative">
-    <input
-      type="text"
-      placeholder={t('searchAgent')}
-      value={assignedToSearchValue}
-      onChange={(e) => handleAssignedToSearch(e.target.value)}
-      onFocus={() => {
-        if (assignedToSearchValue.length >= 2) {
-          setShowAssignedToSuggestions(true);
-        }
-      }}
-      className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
-    />
-    {(assignedToSearchValue || filters.assignedTo) && (
-      <button
-        onClick={() => clearFilter('assignedTo')}
-        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-      >
-        <X size={16} />
-      </button>
-    )}
-  </div>
-  {showAssignedToSuggestions && assignedToSuggestions.length > 0 && (
-    <div className={`absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-md ${bgPrimary} py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm ${borderColor} border`}>
-      {assignedToSuggestions.map((agent) => (
-        <div
-          key={agent.id}
-          className={`px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${textPrimary}`}
-          onClick={() => selectAssignedTo(agent)}
-        >
-          <div className="font-medium">{agent.name}</div>
-          <div className={`text-sm ${textMuted}`}>{agent.role}</div>
-        </div>
-      ))}
-    </div>
-  )}
-  {showAssignedToSuggestions && assignedToSuggestions.length === 0 && assignedToSearchValue.length >= 2 && (
-    <div className={`absolute z-10 mt-1 w-full rounded-md ${bgPrimary} py-2 text-base shadow-lg ring-1 ring-black ring-opacity-5 ${borderColor} border`}>
-      <div className={`px-4 py-2 ${textMuted} text-sm`}>
-        {t('noAgentsFound')}
-      </div>
-    </div>
-  )}
-</div>
+            {/* Client Filter with Improved Autocomplete */}
+            <div className="relative client-autocomplete-container">
+              <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
+                {t('client')}
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder={t('searchClient')}
+                  value={clientSearchValue}
+                  onChange={(e) => handleClientSearch(e.target.value)}
+                  onFocus={() => {
+                    if (clientSearchValue.length >= 2) {
+                      setShowClientSuggestions(true);
+                    }
+                  }}
+                  className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                />
+                {(clientSearchValue || filters.client) && (
+                  <button
+                    onClick={() => clearFilter('client')}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+              {showClientSuggestions && clientSuggestions.length > 0 && (
+                <div className={`absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-md ${bgPrimary} py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm ${borderColor} border`}>
+                  {clientSuggestions.map((client) => (
+                    <div
+                      key={client.id}
+                      className={`px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${textPrimary}`}
+                      onClick={() => selectClient(client)}
+                    >
+                      <div className="font-medium">{client.name}</div>
+                      {client.company && (
+                        <div className={`text-sm ${textMuted}`}>{client.company}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {showClientSuggestions && clientSuggestions.length === 0 && clientSearchValue.length >= 2 && (
+                <div className={`absolute z-10 mt-1 w-full rounded-md ${bgPrimary} py-2 text-base shadow-lg ring-1 ring-black ring-opacity-5 ${borderColor} border`}>
+                  <div className={`px-4 py-2 ${textMuted} text-sm`}>
+                    {t('noClientsFound')}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Assigned To Filter with Improved Autocomplete */}
+            <div className="relative assigned-to-autocomplete-container">
+              <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
+                {t('assignedTo')}
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder={t('searchAgent')}
+                  value={assignedToSearchValue}
+                  onChange={(e) => handleAssignedToSearch(e.target.value)}
+                  onFocus={() => {
+                    if (assignedToSearchValue.length >= 2) {
+                      setShowAssignedToSuggestions(true);
+                    }
+                  }}
+                  className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                />
+                {(assignedToSearchValue || filters.assignedTo) && (
+                  <button
+                    onClick={() => clearFilter('assignedTo')}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+              {showAssignedToSuggestions && assignedToSuggestions.length > 0 && (
+                <div className={`absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-md ${bgPrimary} py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm ${borderColor} border`}>
+                  {assignedToSuggestions.map((agent) => (
+                    <div
+                      key={agent.id}
+                      className={`px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${textPrimary}`}
+                      onClick={() => selectAssignedTo(agent)}
+                    >
+                      <div className="font-medium">{agent.name}</div>
+                      <div className={`text-sm ${textMuted}`}>{agent.role}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {showAssignedToSuggestions && assignedToSuggestions.length === 0 && assignedToSearchValue.length >= 2 && (
+                <div className={`absolute z-10 mt-1 w-full rounded-md ${bgPrimary} py-2 text-base shadow-lg ring-1 ring-black ring-opacity-5 ${borderColor} border`}>
+                  <div className={`px-4 py-2 ${textMuted} text-sm`}>
+                    {t('noAgentsFound')}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Origin Filter */}
             <div>
@@ -901,7 +898,7 @@ useEffect(() => {
         {activeFiltersCount > 0 && (
           <div className={`mt-4 pt-4 border-t ${borderColor}`}>
             <div className="flex flex-wrap gap-2">
-              <span className={`text-sm ${textMuted}`}>{t('activeFilters')}:</span>
+              <span className={`text-sm ${textMuted} mr-2`}>{t('activeFilters')}:</span>
               {Object.entries(filters).map(([key, value]) => {
                 if (!value) return null;
                 
@@ -960,7 +957,7 @@ useEffect(() => {
                     {filterLabels[key as keyof typeof filterLabels]}: {getTranslatedValue(key, value)}
                     <button
                       onClick={() => clearFilter(key as keyof FilterState)}
-                      className="ml-2 hover:text-blue-600"
+                      className="ml-2 hover:text-blue-600 dark:hover:text-blue-400"
                     >
                       <X size={12} />
                     </button>

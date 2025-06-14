@@ -381,6 +381,8 @@ const translations = {
     of: 'of',
     searchAgent: 'Search Agent',
     searchClient: 'Search Client',
+    noClientsFound: 'No clients found',
+    noAgentsFound: 'No agents found',
   },
   fr: {
     dashboard: 'Tableau de bord',
@@ -753,6 +755,8 @@ const translations = {
     of: 'sur',
     searchAgent: 'Recherche Agent',
     searchClient: 'Recherche Client',
+    noClientsFound: 'Aucun client trouvé',
+    noAgentsFound: 'Aucun agent trouvé',
   }
 };
 
