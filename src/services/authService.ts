@@ -62,7 +62,7 @@ export const getMockCurrentUser = async (email?: string): Promise<User | null> =
   }
   
   // For demo purposes, default to client user if no email provided
-  return mockUsers[0];
+  return mockUsers[1];
 };
 
 export const getUserById = async (id: string): Promise<User | null> => {
