@@ -72,6 +72,12 @@ const AgentDashboard = () => {
   const [sortField, setSortField] = useState<SortField>('creationDate');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
+  // State for autocomplete
+  const [clientSuggestions, setClientSuggestions] = useState<Client[]>([]);
+  const [assignedToSuggestions, setAssignedToSuggestions] = useState<{id: string, name: string, role: string}[]>([]);
+  const [showClientSuggestions, setShowClientSuggestions] = useState(false);
+  const [showAssignedToSuggestions, setShowAssignedToSuggestions] = useState(false);
+
   const [filters, setFilters] = useState<FilterState>({
     search: '',
     status: '',
@@ -92,6 +98,7 @@ const AgentDashboard = () => {
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [paginatedShipments, setPaginatedShipments] = useState<Shipment[]>([]);
   const isMobile = useMediaQuery({ maxWidth: 767 });
+  
   // Mock agents data
   const agents = [
     { id: '1', name: 'Sophie Martin', role: t('operations') },
@@ -308,6 +315,143 @@ const AgentDashboard = () => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
+// Handle client search input change for autocomplete
+const handleClientSearch = (value: string) => {
+  // Mettre à jour la valeur du filtre pour l'affichage
+  setFilters(prev => ({ 
+    ...prev, 
+    client: value.length > 0 ? '' : '' // Reset l'ID si on tape
+  }));
+  
+  // Recherche avec minimum 2 caractères pour éviter trop de résultats
+  if (value.length >= 2) {
+    const filteredClients = clients.filter(client =>
+      client.name.toLowerCase().includes(value.toLowerCase()) ||
+      client.email?.toLowerCase().includes(value.toLowerCase()) ||
+      client.company?.toLowerCase().includes(value.toLowerCase())
+    );
+    setClientSuggestions(filteredClients);
+    setShowClientSuggestions(true);
+  } else {
+    setClientSuggestions([]);
+    setShowClientSuggestions(false);
+  }
+  
+  // Stocker la valeur de recherche temporaire
+  setClientSearchValue(value);
+};
+
+// Handle assigned to search input change for autocomplete
+const handleAssignedToSearch = (value: string) => {
+  // Mettre à jour la valeur du filtre pour l'affichage
+  setFilters(prev => ({ 
+    ...prev, 
+    assignedTo: value.length > 0 ? '' : '' // Reset l'ID si on tape
+  }));
+  
+  // Recherche avec minimum 2 caractères
+  if (value.length >= 2) {
+    const filteredAgents = agents.filter(agent =>
+      agent.name.toLowerCase().includes(value.toLowerCase()) ||
+      agent.role.toLowerCase().includes(value.toLowerCase())
+    );
+    setAssignedToSuggestions(filteredAgents);
+    setShowAssignedToSuggestions(true);
+  } else {
+    setAssignedToSuggestions([]);
+    setShowAssignedToSuggestions(false);
+  }
+  
+  // Stocker la valeur de recherche temporaire
+  setAssignedToSearchValue(value);
+};
+
+// Select a client from suggestions
+const selectClient = (client: Client) => {
+  setFilters(prev => ({ ...prev, client: client.id }));
+  setClientSearchValue(client.name);
+  setShowClientSuggestions(false);
+  setClientSuggestions([]);
+};
+
+// Select an agent from suggestions
+const selectAssignedTo = (agent: {id: string, name: string, role: string}) => {
+  setFilters(prev => ({ ...prev, assignedTo: agent.id }));
+  setAssignedToSearchValue(agent.name);
+  setShowAssignedToSuggestions(false);
+  setAssignedToSuggestions([]);
+};
+
+// Fonction pour gérer la fermeture des suggestions quand on clique ailleurs
+const handleClickOutside = (event: MouseEvent) => {
+  const target = event.target as HTMLElement;
+  
+  // Fermer les suggestions client si on clique ailleurs
+  if (!target.closest('.client-autocomplete-container')) {
+    setShowClientSuggestions(false);
+  }
+  
+  // Fermer les suggestions agent si on clique ailleurs
+  if (!target.closest('.assigned-to-autocomplete-container')) {
+    setShowAssignedToSuggestions(false);
+  }
+};
+
+// Fonction pour effacer un filtre spécifique (version améliorée)
+const clearFilter = (key: keyof FilterState) => {
+  setFilters(prev => ({ ...prev, [key]: '' }));
+  
+  if (key === 'client') {
+    setClientSuggestions([]);
+    setShowClientSuggestions(false);
+    setClientSearchValue('');
+  }
+  
+  if (key === 'assignedTo') {
+    setAssignedToSuggestions([]);
+    setShowAssignedToSuggestions(false);
+    setAssignedToSearchValue('');
+  }
+};
+
+// Fonction pour effacer tous les filtres (version améliorée)
+const clearAllFilters = () => {
+  setFilters({
+    search: '',
+    status: '',
+    type: '',
+    client: '',
+    assignedTo: '',
+    createdBy: '',
+    origin: '',
+    destination: '',
+    dateFrom: '',
+    dateTo: '',
+    containerType: '',
+    priority: ''
+  });
+  
+  // Nettoyer l'autocomplétion
+  setClientSuggestions([]);
+  setAssignedToSuggestions([]);
+  setShowClientSuggestions(false);
+  setShowAssignedToSuggestions(false);
+  setClientSearchValue('');
+  setAssignedToSearchValue('');
+};
+
+// Ajoutez ces nouveaux états au début du composant (après les autres useState)
+const [clientSearchValue, setClientSearchValue] = useState('');
+const [assignedToSearchValue, setAssignedToSearchValue] = useState('');
+
+// Ajoutez cet useEffect pour gérer les clics à l'extérieur
+useEffect(() => {
+  document.addEventListener('mousedown', handleClickOutside);
+  return () => {
+    document.removeEventListener('mousedown', handleClickOutside);
+  };
+}, []);
+
   const handleSortChange = (field: SortField) => {
     if (sortField === field) {
       // Si on clique sur le même champ, inverser l'ordre
@@ -319,27 +463,6 @@ const AgentDashboard = () => {
     }
     // Fermer le menu mobile après sélection
     setShowMobileSortMenu(false);
-  };
-
-  const clearAllFilters = () => {
-    setFilters({
-      search: '',
-      status: '',
-      type: '',
-      client: '',
-      assignedTo: '',
-      createdBy: '',
-      origin: '',
-      destination: '',
-      dateFrom: '',
-      dateTo: '',
-      containerType: '',
-      priority: ''
-    });
-  };
-
-  const clearFilter = (key: keyof FilterState) => {
-    setFilters(prev => ({ ...prev, [key]: '' }));
   };
 
   const getSortIcon = (field: SortField) => {
@@ -604,44 +727,107 @@ const AgentDashboard = () => {
                 <option value="sea">{t('sea')}</option>
               </select>
             </div>
+{/* Client Filter with Improved Autocomplete */}
+<div className="relative client-autocomplete-container">
+  <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
+    {t('client')}
+  </label>
+  <div className="relative">
+    <input
+      type="text"
+      placeholder={t('searchClient')}
+      value={clientSearchValue}
+      onChange={(e) => handleClientSearch(e.target.value)}
+      onFocus={() => {
+        if (clientSearchValue.length >= 2) {
+          setShowClientSuggestions(true);
+        }
+      }}
+      className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+    />
+    {(clientSearchValue || filters.client) && (
+      <button
+        onClick={() => clearFilter('client')}
+        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+      >
+        <X size={16} />
+      </button>
+    )}
+  </div>
+  {showClientSuggestions && clientSuggestions.length > 0 && (
+    <div className={`absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-md ${bgPrimary} py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm ${borderColor} border`}>
+      {clientSuggestions.map((client) => (
+        <div
+          key={client.id}
+          className={`px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${textPrimary}`}
+          onClick={() => selectClient(client)}
+        >
+          <div className="font-medium">{client.name}</div>
+          {client.company && (
+            <div className={`text-sm ${textMuted}`}>{client.company}</div>
+          )}
+        </div>
+      ))}
+    </div>
+  )}
+  {showClientSuggestions && clientSuggestions.length === 0 && clientSearchValue.length >= 2 && (
+    <div className={`absolute z-10 mt-1 w-full rounded-md ${bgPrimary} py-2 text-base shadow-lg ring-1 ring-black ring-opacity-5 ${borderColor} border`}>
+      <div className={`px-4 py-2 ${textMuted} text-sm`}>
+        {t('noClientsFound')}
+      </div>
+    </div>
+  )}
+</div>
 
-            {/* Client Filter */}
-            <div>
-              <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-                {t('client')}
-              </label>
-              <select
-                value={filters.client}
-                onChange={(e) => handleFilterChange('client', e.target.value)}
-                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
-              >
-                <option value="">{t('allClients')}</option>
-                {clients.map(client => (
-                  <option key={client.id} value={client.id}>
-                    {client.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Assigned To Filter */}
-            <div>
-              <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-                {t('assignedTo')}
-              </label>
-              <select
-                value={filters.assignedTo}
-                onChange={(e) => handleFilterChange('assignedTo', e.target.value)}
-                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
-              >
-                <option value="">{t('allAgents')}</option>
-                {agents.map(agent => (
-                  <option key={agent.id} value={agent.id}>
-                    {agent.name} ({agent.role})
-                  </option>
-                ))}
-              </select>
-            </div>
+{/* Assigned To Filter with Improved Autocomplete */}
+<div className="relative assigned-to-autocomplete-container">
+  <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
+    {t('assignedTo')}
+  </label>
+  <div className="relative">
+    <input
+      type="text"
+      placeholder={t('searchAgent')}
+      value={assignedToSearchValue}
+      onChange={(e) => handleAssignedToSearch(e.target.value)}
+      onFocus={() => {
+        if (assignedToSearchValue.length >= 2) {
+          setShowAssignedToSuggestions(true);
+        }
+      }}
+      className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+    />
+    {(assignedToSearchValue || filters.assignedTo) && (
+      <button
+        onClick={() => clearFilter('assignedTo')}
+        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+      >
+        <X size={16} />
+      </button>
+    )}
+  </div>
+  {showAssignedToSuggestions && assignedToSuggestions.length > 0 && (
+    <div className={`absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-md ${bgPrimary} py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm ${borderColor} border`}>
+      {assignedToSuggestions.map((agent) => (
+        <div
+          key={agent.id}
+          className={`px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${textPrimary}`}
+          onClick={() => selectAssignedTo(agent)}
+        >
+          <div className="font-medium">{agent.name}</div>
+          <div className={`text-sm ${textMuted}`}>{agent.role}</div>
+        </div>
+      ))}
+    </div>
+  )}
+  {showAssignedToSuggestions && assignedToSuggestions.length === 0 && assignedToSearchValue.length >= 2 && (
+    <div className={`absolute z-10 mt-1 w-full rounded-md ${bgPrimary} py-2 text-base shadow-lg ring-1 ring-black ring-opacity-5 ${borderColor} border`}>
+      <div className={`px-4 py-2 ${textMuted} text-sm`}>
+        {t('noAgentsFound')}
+      </div>
+    </div>
+  )}
+</div>
 
             {/* Origin Filter */}
             <div>

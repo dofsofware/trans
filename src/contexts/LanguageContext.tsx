@@ -378,7 +378,9 @@ const translations = {
     finance: 'Finance',
     itemsPerPage: 'Items per page',
     view: 'View',
-    of: 'of'
+    of: 'of',
+    searchAgent: 'Search Agent',
+    searchClient: 'Search Client',
   },
   fr: {
     dashboard: 'Tableau de bord',
@@ -749,6 +751,8 @@ const translations = {
     itemsPerPage: 'éléments par page',
     view: 'Voir',
     of: 'sur',
+    searchAgent: 'Recherche Agent',
+    searchClient: 'Recherche Client',
   }
 };
 
