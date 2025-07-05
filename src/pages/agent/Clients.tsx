@@ -194,9 +194,17 @@ const ClientsPage = () => {
     return clientId;
   };
 
-  // Navigation handler
+  // Navigation handlers
   const handleNewClient = () => {
     navigate('/clients/new-client');
+  };
+
+  const handleViewClient = (clientId: string) => {
+    navigate(`/clients/${clientId}`);
+  };
+
+  const handleEditClient = (clientId: string) => {
+    navigate(`/clients/${clientId}/edit`);
   };
 
   const renderTableView = () => (
@@ -302,9 +310,19 @@ const ClientsPage = () => {
                 {/* Actions Column - Always visible */}
                 <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div className="flex items-center justify-end space-x-1">
-                    <button className={`p-1.5 sm:p-2 rounded-lg ${textMuted} hover:text-blue-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors`}>
+                    <button 
+                      onClick={() => handleViewClient(client.id)}
+                      className={`p-1.5 sm:p-2 rounded-lg ${textMuted} hover:text-blue-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors`}
+                    >
                       <Eye size={14} className="sm:hidden" />
                       <Eye size={16} className="hidden sm:block" />
+                    </button>
+                    <button 
+                      onClick={() => handleEditClient(client.id)}
+                      className={`p-1.5 sm:p-2 rounded-lg ${textMuted} hover:${textPrimary} hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors`}
+                    >
+                      <Edit size={14} className="sm:hidden" />
+                      <Edit size={16} className="hidden sm:block" />
                     </button>
                     <button className={`p-1.5 sm:p-2 rounded-lg ${textMuted} hover:${textPrimary} hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors`}>
                       <MoreVertical size={14} className="sm:hidden" />
@@ -430,11 +448,17 @@ const ClientsPage = () => {
           </div>
 
           <div className={`px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-t ${borderColor} flex justify-between items-center`}>
-            <button className={`inline-flex items-center text-sm ${textMuted} hover:text-blue-600 transition-colors`}>
+            <button 
+              onClick={() => handleViewClient(client.id)}
+              className={`inline-flex items-center text-sm ${textMuted} hover:text-blue-600 transition-colors`}
+            >
               <Eye size={16} className="mr-1" />
               Voir détails
             </button>
-            <button className={`inline-flex items-center text-sm ${textMuted} hover:text-blue-600 transition-colors`}>
+            <button 
+              onClick={() => handleEditClient(client.id)}
+              className={`inline-flex items-center text-sm ${textMuted} hover:text-blue-600 transition-colors`}
+            >
               <Edit size={16} className="mr-1" />
               Modifier
             </button>

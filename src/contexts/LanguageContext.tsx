@@ -411,6 +411,13 @@ const translations = {
     addressPlaceholder: 'Full address',
     cityPlaceholder: 'City',
     countryPlaceholder: 'Country',
+    // Edit client specific translations
+    edit_client: 'Edit Client',
+    edit_client_desc: 'Edit client information',
+    client_updated: 'Client Updated Successfully',
+    client_updated_desc: 'The client information has been updated successfully.',
+    client_not_found: 'Client Not Found',
+    client_not_found_desc: 'The requested client does not exist or has been deleted.',
   },
   fr: {
     dashboard: 'Tableau de bord',
@@ -813,6 +820,13 @@ const translations = {
     addressPlaceholder: 'Adresse complète',
     cityPlaceholder: 'Ville',
     countryPlaceholder: 'Pays',
+    // Edit client specific translations
+    edit_client: 'Modifier le client',
+    edit_client_desc: 'Modifiez les informations du client',
+    client_updated: 'Client mis à jour avec succès',
+    client_updated_desc: 'Les informations du client ont été mises à jour avec succès.',
+    client_not_found: 'Client non trouvé',
+    client_not_found_desc: 'Le client demandé n\'existe pas ou a été supprimé.',
   }
 };
 
