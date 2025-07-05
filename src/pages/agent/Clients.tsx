@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { getMockClients } from '../../services/clientService';
@@ -32,6 +33,7 @@ import backImage from '../../utils/backGround_hearder.png';
 const ClientsPage = () => {
   const { theme } = useTheme();
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const [clients, setClients] = useState<Client[]>([]);
   const [filteredClients, setFilteredClients] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -190,6 +192,11 @@ const ClientsPage = () => {
       return `${clientId.substring(0, 3)}-${clientId.substring(3, 7)}-${clientId.substring(7, 11)}-${clientId.substring(11)}`;
     }
     return clientId;
+  };
+
+  // Navigation handler
+  const handleNewClient = () => {
+    navigate('/clients/new-client');
   };
 
   const renderTableView = () => (
@@ -466,7 +473,10 @@ const ClientsPage = () => {
           </div>
           
           <div className="p-4">
-            <button className="inline-flex items-center px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+            <button 
+              onClick={handleNewClient}
+              className="inline-flex items-center px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+            >
               <Plus size={18} className="mr-2" />
               Nouveau client
             </button>

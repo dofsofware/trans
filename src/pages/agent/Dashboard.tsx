@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useNavigate } from 'react-router-dom';
 import { getMockShipments } from '../../services/shipmentService';
 import { getMockClients } from '../../services/clientService';
 import { Shipment } from '../../types/shipment';
@@ -60,6 +61,7 @@ const AgentDashboard = () => {
   const { user } = useAuth();
   const { theme } = useTheme();
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [filteredShipments, setFilteredShipments] = useState<Shipment[]>([]);
@@ -71,6 +73,7 @@ const AgentDashboard = () => {
   const [pageLoaded, setPageLoaded] = useState(false);
   const [sortField, setSortField] = useState<SortField>('creationDate');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
 
   // State for autocomplete
   const [clientSuggestions, setClientSuggestions] = useState<Client[]>([]);
@@ -95,7 +98,6 @@ const AgentDashboard = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(9);
-  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [paginatedShipments, setPaginatedShipments] = useState<Shipment[]>([]);
   const isMobile = useMediaQuery({ maxWidth: 767 });
   
@@ -150,6 +152,10 @@ const AgentDashboard = () => {
   const bgPrimary = isDark ? 'bg-gray-900' : 'bg-white';
   const bgSecondary = isDark ? 'bg-gray-800' : 'bg-white';
   const borderColor = isDark ? 'border-gray-700' : 'border-gray-200';
+
+  // Ajoutez ces nouveaux états au début du composant (après les autres useState)
+  const [clientSearchValue, setClientSearchValue] = useState('');
+  const [assignedToSearchValue, setAssignedToSearchValue] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -440,10 +446,6 @@ const clearAllFilters = () => {
   setAssignedToSearchValue('');
 };
 
-// Ajoutez ces nouveaux états au début du composant (après les autres useState)
-const [clientSearchValue, setClientSearchValue] = useState('');
-const [assignedToSearchValue, setAssignedToSearchValue] = useState('');
-
 // Ajoutez cet useEffect pour gérer les clics à l'extérieur
 useEffect(() => {
   document.addEventListener('mousedown', handleClickOutside);
@@ -519,6 +521,16 @@ useEffect(() => {
     }
 
     return rangeWithDots;
+  };
+
+  // Navigation handlers
+  const handleCreateClient = () => {
+    navigate('/clients/new-client');
+  };
+
+  const handleNewFile = () => {
+    // Navigate to new file creation page when implemented
+    console.log('Navigate to new file creation');
   };
 
   // Table View Component
@@ -628,11 +640,17 @@ useEffect(() => {
           
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 p-4">
-            <button className="inline-flex items-center px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+            <button 
+              onClick={handleCreateClient}
+              className="inline-flex items-center px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+            >
               <Users size={18} className="mr-2" />
               {t('createClient')}
             </button>
-            <button className="inline-flex items-center px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm">
+            <button 
+              onClick={handleNewFile}
+              className="inline-flex items-center px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm"
+            >
               <FileText size={18} className="mr-2" />
               {t('newFile')}
             </button>
