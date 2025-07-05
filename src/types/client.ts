@@ -9,6 +9,9 @@ export interface Client {
   country?: string;
   createdAt: string;
   updatedAt: string;
+  updatedBy?: string;
   status: 'active' | 'inactive';
   avatar?: string;
+  clientId?: string;
+  assignedAgentId?: string;
 }

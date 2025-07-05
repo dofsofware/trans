@@ -11,6 +11,7 @@ import AgentDashboard from '../pages/agent/Dashboard';
 import AgentShipments from '../pages/agent/Shipments';
 import AgentShipmentDetails from '../pages/agent/ShipmentDetails';
 import ClientsPage from '../pages/agent/Clients';
+import NewClientPage from '../pages/agent/NewClient';
 import TransitFilesPage from '../pages/agent/TransitFiles';
 import Layout from '../components/layout/Layout';
 import LoadingScreen from '../components/common/LoadingScreen';
@@ -62,6 +63,7 @@ const AppRoutes = () => {
               <Route path="/shipments/:id" element={<AgentShipmentDetails />} />
               <Route path="/transit-files" element={<TransitFilesPage />} />
               <Route path="/clients" element={<ClientsPage />} />
+              <Route path="/clients/new-client" element={<NewClientPage />} />
               {/* <Route path="/messages" element={<MessagesPage />} /> */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>

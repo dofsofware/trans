@@ -30,6 +30,9 @@ export const generateMockClients = (count = 20): Client[] => {
     const city = cities[Math.floor(Math.random() * cities.length)];
     const country = countries[Math.floor(Math.random() * countries.length)];
     const createdAt = format(subDays(new Date(), Math.floor(Math.random() * 365)), "yyyy-MM-dd'T'HH:mm:ss");
+    const timestamp = Date.now() + i;
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    const clientId = `DKR${timestamp.toString().slice(-8)}${random}`;
 
     clients.push({
       id: `client-${1000 + i}`,
@@ -42,8 +45,11 @@ export const generateMockClients = (count = 20): Client[] => {
       country,
       createdAt,
       updatedAt: createdAt,
+      updatedBy: '2',
       status: Math.random() > 0.1 ? 'active' : 'inactive',
-      avatar: Math.random() > 0.5 ? 'https://as2.ftcdn.net/jpg/03/49/49/79/1000_F_349497933_Ly4im8BDmHLaLzgyKg2f2yZOvJjBtlw5.jpg' : undefined
+      avatar: Math.random() > 0.5 ? 'https://as2.ftcdn.net/jpg/03/49/49/79/1000_F_349497933_Ly4im8BDmHLaLzgyKg2f2yZOvJjBtlw5.jpg' : undefined,
+      clientId,
+      assignedAgentId: '2'
     });
   }
 
@@ -65,8 +71,12 @@ export const getMockClientById = async (id: string): Promise<Client | null> => {
 export const createMockClient = async (clientData: Partial<Client>): Promise<Client> => {
   await new Promise(resolve => setTimeout(resolve, 1000));
   
+  const timestamp = Date.now();
+  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+  const clientId = clientData.clientId || `DKR${timestamp.toString().slice(-8)}${random}`;
+  
   const newClient: Client = {
-    id: `client-${Date.now()}`,
+    id: `client-${timestamp}`,
     name: clientData.name || '',
     email: clientData.email || '',
     phone: clientData.phone,
@@ -76,8 +86,11 @@ export const createMockClient = async (clientData: Partial<Client>): Promise<Cli
     country: clientData.country,
     createdAt: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"),
     updatedAt: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"),
+    updatedBy: '2', // Current agent ID
     status: 'active',
-    avatar: clientData.avatar
+    avatar: clientData.avatar,
+    clientId,
+    assignedAgentId: '2' // Current agent ID
   };
 
   return newClient;

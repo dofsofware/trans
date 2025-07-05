@@ -295,7 +295,7 @@ const translations = {
     away: 'Away',
     offline: 'Offline',
     files_attached: 'Files attached',
-    attached_files: 'Attached files',
+    attached_files: 'Attached files',    
     filters: 'filters',
     manage_invoices: 'Manage all your invoices',
     all_read: "All read",
@@ -383,6 +383,7 @@ const translations = {
     searchClient: 'Search Client',
     noClientsFound: 'No clients found',
     noAgentsFound: 'No agents found',
+    save: 'Save',
   },
   fr: {
     dashboard: 'Tableau de bord',
@@ -757,6 +758,7 @@ const translations = {
     searchClient: 'Recherche Client',
     noClientsFound: 'Aucun client trouvé',
     noAgentsFound: 'Aucun agent trouvé',
+    save: 'Enregistrer',
   }
 };
 
