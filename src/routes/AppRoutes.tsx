@@ -12,6 +12,7 @@ import AgentDashboard from '../pages/agent/Dashboard';
 // import AgentShipmentDetails from '../pages/agent/ShipmentDetails';
 import ClientsPage from '../pages/agent/Clients';
 import NewClientPage from '../pages/agent/NewClient';
+import NewTransitFilePage from '../pages/agent/NewTransitFile';
 // import EditClientPage from '../pages/agent/EditClient';
 import ClientDetailsPage from '../pages/agent/ClientDetails';
 // import TransitFilesPage from '../pages/agent/TransitFiles';
@@ -67,6 +68,7 @@ const AppRoutes = () => {
               <Route path="/clients" element={<ClientsPage />} />
               <Route path="/clients/new-client" element={<NewClientPage />} />
               <Route path="/clients/:clientId" element={<ClientDetailsPage />} />
+              <Route path="/transit-files/new" element={<NewTransitFilePage />} />
               {/* <Route path="/clients/:clientId/edit" element={<EditClientPage />} /> */}
               <Route path="/messages" element={<MessagesPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />

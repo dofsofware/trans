@@ -529,8 +529,7 @@ useEffect(() => {
   };
 
   const handleNewFile = () => {
-    // Navigate to new file creation page when implemented
-    console.log('Navigate to new file creation');
+    navigate('/transit-files/new');
   };
 
   // Table View Component
