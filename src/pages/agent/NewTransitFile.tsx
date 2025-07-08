@@ -27,10 +27,23 @@ import {
   Eye,
   EyeOff,
   Lock,
-  Unlock
+  Unlock,
+  Building,
+  Settings,
+  Container,
+  Weight,
+  Box
 } from 'lucide-react';
 import { format } from 'date-fns';
 import backImage from '../../utils/backGround_hearder.png';
+
+interface ContainerData {
+  id: string;
+  number: string;
+  volume: string;
+  weight: string;
+  type: string;
+}
 
 interface TransitFileFormData {
   blNumber: string;
@@ -42,6 +55,10 @@ interface TransitFileFormData {
   productType: 'standard' | 'dangerous' | 'fragile';
   transportType: 'air' | 'sea';
   description: string;
+  shuttleCompany: string;
+  serviceType: string;
+  transporter: string;
+  containers: ContainerData[];
 }
 
 interface FileUpload {
@@ -60,7 +77,46 @@ interface FormErrors {
   destination?: string;
   capacity?: string;
   description?: string;
+  shuttleCompany?: string;
+  serviceType?: string;
+  transporter?: string;
+  containers?: string;
 }
+
+// Mock data for shuttle companies and transporters
+const mockShuttleCompanies = [
+  'Express Shuttle Services',
+  'City Transport Solutions',
+  'Metro Logistics',
+  'Urban Freight Express',
+  'Quick Connect Transport',
+  'Harbor Shuttle Co.',
+  'Airport Express Services',
+  'Continental Shuttle Lines'
+];
+
+const mockTransporters = [
+  'Global Shipping Lines',
+  'Ocean Freight International',
+  'Air Cargo Express',
+  'Continental Transport',
+  'Maritime Solutions Ltd',
+  'Sky Bridge Logistics',
+  'Euro Transport Group',
+  'Pacific Shipping Co.'
+];
+
+const containerTypes = [
+  { value: '20ft_standard', label: '20ft Standard' },
+  { value: '40ft_standard', label: '40ft Standard' },
+  { value: '40ft_hc', label: '40ft High Cube' },
+  { value: '20ft_reefer', label: '20ft Reefer' },
+  { value: '40ft_reefer', label: '40ft Reefer' },
+  { value: '20ft_open_top', label: '20ft Open Top' },
+  { value: '40ft_open_top', label: '40ft Open Top' },
+  { value: '20ft_flat_rack', label: '20ft Flat Rack' },
+  { value: '40ft_flat_rack', label: '40ft Flat Rack' }
+];
 
 const NewTransitFilePage = () => {
   const { user } = useAuth();
@@ -77,7 +133,11 @@ const NewTransitFilePage = () => {
     capacity: '',
     productType: 'standard',
     transportType: 'sea',
-    description: ''
+    description: '',
+    shuttleCompany: '',
+    serviceType: '',
+    transporter: '',
+    containers: []
   });
   
   const [uploadedFiles, setUploadedFiles] = useState<FileUpload[]>([]);
@@ -90,6 +150,10 @@ const NewTransitFilePage = () => {
   const [pageLoaded, setPageLoaded] = useState(false);
   const [clientSearchQuery, setClientSearchQuery] = useState('');
   const [showClientDropdown, setShowClientDropdown] = useState(false);
+  const [shuttleCompanyQuery, setShuttleCompanyQuery] = useState('');
+  const [showShuttleDropdown, setShowShuttleDropdown] = useState(false);
+  const [transporterQuery, setTransporterQuery] = useState('');
+  const [showTransporterDropdown, setShowTransporterDropdown] = useState(false);
 
   const isDark = theme === 'dark';
   const shadowClass = isDark ? 'shadow-gray-900/20' : 'shadow-sm';
@@ -154,11 +218,27 @@ const NewTransitFilePage = () => {
       newErrors.description = t('required');
     }
 
+    if (!formData.shuttleCompany.trim()) {
+      newErrors.shuttleCompany = t('required');
+    }
+
+    if (!formData.serviceType.trim()) {
+      newErrors.serviceType = t('required');
+    }
+
+    if (!formData.transporter.trim()) {
+      newErrors.transporter = t('required');
+    }
+
+    if (formData.transportType === 'sea' && formData.containers.length === 0) {
+      newErrors.containers = language === 'fr' ? 'Au moins un conteneur est requis pour le transport maritime' : 'At least one container is required for sea transport';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleInputChange = (field: keyof TransitFileFormData, value: string | string[]) => {
+  const handleInputChange = (field: keyof TransitFileFormData, value: string | string[] | ContainerData[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
     // Clear error when user starts typing
@@ -212,6 +292,38 @@ const NewTransitFilePage = () => {
      client.company.toLowerCase().includes(clientSearchQuery.toLowerCase()) ||
      client.email.toLowerCase().includes(clientSearchQuery.toLowerCase()))
   );
+
+  const filteredShuttleCompanies = mockShuttleCompanies.filter(company =>
+    company.toLowerCase().includes(shuttleCompanyQuery.toLowerCase())
+  );
+
+  const filteredTransporters = mockTransporters.filter(transporter =>
+    transporter.toLowerCase().includes(transporterQuery.toLowerCase())
+  );
+
+  // Container management functions
+  const addContainer = () => {
+    const newContainer: ContainerData = {
+      id: `container-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      number: '',
+      volume: '',
+      weight: '',
+      type: '20ft_standard'
+    };
+    handleInputChange('containers', [...formData.containers, newContainer]);
+  };
+
+  const updateContainer = (containerId: string, field: keyof ContainerData, value: string) => {
+    const updatedContainers = formData.containers.map(container =>
+      container.id === containerId ? { ...container, [field]: value } : container
+    );
+    handleInputChange('containers', updatedContainers);
+  };
+
+  const removeContainer = (containerId: string) => {
+    const updatedContainers = formData.containers.filter(container => container.id !== containerId);
+    handleInputChange('containers', updatedContainers);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -480,6 +592,268 @@ const NewTransitFilePage = () => {
             </div>
           </div>
         </div>
+
+        {/* Services et Partenaires */}
+        <div className={`${bgSecondary} rounded-xl ${shadowClass} p-6 ${borderColor} border`}>
+          <div className="flex items-center mb-6">
+            <div className={`p-2 rounded-lg ${bgPrimary} mr-3`}>
+              <Building size={20} className={`${textPrimary}`} />
+            </div>
+            <h2 className={`text-xl font-semibold ${textPrimary}`}>
+              {language === 'fr' ? 'Services et Partenaires' : 'Services and Partners'}
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Compagnie de navette */}
+            <div className="relative">
+              <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                {language === 'fr' ? 'Compagnie de navette' : 'Shuttle Company'} <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={shuttleCompanyQuery}
+                onChange={(e) => {
+                  setShuttleCompanyQuery(e.target.value);
+                  setFormData(prev => ({ ...prev, shuttleCompany: e.target.value }));
+                  setShowShuttleDropdown(true);
+                }}
+                onFocus={() => setShowShuttleDropdown(true)}
+                placeholder={language === 'fr' ? 'Rechercher ou saisir une compagnie...' : 'Search or enter a company...'}
+                className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                  errors.shuttleCompany ? 'border-red-500' : borderColor
+                }`}
+              />
+              
+              {showShuttleDropdown && filteredShuttleCompanies.length > 0 && (
+                <div className={`absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-md ${bgPrimary} py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm ${borderColor} border`}>
+                  {filteredShuttleCompanies.map((company) => (
+                    <div
+                      key={company}
+                      className={`px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${textPrimary}`}
+                      onClick={() => {
+                        setShuttleCompanyQuery(company);
+                        setFormData(prev => ({ ...prev, shuttleCompany: company }));
+                        setShowShuttleDropdown(false);
+                      }}
+                    >
+                      {company}
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {errors.shuttleCompany && (
+                <p className="mt-1 text-sm text-red-500 flex items-center">
+                  <AlertCircle size={14} className="mr-1" />
+                  {errors.shuttleCompany}
+                </p>
+              )}
+            </div>
+
+            {/* Type de prestation */}
+            <div>
+              <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                {language === 'fr' ? 'Type de prestation' : 'Service Type'} <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.serviceType}
+                onChange={(e) => handleInputChange('serviceType', e.target.value)}
+                placeholder={language === 'fr' ? 'Ex: Transport, Dédouanement, Stockage...' : 'Ex: Transport, Customs clearance, Storage...'}
+                className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                  errors.serviceType ? 'border-red-500' : borderColor
+                }`}
+              />
+              {errors.serviceType && (
+                <p className="mt-1 text-sm text-red-500 flex items-center">
+                  <AlertCircle size={14} className="mr-1" />
+                  {errors.serviceType}
+                </p>
+              )}
+            </div>
+
+            {/* Transporteur */}
+            <div className="relative lg:col-span-2">
+              <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                {language === 'fr' ? 'Transporteur' : 'Transporter'} <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={transporterQuery}
+                onChange={(e) => {
+                  setTransporterQuery(e.target.value);
+                  setFormData(prev => ({ ...prev, transporter: e.target.value }));
+                  setShowTransporterDropdown(true);
+                }}
+                onFocus={() => setShowTransporterDropdown(true)}
+                placeholder={language === 'fr' ? 'Rechercher ou saisir un transporteur...' : 'Search or enter a transporter...'}
+                className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                  errors.transporter ? 'border-red-500' : borderColor
+                }`}
+              />
+              
+              {showTransporterDropdown && filteredTransporters.length > 0 && (
+                <div className={`absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-md ${bgPrimary} py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm ${borderColor} border`}>
+                  {filteredTransporters.map((transporter) => (
+                    <div
+                      key={transporter}
+                      className={`px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${textPrimary}`}
+                      onClick={() => {
+                        setTransporterQuery(transporter);
+                        setFormData(prev => ({ ...prev, transporter: transporter }));
+                        setShowTransporterDropdown(false);
+                      }}
+                    >
+                      {transporter}
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {errors.transporter && (
+                <p className="mt-1 text-sm text-red-500 flex items-center">
+                  <AlertCircle size={14} className="mr-1" />
+                  {errors.transporter}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Conteneurs (uniquement pour transport maritime) */}
+        {formData.transportType === 'sea' && (
+          <div className={`${bgSecondary} rounded-xl ${shadowClass} p-6 ${borderColor} border`}>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center">
+                <div className={`p-2 rounded-lg ${bgPrimary} mr-3`}>
+                  <Container size={20} className={`${textPrimary}`} />
+                </div>
+                <h2 className={`text-xl font-semibold ${textPrimary}`}>
+                  {language === 'fr' ? 'Conteneurs' : 'Containers'}
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={addContainer}
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Plus size={16} className="mr-2" />
+                {language === 'fr' ? 'Ajouter un conteneur' : 'Add Container'}
+              </button>
+            </div>
+
+            {errors.containers && (
+              <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg">
+                <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
+                  <AlertCircle size={14} className="mr-1" />
+                  {errors.containers}
+                </p>
+              </div>
+            )}
+
+            <div className="space-y-4">
+              {formData.containers.map((container, index) => (
+                <div key={container.id} className={`p-4 border ${borderColor} rounded-lg ${bgPrimary}`}>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className={`text-lg font-medium ${textPrimary}`}>
+                      {language === 'fr' ? `Conteneur ${index + 1}` : `Container ${index + 1}`}
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => removeContainer(container.id)}
+                      className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {/* Numéro de conteneur */}
+                    <div>
+                      <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
+                        {language === 'fr' ? 'Numéro' : 'Number'} <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={container.number}
+                        onChange={(e) => updateContainer(container.id, 'number', e.target.value)}
+                        placeholder={language === 'fr' ? 'Ex: MSKU1234567' : 'Ex: MSKU1234567'}
+                        className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+                      />
+                    </div>
+
+                    {/* Type de conteneur */}
+                    <div>
+                      <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
+                        {language === 'fr' ? 'Type' : 'Type'} <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        value={container.type}
+                        onChange={(e) => updateContainer(container.id, 'type', e.target.value)}
+                        className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+                      >
+                        {containerTypes.map((type) => (
+                          <option key={type.value} value={type.value}>
+                            {type.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Volume */}
+                    <div>
+                      <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
+                        {language === 'fr' ? 'Volume (m³)' : 'Volume (m³)'} <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={container.volume}
+                          onChange={(e) => updateContainer(container.id, 'volume', e.target.value)}
+                          placeholder="0.00"
+                          className={`block w-full px-3 py-2 pr-8 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+                        />
+                        <Box size={14} className={`absolute right-2 top-1/2 transform -translate-y-1/2 ${textMuted}`} />
+                      </div>
+                    </div>
+
+                    {/* Poids */}
+                    <div>
+                      <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
+                        {language === 'fr' ? 'Poids (kg)' : 'Weight (kg)'} <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={container.weight}
+                          onChange={(e) => updateContainer(container.id, 'weight', e.target.value)}
+                          placeholder="0.00"
+                          className={`block w-full px-3 py-2 pr-8 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+                        />
+                        <Weight size={14} className={`absolute right-2 top-1/2 transform -translate-y-1/2 ${textMuted}`} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {formData.containers.length === 0 && (
+                <div className={`p-8 text-center border-2 border-dashed ${borderColor} rounded-lg`}>
+                  <Container size={48} className={`mx-auto mb-4 ${textMuted}`} />
+                  <p className={`${textMuted} mb-4`}>
+                    {language === 'fr' 
+                      ? 'Aucun conteneur ajouté. Cliquez sur "Ajouter un conteneur" pour commencer.'
+                      : 'No containers added. Click "Add Container" to get started.'
+                    }
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Clients */}
         <div className={`${bgSecondary} rounded-xl ${shadowClass} p-6 ${borderColor} border`}>
