@@ -5,6 +5,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import { getMockClients } from '../../services/clientService';
 import { Client } from '../../types/client';
+import { Container } from '../../types/container';
 import LoadingScreen from '../../components/common/LoadingScreen';
 import { useMediaQuery } from 'react-responsive';
 import {
@@ -60,6 +61,7 @@ interface TransitFile {
   createdAt: string;
   updatedAt: string;
   createdBy: string;
+  containers?: Container[];
   documents: {
     invoice?: string;
     packingList?: string;
@@ -127,6 +129,38 @@ const generateMockTransitFiles = (count = 20): TransitFile[] => {
     '10 tonnes, 50 m³'
   ];
 
+  // Generate mock containers for sea transport
+  const generateMockContainers = (transportType: 'air' | 'sea', count: number): Container[] => {
+    if (transportType !== 'sea') return [];
+    
+    const containerTypes: Container['containerType'][] = ['dry', 'refrigerated', 'open_top', 'flat_rack', 'tank'];
+    const containerSizes: Container['size'][] = ['20ft', '40ft', '40ft_hc', '45ft'];
+    const containers: Container[] = [];
+    
+    const numContainers = Math.floor(Math.random() * 3) + 1; // 1-3 containers
+    
+    for (let i = 0; i < numContainers; i++) {
+      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const containerNumber = 
+        letters.charAt(Math.floor(Math.random() * letters.length)) +
+        letters.charAt(Math.floor(Math.random() * letters.length)) +
+        letters.charAt(Math.floor(Math.random() * letters.length)) +
+        letters.charAt(Math.floor(Math.random() * letters.length)) +
+        Math.floor(Math.random() * 10000000).toString().padStart(7, '0');
+      
+      containers.push({
+        id: `container-${count}-${i}`,
+        containerNumber,
+        volume: Math.floor(Math.random() * 50) + 10, // 10-60 m³
+        weight: Math.floor(Math.random() * 20000) + 5000, // 5000-25000 kg
+        containerType: containerTypes[Math.floor(Math.random() * containerTypes.length)],
+        size: containerSizes[Math.floor(Math.random() * containerSizes.length)]
+      });
+    }
+    
+    return containers;
+  };
+
   const files: TransitFile[] = [];
 
   for (let i = 0; i < count; i++) {
@@ -169,6 +203,7 @@ const generateMockTransitFiles = (count = 20): TransitFile[] => {
       createdAt,
       updatedAt,
       createdBy: '2', // Agent actuel
+      containers: generateMockContainers(transportType, i),
       documents: {
         invoice: Math.random() > 0.3 ? `invoice-${i}.pdf` : undefined,
         packingList: Math.random() > 0.5 ? `packing-list-${i}.pdf` : undefined,
@@ -598,6 +633,15 @@ const TransitFilesPage = () => {
               <span className={textMuted}>{t('capacity')}:</span>
               <span className={`ml-1 ${textSecondary} line-clamp-1`}>{file.capacity}</span>
             </div>
+            {file.transportType === 'sea' && file.containers && file.containers.length > 0 && (
+              <div className="flex items-center col-span-2">
+                <Package size={12} className={`mr-1 flex-shrink-0 ${textMuted}`} />
+                <span className={textMuted}>{t('containers')}:</span>
+                <span className={`ml-1 ${textSecondary}`}>
+                  {file.containers.length} {file.containers.length === 1 ? t('container') : t('containers')}
+                </span>
+              </div>
+            )}
           </div>
           
           <div className="mt-2 flex items-center justify-between">

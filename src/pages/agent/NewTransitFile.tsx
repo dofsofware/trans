@@ -5,7 +5,9 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { getMockClients } from '../../services/clientService';
 import { Client } from '../../types/client';
+import { Container } from '../../types/container';
 import FileUploadComponent from '../../components/common/FileUploadComponent';
+import ContainerManager from '../../components/common/ContainerManager';
 import LoadingScreen from '../../components/common/LoadingScreen';
 import {
   ArrowLeft,
@@ -42,6 +44,7 @@ interface FormData {
   productType: 'standard' | 'dangerous' | 'fragile';
   capacity: string;
   contentDescription: string;
+  containers: Container[];
   documents: {
     invoice?: { file: File; clientVisible: boolean };
     packingList?: { file: File; clientVisible: boolean };
@@ -86,6 +89,7 @@ const NewTransitFilePage = () => {
     productType: 'standard',
     capacity: '',
     contentDescription: '',
+    containers: [],
     documents: {}
   });
 
@@ -153,6 +157,9 @@ const NewTransitFilePage = () => {
     }
   };
 
+  const handleContainersChange = (containers: Container[]) => {
+    setFormData(prev => ({ ...prev, containers }));
+  };
   const handleClientSelect = (client: Client) => {
     if (!formData.clientIds.includes(client.id)) {
       setFormData(prev => ({
@@ -607,6 +614,16 @@ const NewTransitFilePage = () => {
             </div>
           </div>
         </div>
+
+        {/* Containers Section - Only for Sea Transport */}
+        {formData.transportType === 'sea' && (
+          <div className={`${bgSecondary} rounded-lg ${shadowClass} p-6 border ${borderColor}`}>
+            <ContainerManager
+              containers={formData.containers}
+              onContainersChange={handleContainersChange}
+            />
+          </div>
+        )}
 
         {/* Content Description */}
         <div className={`${bgSecondary} rounded-lg ${shadowClass} p-6 border ${borderColor}`}>
