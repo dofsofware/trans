@@ -2,11 +2,9 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { getMockShipments } from '../../services/shipmentService';
+import { useNavigate } from 'react-router-dom';
 import { getMockClients } from '../../services/clientService';
-import { Shipment } from '../../types/shipment';
 import { Client } from '../../types/client';
-import ShipmentCard from '../../components/shipments/ShipmentCard';
 import LoadingScreen from '../../components/common/LoadingScreen';
 import { useMediaQuery } from 'react-responsive';
 import {
@@ -30,31 +28,167 @@ import {
   ChevronLeft,
   ChevronRight,
   Grid,
-  Table
+  Table,
+  Building,
+  Hash,
+  Weight,
+  Box,
+  Clock,
+  AlertTriangle,
+  CheckCircle,
+  Users
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, subDays } from 'date-fns';
 import backImage from '../../utils/backGround_hearder.png';
+
+// Interface pour les dossiers de transit
+interface TransitFile {
+  id: string;
+  reference: string;
+  blNumber: string;
+  clientIds: string[];
+  origin: string;
+  destination: string;
+  transportType: 'air' | 'sea';
+  shipmentType: 'import' | 'export';
+  productType: 'standard' | 'dangerous' | 'fragile';
+  capacity: string;
+  contentDescription: string;
+  status: 'draft' | 'processing' | 'warehouse' | 'customs' | 'in_transit' | 'delivered' | 'issue';
+  visibility: 'public' | 'private';
+  assignedAgentId: string;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  documents: {
+    invoice?: string;
+    packingList?: string;
+    otherDocuments?: string[];
+  };
+}
 
 interface FilterState {
   search: string;
   status: string;
-  type: string;
+  transportType: string;
+  shipmentType: string;
+  productType: string;
   client: string;
   assignedTo: string;
   origin: string;
   destination: string;
   dateFrom: string;
   dateTo: string;
+  visibility: string;
 }
+
+// Générateur de données mock pour les dossiers de transit
+const generateMockTransitFiles = (count = 20): TransitFile[] => {
+  const origins = [
+    'Shanghai, Chine', 'Shenzhen, Chine', 'Hong Kong', 'Singapour', 'Dubai, EAU',
+    'Rotterdam, Pays-Bas', 'Hamburg, Allemagne', 'Le Havre, France', 'Anvers, Belgique',
+    'Los Angeles, USA', 'New York, USA', 'Tokyo, Japon', 'Busan, Corée du Sud'
+  ];
+
+  const destinations = [
+    'Dakar, Sénégal', 'Abidjan, Côte d\'Ivoire', 'Lagos, Nigeria', 'Casablanca, Maroc',
+    'Tunis, Tunisie', 'Alger, Algérie', 'Douala, Cameroun', 'Lomé, Togo',
+    'Cotonou, Bénin', 'Conakry, Guinée', 'Bamako, Mali', 'Ouagadougou, Burkina Faso'
+  ];
+
+  const productTypes: ('standard' | 'dangerous' | 'fragile')[] = ['standard', 'dangerous', 'fragile'];
+  const transportTypes: ('air' | 'sea')[] = ['air', 'sea'];
+  const shipmentTypes: ('import' | 'export')[] = ['import', 'export'];
+  const statuses: ('draft' | 'processing' | 'warehouse' | 'customs' | 'in_transit' | 'delivered' | 'issue')[] = 
+    ['draft', 'processing', 'warehouse', 'customs', 'in_transit', 'delivered', 'issue'];
+  const visibilities: ('public' | 'private')[] = ['public', 'private'];
+
+  const contentDescriptions = [
+    'Équipements électroniques et composants informatiques',
+    'Textiles et vêtements prêt-à-porter',
+    'Pièces automobiles et accessoires',
+    'Produits alimentaires et boissons',
+    'Matériaux de construction et quincaillerie',
+    'Produits pharmaceutiques et médicaux',
+    'Machines industrielles et équipements',
+    'Produits chimiques et matières premières',
+    'Mobilier et articles de décoration',
+    'Jouets et articles de sport'
+  ];
+
+  const capacities = [
+    '20 pieds, 15 tonnes',
+    '40 pieds, 25 tonnes',
+    '40 pieds HC, 28 tonnes',
+    '500 kg, 2 m³',
+    '1000 kg, 5 m³',
+    '2000 kg, 10 m³',
+    '5000 kg, 25 m³',
+    '10 tonnes, 50 m³'
+  ];
+
+  const files: TransitFile[] = [];
+
+  for (let i = 0; i < count; i++) {
+    const createdAt = format(subDays(new Date(), Math.floor(Math.random() * 90)), "yyyy-MM-dd'T'HH:mm:ss");
+    const updatedAt = format(subDays(new Date(), Math.floor(Math.random() * 30)), "yyyy-MM-dd'T'HH:mm:ss");
+    const transportType = transportTypes[Math.floor(Math.random() * transportTypes.length)];
+    
+    // Générer un numéro BL/LTA réaliste
+    const blPrefix = transportType === 'air' ? 'LTA' : 'BL';
+    const blNumber = `${blPrefix}${new Date().getFullYear()}${(1000 + i).toString().padStart(4, '0')}`;
+    
+    // Générer une référence de dossier
+    const reference = `TF-${new Date().getFullYear()}-${(10000 + i).toString()}`;
+
+    // Sélectionner 1-3 clients aléatoirement
+    const numClients = Math.floor(Math.random() * 3) + 1;
+    const clientIds = [];
+    for (let j = 0; j < numClients; j++) {
+      const clientId = `client-${1000 + Math.floor(Math.random() * 25)}`;
+      if (!clientIds.includes(clientId)) {
+        clientIds.push(clientId);
+      }
+    }
+
+    files.push({
+      id: `tf-${1000 + i}`,
+      reference,
+      blNumber,
+      clientIds,
+      origin: origins[Math.floor(Math.random() * origins.length)],
+      destination: destinations[Math.floor(Math.random() * destinations.length)],
+      transportType,
+      shipmentType: shipmentTypes[Math.floor(Math.random() * shipmentTypes.length)],
+      productType: productTypes[Math.floor(Math.random() * productTypes.length)],
+      capacity: capacities[Math.floor(Math.random() * capacities.length)],
+      contentDescription: contentDescriptions[Math.floor(Math.random() * contentDescriptions.length)],
+      status: statuses[Math.floor(Math.random() * statuses.length)],
+      visibility: visibilities[Math.floor(Math.random() * visibilities.length)],
+      assignedAgentId: `agent-${Math.floor(Math.random() * 4) + 1}`,
+      createdAt,
+      updatedAt,
+      createdBy: '2', // Agent actuel
+      documents: {
+        invoice: Math.random() > 0.3 ? `invoice-${i}.pdf` : undefined,
+        packingList: Math.random() > 0.5 ? `packing-list-${i}.pdf` : undefined,
+        otherDocuments: Math.random() > 0.7 ? [`doc1-${i}.pdf`, `doc2-${i}.pdf`] : undefined
+      }
+    });
+  }
+
+  return files;
+};
 
 const TransitFilesPage = () => {
   const { user } = useAuth();
   const { theme } = useTheme();
   const { t } = useLanguage();
-  const [shipments, setShipments] = useState<Shipment[]>([]);
+  const navigate = useNavigate();
+  const [transitFiles, setTransitFiles] = useState<TransitFile[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
-  const [filteredShipments, setFilteredShipments] = useState<Shipment[]>([]);
-  const [sortedShipments, setSortedShipments] = useState<Shipment[]>([]);
+  const [filteredFiles, setFilteredFiles] = useState<TransitFile[]>([]);
+  const [sortedFiles, setSortedFiles] = useState<TransitFile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
@@ -65,32 +199,35 @@ const TransitFilesPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(9);
   const [totalPages, setTotalPages] = useState(1);
-  const [paginatedShipments, setPaginatedShipments] = useState<Shipment[]>([]);
+  const [paginatedFiles, setPaginatedFiles] = useState<TransitFile[]>([]);
   
   // Sorting state
   const [sortField, setSortField] = useState<'creationDate' | 'reference' | 'status'>('creationDate');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
-    const isMobile = useMediaQuery({ maxWidth: 767 });
+  const isMobile = useMediaQuery({ maxWidth: 767 });
 
   const [filters, setFilters] = useState<FilterState>({
     search: '',
     status: '',
-    type: '',
+    transportType: '',
+    shipmentType: '',
+    productType: '',
     client: '',
     assignedTo: '',
     origin: '',
     destination: '',
     dateFrom: '',
-    dateTo: ''
+    dateTo: '',
+    visibility: ''
   });
 
   // Mock agents data
   const agents = [
-    { id: '1', name: 'Sophie Martin', role: 'Operations' },
-    { id: '2', name: 'Thomas Dubois', role: 'Customs' },
-    { id: '3', name: 'Marie Lefebvre', role: 'Finance' },
-    { id: '4', name: 'Pierre Durand', role: 'Operations' }
+    { id: 'agent-1', name: 'Sophie Martin', role: t('operations') },
+    { id: 'agent-2', name: 'Thomas Dubois', role: t('customs') },
+    { id: 'agent-3', name: 'Marie Lefebvre', role: t('finance') },
+    { id: 'agent-4', name: 'Pierre Durand', role: t('operations') }
   ];
 
   const isDark = theme === 'dark';
@@ -106,13 +243,16 @@ const TransitFilesPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [shipmentsData, clientsData] = await Promise.all([
-          getMockShipments(),
+        const [filesData, clientsData] = await Promise.all([
+          // Simuler le chargement des dossiers de transit
+          new Promise<TransitFile[]>(resolve => 
+            setTimeout(() => resolve(generateMockTransitFiles(25)), 1000)
+          ),
           getMockClients()
         ]);
-        setShipments(shipmentsData);
+        setTransitFiles(filesData);
         setClients(clientsData);
-        setFilteredShipments(shipmentsData);
+        setFilteredFiles(filesData);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -126,76 +266,92 @@ const TransitFilesPage = () => {
 
   // Apply filters
   useEffect(() => {
-    let filtered = [...shipments];
+    let filtered = [...transitFiles];
 
     // Search filter
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
-      filtered = filtered.filter(s =>
-        s.reference.toLowerCase().includes(searchLower) ||
-        s.origin.toLowerCase().includes(searchLower) ||
-        s.destination.toLowerCase().includes(searchLower) ||
-        s.description.toLowerCase().includes(searchLower)
+      filtered = filtered.filter(f =>
+        f.reference.toLowerCase().includes(searchLower) ||
+        f.blNumber.toLowerCase().includes(searchLower) ||
+        f.origin.toLowerCase().includes(searchLower) ||
+        f.destination.toLowerCase().includes(searchLower) ||
+        f.contentDescription.toLowerCase().includes(searchLower)
       );
     }
 
     // Status filter
     if (filters.status) {
-      filtered = filtered.filter(s => s.status === filters.status);
+      filtered = filtered.filter(f => f.status === filters.status);
     }
 
-    // Type filter
-    if (filters.type) {
-      filtered = filtered.filter(s => s.type === filters.type);
+    // Transport type filter
+    if (filters.transportType) {
+      filtered = filtered.filter(f => f.transportType === filters.transportType);
+    }
+
+    // Shipment type filter
+    if (filters.shipmentType) {
+      filtered = filtered.filter(f => f.shipmentType === filters.shipmentType);
+    }
+
+    // Product type filter
+    if (filters.productType) {
+      filtered = filtered.filter(f => f.productType === filters.productType);
     }
 
     // Client filter
     if (filters.client) {
-      filtered = filtered.filter(s => s.clientId === filters.client);
+      filtered = filtered.filter(f => f.clientIds.includes(filters.client));
     }
 
     // Assigned to filter
     if (filters.assignedTo) {
-      filtered = filtered.filter(s => s.assignedAgentId === filters.assignedTo);
+      filtered = filtered.filter(f => f.assignedAgentId === filters.assignedTo);
     }
 
     // Origin filter
     if (filters.origin) {
-      filtered = filtered.filter(s => 
-        s.origin.toLowerCase().includes(filters.origin.toLowerCase())
+      filtered = filtered.filter(f => 
+        f.origin.toLowerCase().includes(filters.origin.toLowerCase())
       );
     }
 
     // Destination filter
     if (filters.destination) {
-      filtered = filtered.filter(s => 
-        s.destination.toLowerCase().includes(filters.destination.toLowerCase())
+      filtered = filtered.filter(f => 
+        f.destination.toLowerCase().includes(filters.destination.toLowerCase())
       );
+    }
+
+    // Visibility filter
+    if (filters.visibility) {
+      filtered = filtered.filter(f => f.visibility === filters.visibility);
     }
 
     // Date filters
     if (filters.dateFrom) {
-      filtered = filtered.filter(s => 
-        new Date(s.createdAt) >= new Date(filters.dateFrom)
+      filtered = filtered.filter(f => 
+        new Date(f.createdAt) >= new Date(filters.dateFrom)
       );
     }
 
     if (filters.dateTo) {
-      filtered = filtered.filter(s => 
-        new Date(s.createdAt) <= new Date(filters.dateTo)
+      filtered = filtered.filter(f => 
+        new Date(f.createdAt) <= new Date(filters.dateTo)
       );
     }
 
-    setFilteredShipments(filtered);
+    setFilteredFiles(filtered);
 
     // Count active filters
     const activeCount = Object.values(filters).filter(value => value !== '').length;
     setActiveFiltersCount(activeCount);
-  }, [filters, shipments]);
+  }, [filters, transitFiles]);
 
   // Apply sorting
   useEffect(() => {
-    const sorted = [...filteredShipments].sort((a, b) => {
+    const sorted = [...filteredFiles].sort((a, b) => {
       let comparison = 0;
       
       switch (sortField) {
@@ -213,25 +369,24 @@ const TransitFilesPage = () => {
       return sortDirection === 'asc' ? comparison : -comparison;
     });
     
-    setSortedShipments(sorted);
-  }, [filteredShipments, sortField, sortDirection]);
+    setSortedFiles(sorted);
+  }, [filteredFiles, sortField, sortDirection]);
 
   // Apply pagination
   useEffect(() => {
-    const totalPagesCount = Math.ceil(sortedShipments.length / itemsPerPage);
+    const totalPagesCount = Math.ceil(sortedFiles.length / itemsPerPage);
     setTotalPages(totalPagesCount);
     
-    // Reset to first page if current page exceeds total pages
     if (currentPage > totalPagesCount && totalPagesCount > 0) {
       setCurrentPage(1);
     }
     
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const paginated = sortedShipments.slice(startIndex, endIndex);
+    const paginated = sortedFiles.slice(startIndex, endIndex);
     
-    setPaginatedShipments(paginated);
-  }, [sortedShipments, currentPage, itemsPerPage]);
+    setPaginatedFiles(paginated);
+  }, [sortedFiles, currentPage, itemsPerPage]);
 
   const handleFilterChange = (key: keyof FilterState, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -241,13 +396,16 @@ const TransitFilesPage = () => {
     setFilters({
       search: '',
       status: '',
-      type: '',
+      transportType: '',
+      shipmentType: '',
+      productType: '',
       client: '',
       assignedTo: '',
       origin: '',
       destination: '',
       dateFrom: '',
-      dateTo: ''
+      dateTo: '',
+      visibility: ''
     });
   };
 
@@ -255,9 +413,12 @@ const TransitFilesPage = () => {
     setFilters(prev => ({ ...prev, [key]: '' }));
   };
 
-  const getClientName = (clientId: string) => {
-    const client = clients.find(c => c.id === clientId);
-    return client ? client.name : 'Client inconnu';
+  const getClientNames = (clientIds: string[]) => {
+    const names = clientIds.map(id => {
+      const client = clients.find(c => c.id === id);
+      return client ? client.name : 'Client inconnu';
+    });
+    return names.join(', ');
   };
 
   const getAgentName = (agentId: string) => {
@@ -275,7 +436,7 @@ const TransitFilesPage = () => {
 
   const handleItemsPerPageChange = (value: number) => {
     setItemsPerPage(value);
-    setCurrentPage(1); // Reset to first page when changing items per page
+    setCurrentPage(1);
   };
 
   // Sorting handlers
@@ -330,6 +491,229 @@ const TransitFilesPage = () => {
     return pages;
   };
 
+  // Get status color
+  const getStatusColor = (status: string) => {
+    const colors = {
+      draft: isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-800',
+      processing: isDark ? 'bg-amber-800 text-amber-300' : 'bg-amber-100 text-amber-800',
+      warehouse: isDark ? 'bg-blue-800 text-blue-300' : 'bg-blue-100 text-blue-800',
+      customs: isDark ? 'bg-purple-800 text-purple-300' : 'bg-purple-100 text-purple-800',
+      in_transit: isDark ? 'bg-indigo-800 text-indigo-300' : 'bg-indigo-100 text-indigo-800',
+      delivered: isDark ? 'bg-green-800 text-green-300' : 'bg-green-100 text-green-800',
+      issue: isDark ? 'bg-red-800 text-red-300' : 'bg-red-100 text-red-800'
+    };
+    return colors[status as keyof typeof colors] || colors.draft;
+  };
+
+  // Navigation handlers
+  const handleNewFile = () => {
+    navigate('/transit-files/new');
+  };
+
+  // File Card Component
+  const FileCard = ({ file }: { file: TransitFile }) => (
+    <div className={`${bgSecondary} rounded-lg ${shadowClass} hover:${hoverShadow} transition-all duration-300 transform hover:-translate-y-1 border ${borderColor}`}>
+      <div className="p-5">
+        {/* Header */}
+        <div className="flex justify-between items-start mb-4">
+          <div className="flex items-center">
+            <FileText size={20} className={`mr-2 flex-shrink-0 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+            <div>
+              <h3 className={`text-lg font-semibold ${textPrimary}`}>
+                {file.reference}
+              </h3>
+              <p className={`text-xs ${textMuted}`}>
+                {file.blNumber}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className={`inline-flex items-center rounded-full border font-medium px-2 py-1 text-xs ${
+              file.transportType === 'air' 
+                ? isDark ? 'bg-blue-900/50 text-blue-300 border-blue-700' : 'bg-blue-50 text-blue-700 border-blue-200'
+                : isDark ? 'bg-indigo-900/50 text-indigo-300 border-indigo-700' : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+            }`}>
+              {file.transportType === 'air' ? <Plane size={12} className="mr-1" /> : <Ship size={12} className="mr-1" />}
+              {t(file.transportType)}
+            </span>
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(file.status)}`}>
+              {t(file.status)}
+            </span>
+          </div>
+        </div>
+
+        {/* Route */}
+        <div className={`flex items-start space-x-2 p-3 rounded-lg mb-4 ${isDark ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
+          <MapPin size={16} className={`mt-0.5 flex-shrink-0 ${isDark ? 'text-blue-400' : 'text-blue-500'}`} />
+          <div className="text-sm flex-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div>
+                <div className={`text-xs uppercase tracking-wide ${textMuted}`}>
+                  {t('from')}
+                </div>
+                <div className={`font-medium line-clamp-1 ${textSecondary}`}>
+                  {file.origin}
+                </div>
+              </div>
+              <div>
+                <div className={`text-xs uppercase tracking-wide ${textMuted}`}>
+                  {t('to')}
+                </div>
+                <div className={`font-medium line-clamp-1 ${textSecondary}`}>
+                  {file.destination}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Clients */}
+        <div className={`flex items-center space-x-2 p-3 rounded-lg mb-4 ${isDark ? 'bg-blue-900/30' : 'bg-blue-50'}`}>
+          <Users size={16} className={`flex-shrink-0 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+          <div className="text-sm overflow-hidden">
+            <span className={`font-medium ${isDark ? 'text-blue-300' : 'text-blue-600'}`}>
+              {t('clients')}:{' '}
+            </span>
+            <span className={`${isDark ? 'text-blue-200' : 'text-blue-800'} line-clamp-1`}>
+              {getClientNames(file.clientIds)}
+            </span>
+          </div>
+        </div>
+
+        {/* Details */}
+        <div className={`pt-3 mt-3 border-t ${borderColor}`}>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="flex items-center">
+              <Package size={12} className={`mr-1 flex-shrink-0 ${textMuted}`} />
+              <span className={textMuted}>{t('type')}:</span>
+              <span className={`ml-1 ${textSecondary}`}>{t(file.shipmentType)}</span>
+            </div>
+            <div className="flex items-center">
+              <Box size={12} className={`mr-1 flex-shrink-0 ${textMuted}`} />
+              <span className={textMuted}>{t('product_type')}:</span>
+              <span className={`ml-1 ${textSecondary}`}>{t(file.productType)}</span>
+            </div>
+            <div className="flex items-center col-span-2">
+              <Weight size={12} className={`mr-1 flex-shrink-0 ${textMuted}`} />
+              <span className={textMuted}>{t('capacity')}:</span>
+              <span className={`ml-1 ${textSecondary} line-clamp-1`}>{file.capacity}</span>
+            </div>
+          </div>
+          
+          <div className="mt-2 flex items-center justify-between">
+            <div className="flex items-center text-xs">
+              <Calendar size={12} className={`mr-1 ${textMuted}`} />
+              <span className={textMuted}>
+                {format(new Date(file.createdAt), 'dd/MM/yyyy')}
+              </span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <button className={`p-1 rounded ${textMuted} hover:${textPrimary} transition-colors`}>
+                <Eye size={14} />
+              </button>
+              <button className={`p-1 rounded ${textMuted} hover:${textPrimary} transition-colors`}>
+                <Edit size={14} />
+              </button>
+              <button className={`p-1 rounded ${textMuted} hover:${textPrimary} transition-colors`}>
+                <MoreVertical size={14} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Table View Component
+  const TableView = () => (
+    <div className={`${bgSecondary} rounded-lg ${shadowClass} overflow-hidden`}>
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className={`${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
+            <tr>
+              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
+                {t('reference')}
+              </th>
+              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
+                {t('clients')}
+              </th>
+              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
+                {t('origin')} → {t('destination')}
+              </th>
+              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
+                {t('transport_type')}
+              </th>
+              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
+                {t('status')}
+              </th>
+              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
+                {t('creation_date')}
+              </th>
+              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className={`divide-y ${isDark ? 'divide-gray-700' : 'divide-gray-200'}`}>
+            {paginatedFiles.map((file) => (
+              <tr key={file.id} className={`${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-50'} transition-colors`}>
+                <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${textPrimary}`}>
+                  <div>
+                    <div>{file.reference}</div>
+                    <div className={`text-xs ${textMuted}`}>{file.blNumber}</div>
+                  </div>
+                </td>
+                <td className={`px-6 py-4 whitespace-nowrap text-sm ${textSecondary}`}>
+                  <div className="max-w-32 truncate">
+                    {getClientNames(file.clientIds)}
+                  </div>
+                </td>
+                <td className={`px-6 py-4 whitespace-nowrap text-sm ${textSecondary}`}>
+                  <div className="flex items-center">
+                    <span className="truncate max-w-20">{file.origin.split(',')[0]}</span>
+                    <span className="mx-2">→</span>
+                    <span className="truncate max-w-20">{file.destination.split(',')[0]}</span>
+                  </div>
+                </td>
+                <td className={`px-6 py-4 whitespace-nowrap text-sm ${textSecondary}`}>
+                  <div className="flex items-center">
+                    {file.transportType === 'air' ? (
+                      <Plane size={16} className="mr-1 text-blue-600" />
+                    ) : (
+                      <Ship size={16} className="mr-1 text-blue-600" />
+                    )}
+                    {t(file.transportType)}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(file.status)}`}>
+                    {t(file.status)}
+                  </span>
+                </td>
+                <td className={`px-6 py-4 whitespace-nowrap text-sm ${textMuted}`}>
+                  {format(new Date(file.createdAt), 'dd/MM/yyyy')}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <div className="flex items-center justify-end space-x-2">
+                    <button className={`${textMuted} hover:text-blue-600 transition-colors`}>
+                      <Eye size={16} />
+                    </button>
+                    <button className={`${textMuted} hover:text-blue-600 transition-colors`}>
+                      <Edit size={16} />
+                    </button>
+                    <button className={`${textMuted} hover:text-blue-600 transition-colors`}>
+                      <MoreVertical size={16} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
   if (isLoading) {
     return <LoadingScreen />;
   }
@@ -351,21 +735,24 @@ const TransitFilesPage = () => {
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
           <div className="p-4">
             <h1 className={`text-2xl md:text-3xl font-bold ${textPrimary} mb-2`}>
-              Dossiers de Transit
+              {t('transit_files')}
             </h1>
             <p className={`${textSecondary} text-lg`}>
-              Gérez tous vos dossiers de transit et expéditions
+              {t('manage_transit_files')}
             </p>
           </div>
           
           <div className="flex flex-col sm:flex-row gap-3 p-4">
-            <button className="inline-flex items-center px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm">
+            <button 
+              onClick={handleNewFile}
+              className="inline-flex items-center px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm"
+            >
               <Plus size={18} className="mr-2" />
-              Nouveau dossier
+              {t('new_transit_file')}
             </button>
             <button className={`inline-flex items-center px-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors`}>
               <Download size={18} className="mr-2" />
-              Exporter
+              {t('export')}
             </button>
           </div>
         </div>
@@ -381,7 +768,7 @@ const TransitFilesPage = () => {
             </div>
             <input
               type="text"
-              placeholder="Rechercher par référence, origine, destination..."
+              placeholder={t('searchPlaceholder')}
               value={filters.search}
               onChange={(e) => handleFilterChange('search', e.target.value)}
               className={`block w-full pl-10 pr-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200`}
@@ -395,7 +782,7 @@ const TransitFilesPage = () => {
               className={`inline-flex items-center px-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors relative`}
             >
               <Filter size={18} className="mr-2" />
-              Filtres
+              {t('filters')}
               {activeFiltersCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {activeFiltersCount}
@@ -406,10 +793,10 @@ const TransitFilesPage = () => {
             {activeFiltersCount > 0 && (
               <button
                 onClick={clearAllFilters}
-                className="inline-flex items-center px-3 py-2 text-sm text-red-600 hover:text-red-800 transition-colors"
+                className="inline-flex items-center px-3 py-2 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors"
               >
                 <X size={16} className="mr-1" />
-                Effacer tout
+                {t('clearAll')}
               </button>
             )}
 
@@ -425,51 +812,84 @@ const TransitFilesPage = () => {
             {/* Status Filter */}
             <div>
               <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-                Statut
+                {t('status')}
               </label>
               <select
                 value={filters.status}
                 onChange={(e) => handleFilterChange('status', e.target.value)}
                 className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
               >
-                <option value="">Tous les statuts</option>
-                <option value="draft">Brouillon</option>
-                <option value="processing">En traitement</option>
-                <option value="warehouse">En entrepôt</option>
-                <option value="customs">Dédouanement</option>
-                <option value="in_transit">En transit</option>
-                <option value="delivered">Livré</option>
-                <option value="issue">Problème</option>
+                <option value="">{t('allStatuses')}</option>
+                <option value="draft">{t('draft')}</option>
+                <option value="processing">{t('processing')}</option>
+                <option value="warehouse">{t('warehouse')}</option>
+                <option value="customs">{t('customs')}</option>
+                <option value="in_transit">{t('in_transit')}</option>
+                <option value="delivered">{t('delivered')}</option>
+                <option value="issue">{t('issue')}</option>
               </select>
             </div>
 
-            {/* Type Filter */}
+            {/* Transport Type Filter */}
             <div>
               <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-                Type de transport
+                {t('transport_type')}
               </label>
               <select
-                value={filters.type}
-                onChange={(e) => handleFilterChange('type', e.target.value)}
+                value={filters.transportType}
+                onChange={(e) => handleFilterChange('transportType', e.target.value)}
                 className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
               >
-                <option value="">Tous les types</option>
-                <option value="air">Aérien</option>
-                <option value="sea">Maritime</option>
+                <option value="">{t('allTypes')}</option>
+                <option value="air">{t('air')}</option>
+                <option value="sea">{t('sea')}</option>
+              </select>
+            </div>
+
+            {/* Shipment Type Filter */}
+            <div>
+              <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
+                {t('shipment_type')}
+              </label>
+              <select
+                value={filters.shipmentType}
+                onChange={(e) => handleFilterChange('shipmentType', e.target.value)}
+                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              >
+                <option value="">{t('allTypes')}</option>
+                <option value="import">{t('import')}</option>
+                <option value="export">{t('export')}</option>
+              </select>
+            </div>
+
+            {/* Product Type Filter */}
+            <div>
+              <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
+                {t('product_type')}
+              </label>
+              <select
+                value={filters.productType}
+                onChange={(e) => handleFilterChange('productType', e.target.value)}
+                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              >
+                <option value="">{t('allTypes')}</option>
+                <option value="standard">{t('standard')}</option>
+                <option value="dangerous">{t('dangerous')}</option>
+                <option value="fragile">{t('fragile')}</option>
               </select>
             </div>
 
             {/* Client Filter */}
             <div>
               <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-                Client
+                {t('client')}
               </label>
               <select
                 value={filters.client}
                 onChange={(e) => handleFilterChange('client', e.target.value)}
                 className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
               >
-                <option value="">Tous les clients</option>
+                <option value="">{t('allClients')}</option>
                 {clients.map(client => (
                   <option key={client.id} value={client.id}>
                     {client.name}
@@ -481,14 +901,14 @@ const TransitFilesPage = () => {
             {/* Assigned To Filter */}
             <div>
               <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-                Assigné à
+                {t('assignedTo')}
               </label>
               <select
                 value={filters.assignedTo}
                 onChange={(e) => handleFilterChange('assignedTo', e.target.value)}
                 className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
               >
-                <option value="">Tous les agents</option>
+                <option value="">{t('allAgents')}</option>
                 {agents.map(agent => (
                   <option key={agent.id} value={agent.id}>
                     {agent.name} ({agent.role})
@@ -497,56 +917,31 @@ const TransitFilesPage = () => {
               </select>
             </div>
 
-            {/* Origin Filter */}
+            {/* Visibility Filter */}
             <div>
               <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-                Origine
+                {t('visibility')}
               </label>
-              <input
-                type="text"
-                placeholder="Ville, pays..."
-                value={filters.origin}
-                onChange={(e) => handleFilterChange('origin', e.target.value)}
+              <select
+                value={filters.visibility}
+                onChange={(e) => handleFilterChange('visibility', e.target.value)}
                 className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
-              />
-            </div>
-
-            {/* Destination Filter */}
-            <div>
-              <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-                Destination
-              </label>
-              <input
-                type="text"
-                placeholder="Ville, pays..."
-                value={filters.destination}
-                onChange={(e) => handleFilterChange('destination', e.target.value)}
-                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
-              />
+              >
+                <option value="">{t('all')}</option>
+                <option value="public">{t('public')}</option>
+                <option value="private">{t('private')}</option>
+              </select>
             </div>
 
             {/* Date From Filter */}
             <div>
               <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-                Date de création (de)
+                {t('creationDateFrom')}
               </label>
               <input
                 type="date"
                 value={filters.dateFrom}
                 onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
-                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
-              />
-            </div>
-
-            {/* Date To Filter */}
-            <div>
-              <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-                Date de création (à)
-              </label>
-              <input
-                type="date"
-                value={filters.dateTo}
-                onChange={(e) => handleFilterChange('dateTo', e.target.value)}
                 className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
               />
             </div>
@@ -557,20 +952,23 @@ const TransitFilesPage = () => {
         {activeFiltersCount > 0 && (
           <div className={`mt-4 pt-4 border-t ${borderColor}`}>
             <div className="flex flex-wrap gap-2">
-              <span className={`text-sm ${textMuted}`}>Filtres actifs:</span>
+              <span className={`text-sm ${textMuted}`}>{t('activeFilters')}:</span>
               {Object.entries(filters).map(([key, value]) => {
                 if (!value) return null;
                 
                 const filterLabels = {
-                  search: 'Recherche',
-                  status: 'Statut',
-                  type: 'Type',
-                  client: 'Client',
-                  assignedTo: 'Assigné à',
-                  origin: 'Origine',
-                  destination: 'Destination',
-                  dateFrom: 'Date de',
-                  dateTo: 'Date à'
+                  search: t('search'),
+                  status: t('status'),
+                  transportType: t('transport_type'),
+                  shipmentType: t('shipment_type'),
+                  productType: t('product_type'),
+                  client: t('client'),
+                  assignedTo: t('assignedTo'),
+                  origin: t('origin'),
+                  destination: t('destination'),
+                  dateFrom: t('creationDateFrom'),
+                  dateTo: t('creationDateTo'),
+                  visibility: t('visibility')
                 };
 
                 return (
@@ -581,7 +979,7 @@ const TransitFilesPage = () => {
                     {filterLabels[key as keyof typeof filterLabels]}: {value}
                     <button
                       onClick={() => clearFilter(key as keyof FilterState)}
-                      className="ml-2 hover:text-blue-600"
+                      className="ml-2 hover:text-blue-600 dark:hover:text-blue-400"
                     >
                       <X size={12} />
                     </button>
@@ -599,15 +997,15 @@ const TransitFilesPage = () => {
           {/* Results Summary */}
           <div className="flex items-center">
             <p className={`text-sm ${textSecondary}`}>
-              {sortedShipments.length} dossier{sortedShipments.length !== 1 ? 's' : ''} trouvé{sortedShipments.length !== 1 ? 's' : ''}
-              {activeFiltersCount > 0 && ' (filtré)'}
+              {sortedFiles.length} {t('filesFound')}
+              {activeFiltersCount > 0 && ` ${t('filtered')}`}
             </p>
           </div>
           
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             {/* Items per page selector */}
             <div className="flex items-center gap-2">
-              <span className={`text-sm ${textMuted}`}>Items par page:</span>
+              <span className={`text-sm ${textMuted}`}>{t('itemsPerPage')}:</span>
               <select
                 value={itemsPerPage}
                 onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
@@ -648,7 +1046,7 @@ const TransitFilesPage = () => {
             
             {/* Sorting Options */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className={`text-sm ${textMuted}`}>Trier par</span>
+              <span className={`text-sm ${textMuted}`}>{t('sortBy')}:</span>
               
               <button
                 onClick={() => handleSortChange('creationDate')}
@@ -656,7 +1054,7 @@ const TransitFilesPage = () => {
                   sortField === 'creationDate' ? 'ring-2 ring-blue-500 border-blue-500' : ''
                 }`}
               >
-                Date de création
+                {t('creationDate')}
                 {getSortIcon('creationDate')}
               </button>
 
@@ -666,7 +1064,7 @@ const TransitFilesPage = () => {
                   sortField === 'reference' ? 'ring-2 ring-blue-500 border-blue-500' : ''
                 }`}
               >
-                Référence
+                {t('reference')}
                 {getSortIcon('reference')}
               </button>
 
@@ -676,7 +1074,7 @@ const TransitFilesPage = () => {
                   sortField === 'status' ? 'ring-2 ring-blue-500 border-blue-500' : ''
                 }`}
               >
-                Statut
+                {t('status')}
                 {getSortIcon('status')}
               </button>
             </div>
@@ -685,13 +1083,13 @@ const TransitFilesPage = () => {
       </div>
 
       {/* Content Display */}
-      {sortedShipments.length > 0 ? (
+      {sortedFiles.length > 0 ? (
         <div className="space-y-6">
           {viewMode === 'grid' || isMobile ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {paginatedShipments.map((shipment, index) => (
+              {paginatedFiles.map((file, index) => (
                 <div
-                  key={shipment.id}
+                  key={file.id}
                   className="transform transition-all duration-300 hover:scale-105"
                   style={{
                     animationName: 'fadeInScale',
@@ -700,98 +1098,12 @@ const TransitFilesPage = () => {
                     animationDelay: `${0.1 * index}s`
                   }}
                 >
-                  <ShipmentCard shipment={shipment} />
+                  <FileCard file={file} />
                 </div>
               ))}
             </div>
           ) : (
-            // Table View
-            <div className={`${bgSecondary} rounded-lg ${shadowClass} overflow-hidden`}>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead className={`${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                    <tr>
-                      <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
-                        Référence
-                      </th>
-                      <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
-                        Client
-                      </th>
-                      <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
-                        Origine → Destination
-                      </th>
-                      <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
-                        Type
-                      </th>
-                      <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
-                        Statut
-                      </th>
-                      <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
-                        Date création
-                      </th>
-                      <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className={`divide-y ${isDark ? 'divide-gray-700' : 'divide-gray-200'}`}>
-                    {paginatedShipments.map((shipment) => (
-                      <tr key={shipment.id} className={`${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-50'} transition-colors`}>
-                        <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${textPrimary}`}>
-                          {shipment.reference}
-                        </td>
-                        <td className={`px-6 py-4 whitespace-nowrap text-sm ${textSecondary}`}>
-                          {getClientName(shipment.clientId)}
-                        </td>
-                        <td className={`px-6 py-4 whitespace-nowrap text-sm ${textSecondary}`}>
-                          <div className="flex items-center">
-                            <span className="truncate max-w-24">{shipment.origin}</span>
-                            <span className="mx-2">→</span>
-                            <span className="truncate max-w-24">{shipment.destination}</span>
-                          </div>
-                        </td>
-                        <td className={`px-6 py-4 whitespace-nowrap text-sm ${textSecondary}`}>
-                          <div className="flex items-center">
-                            {shipment.type === 'air' ? (
-                              <Plane size={16} className="mr-1 text-blue-600" />
-                            ) : (
-                              <Ship size={16} className="mr-1 text-blue-600" />
-                            )}
-                            {shipment.type === 'air' ? 'Aérien' : 'Maritime'}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            shipment.status === 'delivered' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
-                            shipment.status === 'in_transit' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' :
-                            shipment.status === 'issue' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' :
-                            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
-                          }`}>
-                            {shipment.status}
-                          </span>
-                        </td>
-                        <td className={`px-6 py-4 whitespace-nowrap text-sm ${textMuted}`}>
-                          {format(new Date(shipment.createdAt), 'dd/MM/yyyy')}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <div className="flex items-center justify-end space-x-2">
-                            <button className={`${textMuted} hover:text-blue-600 transition-colors`}>
-                              <Eye size={16} />
-                            </button>
-                            <button className={`${textMuted} hover:text-blue-600 transition-colors`}>
-                              <Edit size={16} />
-                            </button>
-                            <button className={`${textMuted} hover:text-blue-600 transition-colors`}>
-                              <MoreVertical size={16} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <TableView />
           )}
           
           {/* Pagination */}
@@ -843,12 +1155,12 @@ const TransitFilesPage = () => {
         <div className={`${bgSecondary} rounded-lg ${shadowClass} p-12 text-center`}>
           <FileText size={48} className={`mx-auto mb-4 ${textMuted}`} />
           <h3 className={`text-lg font-medium ${textPrimary} mb-2`}>
-            Aucun dossier trouvé
+            {t('noFilesFound')}
           </h3>
           <p className={textMuted}>
             {activeFiltersCount > 0 
-              ? 'Aucun dossier ne correspond à vos critères de recherche.'
-              : 'Aucun dossier de transit disponible pour le moment.'
+              ? t('noFilesFoundMessage')
+              : t('noFilesAvailable')
             }
           </p>
           {activeFiltersCount > 0 && (
@@ -856,7 +1168,7 @@ const TransitFilesPage = () => {
               onClick={clearAllFilters}
               className="mt-4 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Effacer les filtres
+              {t('clearFilters')}
             </button>
           )}
         </div>
@@ -882,6 +1194,13 @@ const TransitFilesPage = () => {
 
         .animate-fadeIn {
           animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .line-clamp-1 {
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 1;
         }
       `}</style>
     </div>
