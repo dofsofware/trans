@@ -618,10 +618,12 @@ const NewTransitFilePage = () => {
         {/* Containers Section - Only for Sea Transport */}
         {formData.transportType === 'sea' && (
           <div className={`${bgSecondary} rounded-lg ${shadowClass} p-6 border ${borderColor}`}>
-            <ContainerManager
-              containers={formData.containers}
-              onContainersChange={handleContainersChange}
-            />
+            <div onClick={(e) => e.stopPropagation()}>
+              <ContainerManager
+                containers={formData.containers}
+                onContainersChange={handleContainersChange}
+              />
+            </div>
           </div>
         )}
 
