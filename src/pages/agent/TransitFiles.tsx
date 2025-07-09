@@ -37,12 +37,13 @@ import {
   Clock,
   AlertTriangle,
   CheckCircle,
-  Users
+  Users,
+  Globe,
 } from 'lucide-react';
 import { format, subDays } from 'date-fns';
 import backImage from '../../utils/backGround_hearder.png';
 
-// Interface pour les dossiers de transit
+// Interface pour les dossiers de transit conforme à NewTransitFilePage
 interface TransitFile {
   id: string;
   reference: string;
@@ -56,16 +57,15 @@ interface TransitFile {
   capacity: string;
   contentDescription: string;
   status: 'draft' | 'processing' | 'warehouse' | 'customs' | 'in_transit' | 'delivered' | 'issue';
-  visibility: 'public' | 'private';
   assignedAgentId: string;
   createdAt: string;
   updatedAt: string;
   createdBy: string;
   containers?: Container[];
   documents: {
-    invoice?: string;
-    packingList?: string;
-    otherDocuments?: string[];
+    invoice?: { file: string; clientVisible: boolean };
+    packingList?: { file: string; clientVisible: boolean };
+    otherDocuments?: { file: string; clientVisible: boolean }[];
   };
 }
 
@@ -81,7 +81,6 @@ interface FilterState {
   destination: string;
   dateFrom: string;
   dateTo: string;
-  visibility: string;
 }
 
 // Générateur de données mock pour les dossiers de transit
@@ -103,7 +102,6 @@ const generateMockTransitFiles = (count = 20): TransitFile[] => {
   const shipmentTypes: ('import' | 'export')[] = ['import', 'export'];
   const statuses: ('draft' | 'processing' | 'warehouse' | 'customs' | 'in_transit' | 'delivered' | 'issue')[] = 
     ['draft', 'processing', 'warehouse', 'customs', 'in_transit', 'delivered', 'issue'];
-  const visibilities: ('public' | 'private')[] = ['public', 'private'];
 
   const contentDescriptions = [
     'Équipements électroniques et composants informatiques',
@@ -198,16 +196,18 @@ const generateMockTransitFiles = (count = 20): TransitFile[] => {
       capacity: capacities[Math.floor(Math.random() * capacities.length)],
       contentDescription: contentDescriptions[Math.floor(Math.random() * contentDescriptions.length)],
       status: statuses[Math.floor(Math.random() * statuses.length)],
-      visibility: visibilities[Math.floor(Math.random() * visibilities.length)],
       assignedAgentId: `agent-${Math.floor(Math.random() * 4) + 1}`,
       createdAt,
       updatedAt,
       createdBy: '2', // Agent actuel
       containers: generateMockContainers(transportType, i),
       documents: {
-        invoice: Math.random() > 0.3 ? `invoice-${i}.pdf` : undefined,
-        packingList: Math.random() > 0.5 ? `packing-list-${i}.pdf` : undefined,
-        otherDocuments: Math.random() > 0.7 ? [`doc1-${i}.pdf`, `doc2-${i}.pdf`] : undefined
+        invoice: Math.random() > 0.3 ? { file: `invoice-${i}.pdf`, clientVisible: Math.random() > 0.5 } : undefined,
+        packingList: Math.random() > 0.5 ? { file: `packing-list-${i}.pdf`, clientVisible: Math.random() > 0.5 } : undefined,
+        otherDocuments: Math.random() > 0.7 ? [
+          { file: `doc1-${i}.pdf`, clientVisible: Math.random() > 0.5 },
+          { file: `doc2-${i}.pdf`, clientVisible: Math.random() > 0.5 }
+        ] : undefined
       }
     });
   }
@@ -241,6 +241,7 @@ const TransitFilesPage = () => {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   const isMobile = useMediaQuery({ maxWidth: 767 });
+  const isTablet = useMediaQuery({ minWidth: 768, maxWidth: 1023 });
 
   const [filters, setFilters] = useState<FilterState>({
     search: '',
@@ -254,7 +255,6 @@ const TransitFilesPage = () => {
     destination: '',
     dateFrom: '',
     dateTo: '',
-    visibility: ''
   });
 
   // Mock agents data
@@ -359,10 +359,6 @@ const TransitFilesPage = () => {
       );
     }
 
-    // Visibility filter
-    if (filters.visibility) {
-      filtered = filtered.filter(f => f.visibility === filters.visibility);
-    }
 
     // Date filters
     if (filters.dateFrom) {
@@ -440,7 +436,6 @@ const TransitFilesPage = () => {
       destination: '',
       dateFrom: '',
       dateTo: '',
-      visibility: ''
     });
   };
 
@@ -451,14 +446,14 @@ const TransitFilesPage = () => {
   const getClientNames = (clientIds: string[]) => {
     const names = clientIds.map(id => {
       const client = clients.find(c => c.id === id);
-      return client ? client.name : 'Client inconnu';
+      return client ? client.name : t('unknown_client');
     });
     return names.join(', ');
   };
 
   const getAgentName = (agentId: string) => {
     const agent = agents.find(a => a.id === agentId);
-    return agent ? agent.name : 'Agent inconnu';
+    return agent ? agent.name : t('unknown_client');
   };
 
   // Pagination handlers
@@ -540,6 +535,18 @@ const TransitFilesPage = () => {
     return colors[status as keyof typeof colors] || colors.draft;
   };
 
+  // Get product type icon
+  const getProductTypeIcon = (type: string) => {
+    switch (type) {
+      case 'dangerous':
+        return <AlertTriangle size={14} className="text-red-500" />;
+      case 'fragile':
+        return <Package size={14} className="text-yellow-500" />;
+      default:
+        return <Package size={14} className={textMuted} />;
+    }
+  };
+
   // Navigation handlers
   const handleNewFile = () => {
     navigate('/transit-files/new');
@@ -548,21 +555,21 @@ const TransitFilesPage = () => {
   // File Card Component
   const FileCard = ({ file }: { file: TransitFile }) => (
     <div className={`${bgSecondary} rounded-lg ${shadowClass} hover:${hoverShadow} transition-all duration-300 transform hover:-translate-y-1 border ${borderColor}`}>
-      <div className="p-5">
+      <div className="p-4 sm:p-5">
         {/* Header */}
         <div className="flex justify-between items-start mb-4">
-          <div className="flex items-center">
+          <div className="flex items-center min-w-0 flex-1">
             <FileText size={20} className={`mr-2 flex-shrink-0 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
-            <div>
-              <h3 className={`text-lg font-semibold ${textPrimary}`}>
+            <div className="min-w-0 flex-1">
+              <h3 className={`text-base sm:text-lg font-semibold ${textPrimary} truncate`}>
                 {file.reference}
               </h3>
-              <p className={`text-xs ${textMuted}`}>
+              <p className={`text-xs ${textMuted} truncate`}>
                 {file.blNumber}
               </p>
             </div>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-col items-end space-y-2 ml-2">
             <span className={`inline-flex items-center rounded-full border font-medium px-2 py-1 text-xs ${
               file.transportType === 'air' 
                 ? isDark ? 'bg-blue-900/50 text-blue-300 border-blue-700' : 'bg-blue-50 text-blue-700 border-blue-200'
@@ -580,13 +587,13 @@ const TransitFilesPage = () => {
         {/* Route */}
         <div className={`flex items-start space-x-2 p-3 rounded-lg mb-4 ${isDark ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
           <MapPin size={16} className={`mt-0.5 flex-shrink-0 ${isDark ? 'text-blue-400' : 'text-blue-500'}`} />
-          <div className="text-sm flex-1">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="text-sm flex-1 min-w-0">
+            <div className="grid grid-cols-1 gap-2">
               <div>
                 <div className={`text-xs uppercase tracking-wide ${textMuted}`}>
                   {t('from')}
                 </div>
-                <div className={`font-medium line-clamp-1 ${textSecondary}`}>
+                <div className={`font-medium ${textSecondary} truncate`}>
                   {file.origin}
                 </div>
               </div>
@@ -594,7 +601,7 @@ const TransitFilesPage = () => {
                 <div className={`text-xs uppercase tracking-wide ${textMuted}`}>
                   {t('to')}
                 </div>
-                <div className={`font-medium line-clamp-1 ${textSecondary}`}>
+                <div className={`font-medium ${textSecondary} truncate`}>
                   {file.destination}
                 </div>
               </div>
@@ -605,11 +612,11 @@ const TransitFilesPage = () => {
         {/* Clients */}
         <div className={`flex items-center space-x-2 p-3 rounded-lg mb-4 ${isDark ? 'bg-blue-900/30' : 'bg-blue-50'}`}>
           <Users size={16} className={`flex-shrink-0 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
-          <div className="text-sm overflow-hidden">
+          <div className="text-sm overflow-hidden min-w-0 flex-1">
             <span className={`font-medium ${isDark ? 'text-blue-300' : 'text-blue-600'}`}>
               {t('clients')}:{' '}
             </span>
-            <span className={`${isDark ? 'text-blue-200' : 'text-blue-800'} line-clamp-1`}>
+            <span className={`${isDark ? 'text-blue-200' : 'text-blue-800'} truncate block`}>
               {getClientNames(file.clientIds)}
             </span>
           </div>
@@ -617,34 +624,31 @@ const TransitFilesPage = () => {
 
         {/* Details */}
         <div className={`pt-3 mt-3 border-t ${borderColor}`}>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="flex items-center">
-              <Package size={12} className={`mr-1 flex-shrink-0 ${textMuted}`} />
-              <span className={textMuted}>{t('type')}:</span>
-              <span className={`ml-1 ${textSecondary}`}>{t(file.shipmentType)}</span>
-            </div>
-            <div className="flex items-center">
-              <Box size={12} className={`mr-1 flex-shrink-0 ${textMuted}`} />
-              <span className={textMuted}>{t('product_type')}:</span>
-              <span className={`ml-1 ${textSecondary}`}>{t(file.productType)}</span>
-            </div>
-            <div className="flex items-center col-span-2">
-              <Weight size={12} className={`mr-1 flex-shrink-0 ${textMuted}`} />
-              <span className={textMuted}>{t('capacity')}:</span>
-              <span className={`ml-1 ${textSecondary} line-clamp-1`}>{file.capacity}</span>
-            </div>
-            {file.transportType === 'sea' && file.containers && file.containers.length > 0 && (
-              <div className="flex items-center col-span-2">
+          <div className="grid grid-cols-1 gap-2 text-xs mb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
                 <Package size={12} className={`mr-1 flex-shrink-0 ${textMuted}`} />
-                <span className={textMuted}>{t('containers')}:</span>
-                <span className={`ml-1 ${textSecondary}`}>
-                  {file.containers.length} {file.containers.length === 1 ? t('container') : t('containers')}
-                </span>
+                <span className={textMuted}>{t('shipment_type')}:</span>
               </div>
-            )}
+              <span className={`${textSecondary} font-medium`}>{t(file.shipmentType)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                {getProductTypeIcon(file.productType)}
+                <span className={`ml-1 ${textMuted}`}>{t('product_type')}:</span>
+              </div>
+              <span className={`${textSecondary} font-medium`}>{t(file.productType)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Weight size={12} className={`mr-1 flex-shrink-0 ${textMuted}`} />
+                <span className={textMuted}>{t('capacity')}:</span>
+              </div>
+              <span className={`${textSecondary} font-medium truncate ml-2 text-right`}>{file.capacity}</span>
+            </div>
           </div>
           
-          <div className="mt-2 flex items-center justify-between">
+          <div className="flex items-center justify-between">
             <div className="flex items-center text-xs">
               <Calendar size={12} className={`mr-1 ${textMuted}`} />
               <span className={textMuted}>
@@ -652,13 +656,13 @@ const TransitFilesPage = () => {
               </span>
             </div>
             <div className="flex items-center space-x-1">
-              <button className={`p-1 rounded ${textMuted} hover:${textPrimary} transition-colors`}>
+              <button className={`p-1 rounded ${textMuted} hover:${textPrimary} transition-colors`} title={t('view_details')}>
                 <Eye size={14} />
               </button>
-              <button className={`p-1 rounded ${textMuted} hover:${textPrimary} transition-colors`}>
+              <button className={`p-1 rounded ${textMuted} hover:${textPrimary} transition-colors`} title={t('edit')}>
                 <Edit size={14} />
               </button>
-              <button className={`p-1 rounded ${textMuted} hover:${textPrimary} transition-colors`}>
+              <button className={`p-1 rounded ${textMuted} hover:${textPrimary} transition-colors`} title={t('more_actions')}>
                 <MoreVertical size={14} />
               </button>
             </div>
@@ -675,25 +679,25 @@ const TransitFilesPage = () => {
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className={`${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
             <tr>
-              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
+              <th className={`px-4 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
                 {t('reference')}
               </th>
-              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
+              <th className={`px-4 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
                 {t('clients')}
               </th>
-              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
+              <th className={`px-4 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
                 {t('origin')} → {t('destination')}
               </th>
-              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
+              <th className={`px-4 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
                 {t('transport_type')}
               </th>
-              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
+              <th className={`px-4 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
                 {t('status')}
               </th>
-              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
+              <th className={`px-4 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
                 {t('creation_date')}
               </th>
-              <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
+              <th className={`px-4 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
                 Actions
               </th>
             </tr>
@@ -701,25 +705,25 @@ const TransitFilesPage = () => {
           <tbody className={`divide-y ${isDark ? 'divide-gray-700' : 'divide-gray-200'}`}>
             {paginatedFiles.map((file) => (
               <tr key={file.id} className={`${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-50'} transition-colors`}>
-                <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${textPrimary}`}>
+                <td className={`px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium ${textPrimary}`}>
                   <div>
-                    <div>{file.reference}</div>
-                    <div className={`text-xs ${textMuted}`}>{file.blNumber}</div>
+                    <div className="truncate max-w-32">{file.reference}</div>
+                    <div className={`text-xs ${textMuted} truncate max-w-32`}>{file.blNumber}</div>
                   </div>
                 </td>
-                <td className={`px-6 py-4 whitespace-nowrap text-sm ${textSecondary}`}>
+                <td className={`px-4 sm:px-6 py-4 whitespace-nowrap text-sm ${textSecondary}`}>
                   <div className="max-w-32 truncate">
                     {getClientNames(file.clientIds)}
                   </div>
                 </td>
-                <td className={`px-6 py-4 whitespace-nowrap text-sm ${textSecondary}`}>
+                <td className={`px-4 sm:px-6 py-4 whitespace-nowrap text-sm ${textSecondary}`}>
                   <div className="flex items-center">
                     <span className="truncate max-w-20">{file.origin.split(',')[0]}</span>
                     <span className="mx-2">→</span>
                     <span className="truncate max-w-20">{file.destination.split(',')[0]}</span>
                   </div>
                 </td>
-                <td className={`px-6 py-4 whitespace-nowrap text-sm ${textSecondary}`}>
+                <td className={`px-4 sm:px-6 py-4 whitespace-nowrap text-sm ${textSecondary}`}>
                   <div className="flex items-center">
                     {file.transportType === 'air' ? (
                       <Plane size={16} className="mr-1 text-blue-600" />
@@ -729,23 +733,23 @@ const TransitFilesPage = () => {
                     {t(file.transportType)}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(file.status)}`}>
                     {t(file.status)}
                   </span>
                 </td>
-                <td className={`px-6 py-4 whitespace-nowrap text-sm ${textMuted}`}>
+                <td className={`px-4 sm:px-6 py-4 whitespace-nowrap text-sm ${textMuted}`}>
                   {format(new Date(file.createdAt), 'dd/MM/yyyy')}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div className="flex items-center justify-end space-x-2">
-                    <button className={`${textMuted} hover:text-blue-600 transition-colors`}>
+                    <button className={`${textMuted} hover:text-blue-600 transition-colors`} title={t('view_details')}>
                       <Eye size={16} />
                     </button>
-                    <button className={`${textMuted} hover:text-blue-600 transition-colors`}>
+                    <button className={`${textMuted} hover:text-blue-600 transition-colors`} title={t('edit')}>
                       <Edit size={16} />
                     </button>
-                    <button className={`${textMuted} hover:text-blue-600 transition-colors`}>
+                    <button className={`${textMuted} hover:text-blue-600 transition-colors`} title={t('more_actions')}>
                       <MoreVertical size={16} />
                     </button>
                   </div>
@@ -766,7 +770,7 @@ const TransitFilesPage = () => {
     <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 transition-all duration-700 ${pageLoaded ? 'opacity-100' : 'opacity-0'}`}>
       {/* Header Section */}
       <div 
-        className={`mb-8 rounded-xl p-6 ${shadowClass} transform transition-all duration-500 ${hoverShadow} hover:scale-[1.01] animate-fadeIn`}
+        className={`mb-6 sm:mb-8 rounded-xl p-4 sm:p-6 ${shadowClass} transform transition-all duration-500 ${hoverShadow} hover:scale-[1.01] animate-fadeIn`}
         style={{
           backgroundImage: isDark 
             ? `linear-gradient(to right, rgba(17, 24, 39, 0.85), rgba(31, 41, 55, 0.85)), url(${backImage})`
@@ -777,24 +781,24 @@ const TransitFilesPage = () => {
         }}
       >
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-          <div className="p-4">
-            <h1 className={`text-2xl md:text-3xl font-bold ${textPrimary} mb-2`}>
+          <div className="p-2 sm:p-4">
+            <h1 className={`text-xl sm:text-2xl md:text-3xl font-bold ${textPrimary} mb-2`}>
               {t('transit_files')}
             </h1>
-            <p className={`${textSecondary} text-lg`}>
+            <p className={`${textSecondary} text-base sm:text-lg`}>
               {t('manage_transit_files')}
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-3 p-4">
+          <div className="flex flex-col sm:flex-row gap-3 p-2 sm:p-4">
             <button 
               onClick={handleNewFile}
-              className="inline-flex items-center px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm"
+              className="inline-flex items-center justify-center px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm text-sm sm:text-base"
             >
               <Plus size={18} className="mr-2" />
               {t('new_transit_file')}
             </button>
-            <button className={`inline-flex items-center px-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors`}>
+            <button className={`inline-flex items-center justify-center px-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm sm:text-base`}>
               <Download size={18} className="mr-2" />
               {t('export')}
             </button>
@@ -815,7 +819,7 @@ const TransitFilesPage = () => {
               placeholder={t('searchPlaceholder')}
               value={filters.search}
               onChange={(e) => handleFilterChange('search', e.target.value)}
-              className={`block w-full pl-10 pr-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200`}
+              className={`block w-full pl-10 pr-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base`}
             />
           </div>
 
@@ -823,7 +827,7 @@ const TransitFilesPage = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`inline-flex items-center px-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors relative`}
+              className={`inline-flex items-center px-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors relative text-sm sm:text-base`}
             >
               <Filter size={18} className="mr-2" />
               {t('filters')}
@@ -852,7 +856,7 @@ const TransitFilesPage = () => {
 
         {/* Advanced Filters */}
         {showFilters && (
-          <div className={`mt-6 pt-6 border-t ${borderColor} grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4`}>
+          <div className={`mt-6 pt-6 border-t ${borderColor} grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4`}>
             {/* Status Filter */}
             <div>
               <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
@@ -861,9 +865,9 @@ const TransitFilesPage = () => {
               <select
                 value={filters.status}
                 onChange={(e) => handleFilterChange('status', e.target.value)}
-                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
               >
-                <option value="">{t('allStatuses')}</option>
+                <option value="">{t('all_statuses')}</option>
                 <option value="draft">{t('draft')}</option>
                 <option value="processing">{t('processing')}</option>
                 <option value="warehouse">{t('warehouse')}</option>
@@ -882,9 +886,9 @@ const TransitFilesPage = () => {
               <select
                 value={filters.transportType}
                 onChange={(e) => handleFilterChange('transportType', e.target.value)}
-                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
               >
-                <option value="">{t('allTypes')}</option>
+                <option value="">{t('all_types')}</option>
                 <option value="air">{t('air')}</option>
                 <option value="sea">{t('sea')}</option>
               </select>
@@ -898,9 +902,9 @@ const TransitFilesPage = () => {
               <select
                 value={filters.shipmentType}
                 onChange={(e) => handleFilterChange('shipmentType', e.target.value)}
-                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
               >
-                <option value="">{t('allTypes')}</option>
+                <option value="">{t('all_types')}</option>
                 <option value="import">{t('import')}</option>
                 <option value="export">{t('export')}</option>
               </select>
@@ -914,9 +918,9 @@ const TransitFilesPage = () => {
               <select
                 value={filters.productType}
                 onChange={(e) => handleFilterChange('productType', e.target.value)}
-                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
               >
-                <option value="">{t('allTypes')}</option>
+                <option value="">{t('all_types')}</option>
                 <option value="standard">{t('standard')}</option>
                 <option value="dangerous">{t('dangerous')}</option>
                 <option value="fragile">{t('fragile')}</option>
@@ -931,9 +935,9 @@ const TransitFilesPage = () => {
               <select
                 value={filters.client}
                 onChange={(e) => handleFilterChange('client', e.target.value)}
-                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
               >
-                <option value="">{t('allClients')}</option>
+                <option value="">{t('all_clients')}</option>
                 {clients.map(client => (
                   <option key={client.id} value={client.id}>
                     {client.name}
@@ -950,9 +954,9 @@ const TransitFilesPage = () => {
               <select
                 value={filters.assignedTo}
                 onChange={(e) => handleFilterChange('assignedTo', e.target.value)}
-                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
               >
-                <option value="">{t('allAgents')}</option>
+                <option value="">{t('all_agents')}</option>
                 {agents.map(agent => (
                   <option key={agent.id} value={agent.id}>
                     {agent.name} ({agent.role})
@@ -961,32 +965,17 @@ const TransitFilesPage = () => {
               </select>
             </div>
 
-            {/* Visibility Filter */}
-            <div>
-              <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-                {t('visibility')}
-              </label>
-              <select
-                value={filters.visibility}
-                onChange={(e) => handleFilterChange('visibility', e.target.value)}
-                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
-              >
-                <option value="">{t('all')}</option>
-                <option value="public">{t('public')}</option>
-                <option value="private">{t('private')}</option>
-              </select>
-            </div>
 
             {/* Date From Filter */}
             <div>
               <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-                {t('creationDateFrom')}
+                {t('creation_date_from')}
               </label>
               <input
                 type="date"
                 value={filters.dateFrom}
                 onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
-                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
               />
             </div>
           </div>
@@ -1010,9 +999,8 @@ const TransitFilesPage = () => {
                   assignedTo: t('assignedTo'),
                   origin: t('origin'),
                   destination: t('destination'),
-                  dateFrom: t('creationDateFrom'),
-                  dateTo: t('creationDateTo'),
-                  visibility: t('visibility')
+                  dateFrom: t('creation_date_from'),
+                  dateTo: t('creation_date_to'),
                 };
 
                 return (
@@ -1041,7 +1029,7 @@ const TransitFilesPage = () => {
           {/* Results Summary */}
           <div className="flex items-center">
             <p className={`text-sm ${textSecondary}`}>
-              {sortedFiles.length} {t('filesFound')}
+              {sortedFiles.length} {t('files_found')}
               {activeFiltersCount > 0 && ` ${t('filtered')}`}
             </p>
           </div>
@@ -1098,7 +1086,7 @@ const TransitFilesPage = () => {
                   sortField === 'creationDate' ? 'ring-2 ring-blue-500 border-blue-500' : ''
                 }`}
               >
-                {t('creationDate')}
+                {t('creation_date')}
                 {getSortIcon('creationDate')}
               </button>
 
@@ -1130,7 +1118,7 @@ const TransitFilesPage = () => {
       {sortedFiles.length > 0 ? (
         <div className="space-y-6">
           {viewMode === 'grid' || isMobile ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className={`grid grid-cols-1 ${isTablet ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3'} gap-4 sm:gap-6`}>
               {paginatedFiles.map((file, index) => (
                 <div
                   key={file.id}
@@ -1196,15 +1184,15 @@ const TransitFilesPage = () => {
           )}
         </div>
       ) : (
-        <div className={`${bgSecondary} rounded-lg ${shadowClass} p-12 text-center`}>
+        <div className={`${bgSecondary} rounded-lg ${shadowClass} p-8 sm:p-12 text-center`}>
           <FileText size={48} className={`mx-auto mb-4 ${textMuted}`} />
           <h3 className={`text-lg font-medium ${textPrimary} mb-2`}>
-            {t('noFilesFound')}
+            {t('no_files_found')}
           </h3>
           <p className={textMuted}>
             {activeFiltersCount > 0 
-              ? t('noFilesFoundMessage')
-              : t('noFilesAvailable')
+              ? t('no_files_match_filters')
+              : t('no_files_available')
             }
           </p>
           {activeFiltersCount > 0 && (
@@ -1212,7 +1200,7 @@ const TransitFilesPage = () => {
               onClick={clearAllFilters}
               className="mt-4 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              {t('clearFilters')}
+              {t('clear_all_filters')}
             </button>
           )}
         </div>
@@ -1240,11 +1228,10 @@ const TransitFilesPage = () => {
           animation: fadeIn 0.5s ease-out forwards;
         }
 
-        .line-clamp-1 {
+        .truncate {
           overflow: hidden;
-          display: -webkit-box;
-          -webkit-box-orient: vertical;
-          -webkit-line-clamp: 1;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
       `}</style>
     </div>
