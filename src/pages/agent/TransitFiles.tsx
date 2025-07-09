@@ -552,6 +552,10 @@ const TransitFilesPage = () => {
     navigate('/transit-files/new');
   };
 
+  const handleEditFile = (fileId: string) => {
+    navigate(`/transit-files/${fileId}/edit`);
+  };
+
   // File Card Component
   const FileCard = ({ file }: { file: TransitFile }) => (
     <div className={`${bgSecondary} rounded-lg ${shadowClass} hover:${hoverShadow} transition-all duration-300 transform hover:-translate-y-1 border ${borderColor}`}>
@@ -659,7 +663,11 @@ const TransitFilesPage = () => {
               <button className={`p-1 rounded ${textMuted} hover:${textPrimary} transition-colors`} title={t('view_details')}>
                 <Eye size={14} />
               </button>
-              <button className={`p-1 rounded ${textMuted} hover:${textPrimary} transition-colors`} title={t('edit')}>
+              <button 
+                onClick={() => handleEditFile(file.id)}
+                className={`p-1 rounded ${textMuted} hover:${textPrimary} transition-colors`} 
+                title={t('edit')}
+              >
                 <Edit size={14} />
               </button>
               <button className={`p-1 rounded ${textMuted} hover:${textPrimary} transition-colors`} title={t('more_actions')}>
@@ -746,7 +754,11 @@ const TransitFilesPage = () => {
                     <button className={`${textMuted} hover:text-blue-600 transition-colors`} title={t('view_details')}>
                       <Eye size={16} />
                     </button>
-                    <button className={`${textMuted} hover:text-blue-600 transition-colors`} title={t('edit')}>
+                    <button 
+                      onClick={() => handleEditFile(file.id)}
+                      className={`${textMuted} hover:text-blue-600 transition-colors`} 
+                      title={t('edit')}
+                    >
                       <Edit size={16} />
                     </button>
                     <button className={`${textMuted} hover:text-blue-600 transition-colors`} title={t('more_actions')}>

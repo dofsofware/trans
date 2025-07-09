@@ -15,6 +15,7 @@ import AgentDashboard from '../pages/agent/Dashboard';
 import NewTransitFilePage from '../pages/agent/NewTransitFile';
 // import EditClientPage from '../pages/agent/EditClient';
 // import ClientDetailsPage from '../pages/agent/ClientDetails';
+import EditTransitFilePage from '../pages/agent/EditTransitFile';
 import TransitFilesPage from '../pages/agent/TransitFiles';
 import Layout from '../components/layout/Layout';
 import LoadingScreen from '../components/common/LoadingScreen';
@@ -69,6 +70,7 @@ const AppRoutes = () => {
               {/* <Route path="/clients/new-client" element={<NewClientPage />} /> */}
               {/* <Route path="/clients/:clientId" element={<ClientDetailsPage />} /> */}
               <Route path="/transit-files/new" element={<NewTransitFilePage />} />
+              <Route path="/transit-files/:id/edit" element={<EditTransitFilePage />} />
               {/* <Route path="/clients/:clientId/edit" element={<EditClientPage />} />
               <Route path="/messages" element={<MessagesPage />} /> */}
               <Route path="*" element={<Navigate to="/" replace />} />
