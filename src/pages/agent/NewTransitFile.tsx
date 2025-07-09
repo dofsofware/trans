@@ -355,7 +355,6 @@ const NewTransitFilePage = () => {
               {t('create_transit_file')}
             </p>
           </div>
-          <FileText size={48} className={`${isDark ? 'text-blue-400' : 'text-blue-600'} opacity-80`} />
         </div>
       </div>
 
