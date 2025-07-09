@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -11,11 +12,11 @@ import ContainerManager from '../../components/common/ContainerManager';
 import LoadingScreen from '../../components/common/LoadingScreen';
 import {
   ArrowLeft,
+  ArrowRight,
   FileText,
   Users,
   MapPin,
   Package,
-  Truck,
   Ship,
   Plane,
   Building,
@@ -23,12 +24,15 @@ import {
   Calendar,
   CheckCircle,
   Eye,
-  EyeOff,
   Info,
   Upload,
   X,
   Search,
-  Plus
+  Plus,
+  Clock,
+  Edit3,
+  Save,
+  Check
 } from 'lucide-react';
 import { format } from 'date-fns';
 import backImage from '../../utils/backGround_hearder.png';
@@ -50,6 +54,17 @@ interface FormData {
     packingList?: { file: File; clientVisible: boolean };
     otherDocuments?: { file: File; clientVisible: boolean }[];
   };
+  events: TransitEvent[];
+}
+
+interface TransitEvent {
+  id: string;
+  name: string;
+  date: string;
+  agentId: string;
+  agentName: string;
+  details?: string;
+  completed: boolean;
 }
 
 interface FormErrors {
@@ -72,6 +87,8 @@ const NewTransitFilePage = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [createdFileId, setCreatedFileId] = useState<string>('');
   const [pageLoaded, setPageLoaded] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   
   // Client search and selection
   const [clientSearch, setClientSearch] = useState('');
@@ -90,7 +107,8 @@ const NewTransitFilePage = () => {
     capacity: '',
     contentDescription: '',
     containers: [],
-    documents: {}
+    documents: {},
+    events: []
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -104,6 +122,48 @@ const NewTransitFilePage = () => {
   const bgPrimary = isDark ? 'bg-gray-900' : 'bg-white';
   const bgSecondary = isDark ? 'bg-gray-800' : 'bg-white';
   const borderColor = isDark ? 'border-gray-700' : 'border-gray-200';
+
+  // Steps configuration
+  const steps = [
+    { id: 1, name: t('general_information'), icon: Info },
+    { id: 2, name: t('clients_selection'), icon: Users },
+    { id: 3, name: t('route_and_capacity'), icon: MapPin },
+    { id: 4, name: t('containers'), icon: Package },
+    { id: 5, name: t('content_description'), icon: FileText },
+    { id: 6, name: t('documents'), icon: Upload },
+    { id: 7, name: t('events'), icon: Clock }
+  ];
+
+  // Events configuration based on shipment type
+  const getEventsByShipmentType = (shipmentType: 'import' | 'export'): Omit<TransitEvent, 'id' | 'date' | 'agentId' | 'agentName' | 'completed'>[] => {
+    if (shipmentType === 'export') {
+      return [
+        { name: t('export_pregate'), details: '' },
+        { name: t('warehouse_reception'), details: '' },
+        { name: t('declaration'), details: '' },
+        { name: t('export_customs_clearance'), details: '' },
+        { name: t('warehouse_loading'), details: '' },
+        { name: t('effective_transport'), details: '' },
+        { name: t('vessel_loading'), details: '' },
+        { name: t('departure'), details: '' },
+        { name: t('estimated_arrival'), details: '' },
+        { name: t('billing'), details: '' }
+      ];
+    } else {
+      return [
+        { name: t('import_prealert'), details: '' },
+        { name: t('arrival'), details: '' },
+        { name: t('declaration'), details: '' },
+        { name: t('import_customs_clearance'), details: '' },
+        { name: t('maritime_company_slip'), details: '' },
+        { name: t('import_pregate'), details: '' },
+        { name: t('pickup'), details: '' },
+        { name: t('delivery'), details: '' },
+        { name: t('warehouse_arrival'), details: '' },
+        { name: t('billing'), details: '' }
+      ];
+    }
+  };
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -134,6 +194,22 @@ const NewTransitFilePage = () => {
     }
   }, []);
 
+  // Initialize events when shipment type changes
+  useEffect(() => {
+    const eventTemplates = getEventsByShipmentType(formData.shipmentType);
+    const events: TransitEvent[] = eventTemplates.map((template, index) => ({
+      id: `event-${index}`,
+      name: template.name,
+      date: format(new Date(), 'yyyy-MM-dd'),
+      agentId: user?.id || '',
+      agentName: user?.name || '',
+      details: template.details,
+      completed: false
+    }));
+
+    setFormData(prev => ({ ...prev, events }));
+  }, [formData.shipmentType, user]);
+
   // Filter clients based on search
   useEffect(() => {
     if (clientSearch.trim() === '') {
@@ -160,6 +236,7 @@ const NewTransitFilePage = () => {
   const handleContainersChange = (containers: Container[]) => {
     setFormData(prev => ({ ...prev, containers }));
   };
+
   const handleClientSelect = (client: Client) => {
     if (!formData.clientIds.includes(client.id)) {
       setFormData(prev => ({
@@ -207,52 +284,76 @@ const NewTransitFilePage = () => {
     }));
   };
 
-  const toggleOtherDocumentVisibility = (index: number, visible: boolean) => {
+  const handleEventChange = (eventId: string, field: 'date' | 'details' | 'completed', value: string | boolean) => {
     setFormData(prev => ({
       ...prev,
-      documents: {
-        ...prev.documents,
-        otherDocuments: prev.documents.otherDocuments?.map((doc, i) => 
-          i === index ? { ...doc, clientVisible: visible } : doc
-        )
-      }
+      events: prev.events.map(event =>
+        event.id === eventId ? { ...event, [field]: value } : event
+      )
     }));
   };
-  const validateForm = (): boolean => {
+
+  const validateStep = (step: number): boolean => {
     const newErrors: FormErrors = {};
 
-    if (!formData.blNumber.trim()) {
-      newErrors.blNumber = t('required');
-    }
-
-    if (formData.clientIds.length === 0) {
-      newErrors.clientIds = t('required');
-    }
-
-    if (!formData.origin.trim()) {
-      newErrors.origin = t('required');
-    }
-
-    if (!formData.destination.trim()) {
-      newErrors.destination = t('required');
-    }
-
-    if (!formData.capacity.trim()) {
-      newErrors.capacity = t('required');
-    }
-
-    if (!formData.contentDescription.trim()) {
-      newErrors.contentDescription = t('required');
+    switch (step) {
+      case 1:
+        if (!formData.blNumber.trim()) {
+          newErrors.blNumber = t('required');
+        }
+        break;
+      case 2:
+        if (formData.clientIds.length === 0) {
+          newErrors.clientIds = t('required');
+        }
+        break;
+      case 3:
+        if (!formData.origin.trim()) {
+          newErrors.origin = t('required');
+        }
+        if (!formData.destination.trim()) {
+          newErrors.destination = t('required');
+        }
+        if (!formData.capacity.trim()) {
+          newErrors.capacity = t('required');
+        }
+        break;
+      case 5:
+        if (!formData.contentDescription.trim()) {
+          newErrors.contentDescription = t('required');
+        }
+        break;
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
+  const handleNextStep = () => {
+    if (validateStep(currentStep)) {
+      if (!completedSteps.includes(currentStep)) {
+        setCompletedSteps(prev => [...prev, currentStep]);
+      }
+      if (currentStep < steps.length) {
+        setCurrentStep(currentStep + 1);
+      }
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleStepClick = (stepId: number) => {
+    if (stepId <= currentStep || completedSteps.includes(stepId)) {
+      setCurrentStep(stepId);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!validateStep(currentStep)) {
       return;
     }
 
@@ -325,342 +426,300 @@ const NewTransitFilePage = () => {
     );
   }
 
-  return (
-    <div className={`max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 transition-all duration-700 ${pageLoaded ? 'opacity-100' : 'opacity-0'}`}>
-      {/* Header Section */}
-      <div 
-        className={`mb-8 rounded-xl p-6 ${shadowClass} transform transition-all duration-500 ${hoverShadow} hover:scale-[1.01] animate-fadeIn`}
-        style={{
-          backgroundImage: isDark 
-            ? `linear-gradient(to right, rgba(17, 24, 39, 0.85), rgba(31, 41, 55, 0.85)), url(${backImage})`
-            : `linear-gradient(to right, rgba(239, 246, 255, 0.85), rgba(224, 231, 255, 0.85)), url(${backImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
-        }}
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <button
-              onClick={() => navigate(-1)}
-              className={`inline-flex items-center ${textSecondary} hover:${textPrimary} transition-colors mb-4`}
-            >
-              <ArrowLeft size={18} className="mr-2" />
-              {t('back')}
-            </button>
-            <h1 className={`text-2xl md:text-3xl font-bold ${textPrimary} mb-2`}>
-              {t('new_transit_file')}
-            </h1>
-            <p className={`${textSecondary} text-lg`}>
-              {t('create_transit_file')}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-8">
-        {/* General Information */}
-        <div className={`${bgSecondary} rounded-lg ${shadowClass} p-6 border ${borderColor}`}>
-          <h2 className={`text-xl font-semibold ${textPrimary} mb-6 flex items-center`}>
-            <Info size={20} className="mr-2 text-blue-600" />
-            {t('general_information')}
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* BL Number */}
-            <div>
-              <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
-                {t('bl_number')} *
-              </label>
-              <input
-                type="text"
-                value={formData.blNumber}
-                onChange={(e) => handleInputChange('blNumber', e.target.value)}
-                placeholder={t('enter_bl_number')}
-                className={`block w-full px-3 py-2.5 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
-                  errors.blNumber ? 'border-red-500' : borderColor
-                }`}
-              />
-              {errors.blNumber && (
-                <p className="mt-1 text-sm text-red-500">{errors.blNumber}</p>
-              )}
-            </div>
-
-            {/* File Reference */}
-            <div>
-              <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
-                {t('file_reference')}
-              </label>
-              <input
-                type="text"
-                value={formData.reference}
-                onChange={(e) => handleInputChange('reference', e.target.value)}
-                className={`block w-full px-3 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all`}
-                readOnly
-              />
-            </div>
-
-            {/* Transport Type */}
-            <div>
-              <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
-                {t('transport_type')} *
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => handleInputChange('transportType', 'sea')}
-                  className={`flex items-center justify-center px-4 py-3 border rounded-lg transition-all ${
-                    formData.transportType === 'sea'
-                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                      : `border-gray-300 dark:border-gray-600 ${bgPrimary} ${textSecondary} hover:border-blue-400`
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* BL Number */}
+              <div>
+                <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                  {t('bl_number')} *
+                </label>
+                <input
+                  type="text"
+                  value={formData.blNumber}
+                  onChange={(e) => handleInputChange('blNumber', e.target.value)}
+                  placeholder={t('enter_bl_number')}
+                  className={`block w-full px-3 py-2.5 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                    errors.blNumber ? 'border-red-500' : borderColor
                   }`}
-                >
-                  <Ship size={18} className="mr-2" />
-                  {t('maritime')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleInputChange('transportType', 'air')}
-                  className={`flex items-center justify-center px-4 py-3 border rounded-lg transition-all ${
-                    formData.transportType === 'air'
-                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                      : `border-gray-300 dark:border-gray-600 ${bgPrimary} ${textSecondary} hover:border-blue-400`
-                  }`}
-                >
-                  <Plane size={18} className="mr-2" />
-                  {t('aerial')}
-                </button>
+                />
+                {errors.blNumber && (
+                  <p className="mt-1 text-sm text-red-500">{errors.blNumber}</p>
+                )}
               </div>
-            </div>
 
-            {/* Shipment Type */}
-            <div>
-              <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
-                {t('shipment_type')} *
-              </label>
-              <select
-                value={formData.shipmentType}
-                onChange={(e) => handleInputChange('shipmentType', e.target.value)}
-                className={`block w-full px-3 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all`}
-              >
-                <option value="import">{t('import')}</option>
-                <option value="export">{t('export')}</option>
-              </select>
-            </div>
+              {/* File Reference */}
+              <div>
+                <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                  {t('file_reference')}
+                </label>
+                <input
+                  type="text"
+                  value={formData.reference}
+                  onChange={(e) => handleInputChange('reference', e.target.value)}
+                  className={`block w-full px-3 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all`}
+                  readOnly
+                />
+              </div>
 
-            {/* Product Type */}
-            <div className="md:col-span-2">
-              <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
-                {t('product_type')} *
-              </label>
-              <div className="grid grid-cols-3 gap-3">
-                {['standard', 'dangerous', 'fragile'].map((type) => (
+              {/* Transport Type */}
+              <div>
+                <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                  {t('transport_type')} *
+                </label>
+                <div className="grid grid-cols-2 gap-3">
                   <button
-                    key={type}
                     type="button"
-                    onClick={() => handleInputChange('productType', type)}
+                    onClick={() => handleInputChange('transportType', 'sea')}
                     className={`flex items-center justify-center px-4 py-3 border rounded-lg transition-all ${
-                      formData.productType === type
+                      formData.transportType === 'sea'
                         ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
                         : `border-gray-300 dark:border-gray-600 ${bgPrimary} ${textSecondary} hover:border-blue-400`
                     }`}
                   >
-                    <Package size={16} className="mr-2" />
-                    {t(type)}
+                    <Ship size={18} className="mr-2" />
+                    {t('maritime')}
                   </button>
-                ))}
+                  <button
+                    type="button"
+                    onClick={() => handleInputChange('transportType', 'air')}
+                    className={`flex items-center justify-center px-4 py-3 border rounded-lg transition-all ${
+                      formData.transportType === 'air'
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                        : `border-gray-300 dark:border-gray-600 ${bgPrimary} ${textSecondary} hover:border-blue-400`
+                    }`}
+                  >
+                    <Plane size={18} className="mr-2" />
+                    {t('aerial')}
+                  </button>
+                </div>
+              </div>
+
+              {/* Shipment Type */}
+              <div>
+                <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                  {t('shipment_type')} *
+                </label>
+                <select
+                  value={formData.shipmentType}
+                  onChange={(e) => handleInputChange('shipmentType', e.target.value)}
+                  className={`block w-full px-3 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all`}
+                >
+                  <option value="import">{t('import')}</option>
+                  <option value="export">{t('export')}</option>
+                </select>
+              </div>
+
+              {/* Product Type */}
+              <div className="md:col-span-2">
+                <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                  {t('product_type')} *
+                </label>
+                <div className="grid grid-cols-3 gap-3">
+                  {['standard', 'dangerous', 'fragile'].map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => handleInputChange('productType', type)}
+                      className={`flex items-center justify-center px-4 py-3 border rounded-lg transition-all ${
+                        formData.productType === type
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                          : `border-gray-300 dark:border-gray-600 ${bgPrimary} ${textSecondary} hover:border-blue-400`
+                      }`}
+                    >
+                      <Package size={16} className="mr-2" />
+                      {t(type)}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        );
 
-        {/* Clients Selection */}
-        <div className={`${bgSecondary} rounded-lg ${shadowClass} p-6 border ${borderColor}`}>
-          <h2 className={`text-xl font-semibold ${textPrimary} mb-6 flex items-center`}>
-            <Users size={20} className="mr-2 text-blue-600" />
-            {t('add_clients')} *
-          </h2>
+      case 2:
+        return (
+          <div className="space-y-6">
+            {/* Client Search */}
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search size={18} className={textMuted} />
+              </div>
+              <input
+                type="text"
+                value={clientSearch}
+                onChange={(e) => {
+                  setClientSearch(e.target.value);
+                  setShowClientDropdown(true);
+                }}
+                onFocus={() => setShowClientDropdown(true)}
+                placeholder={t('search_client')}
+                className={`block w-full pl-10 pr-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all`}
+              />
 
-          {/* Client Search */}
-          <div className="relative mb-4">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search size={18} className={textMuted} />
+              {/* Client Dropdown */}
+              {showClientDropdown && filteredClients.length > 0 && (
+                <div className={`absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-md ${bgPrimary} py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm border ${borderColor}`}>
+                  {filteredClients.map((client) => (
+                    <div
+                      key={client.id}
+                      className={`px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${textPrimary}`}
+                      onClick={() => handleClientSelect(client)}
+                    >
+                      <div className="font-medium">{client.name}</div>
+                      <div className={`text-sm ${textMuted}`}>{client.company}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <input
-              type="text"
-              value={clientSearch}
-              onChange={(e) => {
-                setClientSearch(e.target.value);
-                setShowClientDropdown(true);
-              }}
-              onFocus={() => setShowClientDropdown(true)}
-              placeholder={t('search_client')}
-              className={`block w-full pl-10 pr-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all`}
-            />
 
-            {/* Client Dropdown */}
-            {showClientDropdown && filteredClients.length > 0 && (
-              <div className={`absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-md ${bgPrimary} py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm border ${borderColor}`}>
-                {filteredClients.map((client) => (
-                  <div
-                    key={client.id}
-                    className={`px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${textPrimary}`}
-                    onClick={() => handleClientSelect(client)}
-                  >
-                    <div className="font-medium">{client.name}</div>
-                    <div className={`text-sm ${textMuted}`}>{client.company}</div>
-                  </div>
-                ))}
+            {/* Selected Clients */}
+            {formData.clientIds.length > 0 && (
+              <div>
+                <h3 className={`text-sm font-medium ${textSecondary} mb-3`}>
+                  {t('selected_clients')}
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {formData.clientIds.map((clientId) => (
+                    <span
+                      key={clientId}
+                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                    >
+                      {getClientName(clientId)}
+                      <button
+                        type="button"
+                        onClick={() => handleClientRemove(clientId)}
+                        className="ml-2 hover:text-blue-600 dark:hover:text-blue-400"
+                      >
+                        <X size={14} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
-          </div>
 
-          {/* Selected Clients */}
-          {formData.clientIds.length > 0 && (
-            <div>
-              <h3 className={`text-sm font-medium ${textSecondary} mb-3`}>
-                {t('selected_clients')}
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {formData.clientIds.map((clientId) => (
-                  <span
-                    key={clientId}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                  >
-                    {getClientName(clientId)}
-                    <button
-                      type="button"
-                      onClick={() => handleClientRemove(clientId)}
-                      className="ml-2 hover:text-blue-600 dark:hover:text-blue-400"
-                    >
-                      <X size={14} />
-                    </button>
-                  </span>
-                ))}
+            {errors.clientIds && (
+              <p className="text-sm text-red-500">{errors.clientIds}</p>
+            )}
+          </div>
+        );
+
+      case 3:
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Origin */}
+              <div>
+                <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                  {t('origin')} *
+                </label>
+                <input
+                  type="text"
+                  value={formData.origin}
+                  onChange={(e) => handleInputChange('origin', e.target.value)}
+                  placeholder={t('city_country')}
+                  className={`block w-full px-3 py-2.5 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                    errors.origin ? 'border-red-500' : borderColor
+                  }`}
+                />
+                {errors.origin && (
+                  <p className="mt-1 text-sm text-red-500">{errors.origin}</p>
+                )}
+              </div>
+
+              {/* Destination */}
+              <div>
+                <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                  {t('destination')} *
+                </label>
+                <input
+                  type="text"
+                  value={formData.destination}
+                  onChange={(e) => handleInputChange('destination', e.target.value)}
+                  placeholder={t('city_country')}
+                  className={`block w-full px-3 py-2.5 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                    errors.destination ? 'border-red-500' : borderColor
+                  }`}
+                />
+                {errors.destination && (
+                  <p className="mt-1 text-sm text-red-500">{errors.destination}</p>
+                )}
+              </div>
+
+              {/* Capacity */}
+              <div className="md:col-span-2">
+                <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                  {t('capacity')} *
+                </label>
+                <input
+                  type="text"
+                  value={formData.capacity}
+                  onChange={(e) => handleInputChange('capacity', e.target.value)}
+                  placeholder={t('capacity_example')}
+                  className={`block w-full px-3 py-2.5 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                    errors.capacity ? 'border-red-500' : borderColor
+                  }`}
+                />
+                {errors.capacity && (
+                  <p className="mt-1 text-sm text-red-500">{errors.capacity}</p>
+                )}
               </div>
             </div>
-          )}
-
-          {errors.clientIds && (
-            <p className="mt-2 text-sm text-red-500">{errors.clientIds}</p>
-          )}
-        </div>
-
-        {/* Route and Capacity */}
-        <div className={`${bgSecondary} rounded-lg ${shadowClass} p-6 border ${borderColor}`}>
-          <h2 className={`text-xl font-semibold ${textPrimary} mb-6 flex items-center`}>
-            <MapPin size={20} className="mr-2 text-blue-600" />
-            {t('route_and_capacity')}
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Origin */}
-            <div>
-              <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
-                {t('origin')} *
-              </label>
-              <input
-                type="text"
-                value={formData.origin}
-                onChange={(e) => handleInputChange('origin', e.target.value)}
-                placeholder={t('city_country')}
-                className={`block w-full px-3 py-2.5 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
-                  errors.origin ? 'border-red-500' : borderColor
-                }`}
-              />
-              {errors.origin && (
-                <p className="mt-1 text-sm text-red-500">{errors.origin}</p>
-              )}
-            </div>
-
-            {/* Destination */}
-            <div>
-              <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
-                {t('destination')} *
-              </label>
-              <input
-                type="text"
-                value={formData.destination}
-                onChange={(e) => handleInputChange('destination', e.target.value)}
-                placeholder={t('city_country')}
-                className={`block w-full px-3 py-2.5 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
-                  errors.destination ? 'border-red-500' : borderColor
-                }`}
-              />
-              {errors.destination && (
-                <p className="mt-1 text-sm text-red-500">{errors.destination}</p>
-              )}
-            </div>
-
-            {/* Capacity */}
-            <div className="md:col-span-2">
-              <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
-                {t('capacity')} *
-              </label>
-              <input
-                type="text"
-                value={formData.capacity}
-                onChange={(e) => handleInputChange('capacity', e.target.value)}
-                placeholder={t('capacity_example')}
-                className={`block w-full px-3 py-2.5 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
-                  errors.capacity ? 'border-red-500' : borderColor
-                }`}
-              />
-              {errors.capacity && (
-                <p className="mt-1 text-sm text-red-500">{errors.capacity}</p>
-              )}
-            </div>
           </div>
-        </div>
+        );
 
-        {/* Containers Section - Only for Sea Transport */}
-        {formData.transportType === 'sea' && (
-          <div className={`${bgSecondary} rounded-lg ${shadowClass} p-6 border ${borderColor}`}>
-            <div onClick={(e) => e.stopPropagation()}>
-              <ContainerManager
-                containers={formData.containers}
-                onContainersChange={handleContainersChange}
-              />
-            </div>
+      case 4:
+        return formData.transportType === 'sea' ? (
+          <div onClick={(e) => e.stopPropagation()}>
+            <ContainerManager
+              containers={formData.containers}
+              onContainersChange={handleContainersChange}
+            />
           </div>
-        )}
+        ) : (
+          <div className={`text-center py-12 ${bgSecondary} rounded-lg border ${borderColor}`}>
+            <Plane size={48} className={`mx-auto mb-4 ${textMuted}`} />
+            <h3 className={`text-lg font-medium ${textPrimary} mb-2`}>
+              {t('air_transport_selected')}
+            </h3>
+            <p className={textMuted}>
+              {t('containers_not_applicable_air')}
+            </p>
+          </div>
+        );
 
-        {/* Content Description */}
-        <div className={`${bgSecondary} rounded-lg ${shadowClass} p-6 border ${borderColor}`}>
-          <h2 className={`text-xl font-semibold ${textPrimary} mb-6 flex items-center`}>
-            <FileText size={20} className="mr-2 text-blue-600" />
-            {t('content_description')} *
-          </h2>
+      case 5:
+        return (
+          <div className="space-y-6">
+            <textarea
+              value={formData.contentDescription}
+              onChange={(e) => handleInputChange('contentDescription', e.target.value)}
+              placeholder={t('describe_content')}
+              rows={6}
+              className={`block w-full px-3 py-2.5 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                errors.contentDescription ? 'border-red-500' : borderColor
+              }`}
+            />
+            {errors.contentDescription && (
+              <p className="mt-1 text-sm text-red-500">{errors.contentDescription}</p>
+            )}
+          </div>
+        );
 
-          <textarea
-            value={formData.contentDescription}
-            onChange={(e) => handleInputChange('contentDescription', e.target.value)}
-            placeholder={t('describe_content')}
-            rows={4}
-            className={`block w-full px-3 py-2.5 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
-              errors.contentDescription ? 'border-red-500' : borderColor
-            }`}
-          />
-          {errors.contentDescription && (
-            <p className="mt-1 text-sm text-red-500">{errors.contentDescription}</p>
-          )}
-        </div>
-
-        {/* Documents Upload */}
-        <div className={`${bgSecondary} rounded-lg ${shadowClass} p-6 border ${borderColor}`}>
-          <h2 className={`text-xl font-semibold ${textPrimary} mb-6 flex items-center`}>
-            <Upload size={20} className="mr-2 text-blue-600" />
-            {t('uploaded_files')}
-          </h2>
-
+      case 6:
+        return (
           <div className="space-y-6">
             {/* Invoice */}
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className={`text-sm font-medium ${textSecondary}`}>
-                {t('invoice')}
-              </label>
+                  {t('invoice')}
+                </label>
                 {formData.documents.invoice && (
                   <div className="flex items-center space-x-2">
                     <span className={`text-xs ${textMuted}`}>
@@ -694,8 +753,8 @@ const NewTransitFilePage = () => {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className={`text-sm font-medium ${textSecondary}`}>
-                {t('packing_list')}
-              </label>
+                  {t('packing_list')}
+                </label>
                 {formData.documents.packingList && (
                   <div className="flex items-center space-x-2">
                     <span className={`text-xs ${textMuted}`}>
@@ -734,89 +793,230 @@ const NewTransitFilePage = () => {
                 onFileSelect={(files) => handleFileUpload(files, 'otherDocuments', false)}
                 maxFileSize={5}
               />
-              {/* Other Documents Visibility Controls */}
-              {formData.documents.otherDocuments && formData.documents.otherDocuments.length > 0 && (
-                <div className="mt-3 space-y-2">
-                  <h4 className={`text-sm font-medium ${textSecondary}`}>
-                    {t('file_visibility_settings')}:
+            </div>
+          </div>
+        );
+
+      case 7:
+        return (
+          <div className="space-y-6">
+            <div className={`p-4 rounded-lg ${isDark ? 'bg-blue-900/20' : 'bg-blue-50'} border ${isDark ? 'border-blue-800' : 'border-blue-200'}`}>
+              <div className="flex items-start">
+                <Info size={18} className={`mr-2 mt-0.5 flex-shrink-0 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                <div>
+                  <h4 className={`font-medium ${isDark ? 'text-blue-300' : 'text-blue-800'} mb-1`}>
+                    {t('events_management')}
                   </h4>
-                  {formData.documents.otherDocuments.map((doc, index) => (
-                    <div key={index} className={`flex items-center justify-between p-2 rounded border ${borderColor}`}>
-                      <span className={`text-sm ${textPrimary} truncate flex-1 mr-4`}>
-                        {doc.file.name}
-                      </span>
-                      <div className="flex items-center space-x-2">
-                        <span className={`text-xs ${textMuted}`}>
-                          {t('client_visible')}:
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => toggleOtherDocumentVisibility(index, !doc.clientVisible)}
-                          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-                            doc.clientVisible 
-                              ? 'bg-blue-600' 
-                              : 'bg-gray-300 dark:bg-gray-600'
-                          }`}
-                        >
-                          <span
-                            className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
-                              doc.clientVisible ? 'translate-x-5' : 'translate-x-1'
-                            }`}
-                          />
-                        </button>
+                  <p className={`text-sm ${isDark ? 'text-blue-200' : 'text-blue-700'}`}>
+                    {t('events_management_desc')}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {formData.events.map((event, index) => (
+                <div
+                  key={event.id}
+                  className={`p-4 rounded-lg border transition-all ${
+                    event.completed 
+                      ? 'border-green-300 bg-green-50 dark:bg-green-900/20 dark:border-green-700' 
+                      : `${borderColor} ${bgSecondary}`
+                  }`}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
+                        event.completed 
+                          ? 'bg-green-500 text-white' 
+                          : 'bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                      }`}>
+                        {event.completed ? <Check size={16} /> : <span className="text-sm font-medium">{index + 1}</span>}
+                      </div>
+                      <div>
+                        <h4 className={`font-medium ${textPrimary}`}>
+                          {event.name}
+                        </h4>
+                        <p className={`text-sm ${textMuted}`}>
+                          {t('agent')}: {event.agentName}
+                        </p>
                       </div>
                     </div>
-                  ))}
+                    <button
+                      type="button"
+                      onClick={() => handleEventChange(event.id, 'completed', !event.completed)}
+                      className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                        event.completed
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                          : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      }`}
+                    >
+                      {event.completed ? t('completed') : t('mark_completed')}
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className={`block text-xs font-medium ${textMuted} mb-1`}>
+                        {t('date')} *
+                      </label>
+                      <input
+                        type="date"
+                        value={event.date}
+                        onChange={(e) => handleEventChange(event.id, 'date', e.target.value)}
+                        className={`block w-full px-2 py-1.5 text-sm border ${borderColor} rounded ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                      />
+                    </div>
+                    <div>
+                      <label className={`block text-xs font-medium ${textMuted} mb-1`}>
+                        {t('details')}
+                      </label>
+                      <input
+                        type="text"
+                        value={event.details || ''}
+                        onChange={(e) => handleEventChange(event.id, 'details', e.target.value)}
+                        placeholder={t('optional_details')}
+                        className={`block w-full px-2 py-1.5 text-sm border ${borderColor} rounded ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                      />
+                    </div>
+                  </div>
                 </div>
-              )}
+              ))}
             </div>
           </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className={`max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 transition-all duration-700 ${pageLoaded ? 'opacity-100' : 'opacity-0'}`}>
+      {/* Header Section */}
+      <div 
+        className={`mb-8 rounded-xl p-6 ${shadowClass} transform transition-all duration-500 ${hoverShadow} hover:scale-[1.01] animate-fadeIn`}
+        style={{
+          backgroundImage: isDark 
+            ? `linear-gradient(to right, rgba(17, 24, 39, 0.85), rgba(31, 41, 55, 0.85)), url(${backImage})`
+            : `linear-gradient(to right, rgba(239, 246, 255, 0.85), rgba(224, 231, 255, 0.85)), url(${backImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <button
+              onClick={() => navigate(-1)}
+              className={`inline-flex items-center ${textSecondary} hover:${textPrimary} transition-colors mb-4`}
+            >
+              <ArrowLeft size={18} className="mr-2" />
+              {t('back')}
+            </button>
+            <h1 className={`text-2xl md:text-3xl font-bold ${textPrimary} mb-2`}>
+              {t('new_transit_file')}
+            </h1>
+            <p className={`${textSecondary} text-lg`}>
+              {t('create_transit_file_step_by_step')}
+            </p>
+          </div>
         </div>
+      </div>
 
+      {/* Steps Navigation */}
+      <div className={`${bgSecondary} rounded-lg ${shadowClass} p-6 mb-8 border ${borderColor}`}>
+        <div className="flex flex-wrap items-center justify-between">
+          {steps.map((step, index) => {
+            const Icon = step.icon;
+            const isActive = step.id === currentStep;
+            const isCompleted = completedSteps.includes(step.id);
+            const isAccessible = step.id <= currentStep || completedSteps.includes(step.id);
 
-        {/* System Information */}
-        <div className={`${bgSecondary} rounded-lg ${shadowClass} p-6 border ${borderColor}`}>
-          <h2 className={`text-xl font-semibold ${textPrimary} mb-6 flex items-center`}>
-            <Building size={20} className="mr-2 text-blue-600" />
-            {t('system_information')}
+            return (
+              <div key={step.id} className="flex items-center">
+                <button
+                  onClick={() => handleStepClick(step.id)}
+                  disabled={!isAccessible}
+                  className={`flex items-center px-3 py-2 rounded-lg transition-all ${
+                    isActive
+                      ? 'bg-blue-600 text-white'
+                      : isCompleted
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                        : isAccessible
+                          ? `${bgPrimary} ${textPrimary} hover:bg-gray-100 dark:hover:bg-gray-700`
+                          : `${textMuted} cursor-not-allowed`
+                  }`}
+                >
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-2 text-xs font-medium ${
+                    isActive
+                      ? 'bg-white text-blue-600'
+                      : isCompleted
+                        ? 'bg-green-500 text-white'
+                        : 'bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                  }`}>
+                    {isCompleted ? <Check size={12} /> : step.id}
+                  </div>
+                  <span className="hidden sm:inline text-sm font-medium">
+                    {step.name}
+                  </span>
+                </button>
+                {index < steps.length - 1 && (
+                  <div className={`w-8 h-0.5 mx-2 ${
+                    completedSteps.includes(step.id) ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
+                  }`} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Step Content */}
+      <div className={`${bgSecondary} rounded-lg ${shadowClass} p-6 mb-8 border ${borderColor}`}>
+        <div className="mb-6">
+          <h2 className={`text-xl font-semibold ${textPrimary} mb-2 flex items-center`}>
+            {React.createElement(steps[currentStep - 1].icon, { size: 20, className: "mr-2 text-blue-600" })}
+            {steps[currentStep - 1].name}
           </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
-                {t('agent_in_charge')}
-              </label>
-              <div className={`flex items-center px-3 py-2.5 border ${borderColor} rounded-lg ${bgPrimary}`}>
-                <User size={18} className={`mr-2 ${textMuted}`} />
-                <span className={textPrimary}>{user?.name}</span>
-              </div>
-            </div>
-
-            <div>
-              <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
-                {t('creation_date')}
-              </label>
-              <div className={`flex items-center px-3 py-2.5 border ${borderColor} rounded-lg ${bgPrimary}`}>
-                <Calendar size={18} className={`mr-2 ${textMuted}`} />
-                <span className={textPrimary}>{format(new Date(), 'dd/MM/yyyy')}</span>
-              </div>
-            </div>
+          <div className={`w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2`}>
+            <div
+              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${(currentStep / steps.length) * 100}%` }}
+            />
           </div>
         </div>
 
-        {/* Submit Button */}
-        <div className="flex justify-end space-x-4">
+        {renderStepContent()}
+      </div>
+
+      {/* Navigation Buttons */}
+      <div className="flex justify-between">
+        <button
+          type="button"
+          onClick={handlePrevStep}
+          disabled={currentStep === 1}
+          className={`inline-flex items-center px-6 py-3 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
+        >
+          <ArrowLeft size={18} className="mr-2" />
+          {t('previous')}
+        </button>
+
+        {currentStep < steps.length ? (
           <button
             type="button"
-            onClick={() => navigate(-1)}
-            className={`px-6 py-3 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors`}
+            onClick={handleNextStep}
+            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            {t('cancel')}
+            {t('next')}
+            <ArrowRight size={18} className="ml-2" />
           </button>
+        ) : (
           <button
-            type="submit"
+            type="button"
+            onClick={handleSubmit}
             disabled={isSubmitting}
-            className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center"
+            className="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isSubmitting ? (
               <>
@@ -828,13 +1028,13 @@ const NewTransitFilePage = () => {
               </>
             ) : (
               <>
-                <Plus size={18} className="mr-2" />
+                <Save size={18} className="mr-2" />
                 {t('create_file')}
               </>
             )}
           </button>
-        </div>
-      </form>
+        )}
+      </div>
 
       {/* CSS Animations */}
       <style jsx global>{`
