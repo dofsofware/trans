@@ -131,6 +131,18 @@ const NewTransitFilePage = () => {
     { id: 4, name: t('documents_and_events'), icon: Upload }
   ];
 
+  const toggleOtherDocumentVisibility = (index: number, visible: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      documents: {
+        ...prev.documents,
+        otherDocuments: prev.documents.otherDocuments?.map((doc, i) => 
+          i === index ? { ...doc, clientVisible: visible } : doc
+        )
+      }
+    }));
+  };
+
   // Events configuration based on shipment type
   const getEventsByShipmentType = (shipmentType: 'import' | 'export'): Omit<TransitEvent, 'id' | 'date' | 'agentId' | 'agentName' | 'completed'>[] => {
     if (shipmentType === 'export') {
@@ -806,6 +818,40 @@ const NewTransitFilePage = () => {
                     onFileSelect={(files) => handleFileUpload(files, 'otherDocuments', false)}
                     maxFileSize={5}
                   />
+                  {formData.documents.otherDocuments && formData.documents.otherDocuments.length > 0 && (
+                <div className="mt-3 space-y-2">
+                  <h4 className={`text-sm font-medium ${textSecondary}`}>
+                    {t('file_visibility_settings')}:
+                  </h4>
+                  {formData.documents.otherDocuments.map((doc, index) => (
+                    <div key={index} className={`flex items-center justify-between p-2 rounded border ${borderColor}`}>
+                      <span className={`text-sm ${textPrimary} truncate flex-1 mr-4`}>
+                        {doc.file.name}
+                      </span>
+                      <div className="flex items-center space-x-2">
+                        <span className={`text-xs ${textMuted}`}>
+                          {t('client_visible')}:
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => toggleOtherDocumentVisibility(index, !doc.clientVisible)}
+                          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                            doc.clientVisible 
+                              ? 'bg-blue-600' 
+                              : 'bg-gray-300 dark:bg-gray-600'
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                              doc.clientVisible ? 'translate-x-5' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
                 </div>
               </div>
             </div>
