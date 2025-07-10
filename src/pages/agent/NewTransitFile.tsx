@@ -126,12 +126,9 @@ const NewTransitFilePage = () => {
   // Steps configuration
   const steps = [
     { id: 1, name: t('general_information'), icon: Info },
-    { id: 2, name: t('clients_selection'), icon: Users },
-    { id: 3, name: t('route_and_capacity'), icon: MapPin },
-    { id: 4, name: t('containers'), icon: Package },
-    { id: 5, name: t('content_description'), icon: FileText },
-    { id: 6, name: t('documents'), icon: Upload },
-    { id: 7, name: t('events'), icon: Clock }
+    { id: 2, name: t('clients_and_route'), icon: Users },
+    { id: 3, name: t('cargo_details'), icon: Package },
+    { id: 4, name: t('documents_and_events'), icon: Upload }
   ];
 
   // Events configuration based on shipment type
@@ -301,13 +298,14 @@ const NewTransitFilePage = () => {
         if (!formData.blNumber.trim()) {
           newErrors.blNumber = t('required');
         }
+        if (!formData.contentDescription.trim()) {
+          newErrors.contentDescription = t('required');
+        }
         break;
       case 2:
         if (formData.clientIds.length === 0) {
           newErrors.clientIds = t('required');
         }
-        break;
-      case 3:
         if (!formData.origin.trim()) {
           newErrors.origin = t('required');
         }
@@ -316,11 +314,6 @@ const NewTransitFilePage = () => {
         }
         if (!formData.capacity.trim()) {
           newErrors.capacity = t('required');
-        }
-        break;
-      case 5:
-        if (!formData.contentDescription.trim()) {
-          newErrors.contentDescription = t('required');
         }
         break;
     }
@@ -431,7 +424,7 @@ const NewTransitFilePage = () => {
       case 1:
         return (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* BL Number */}
               <div>
                 <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
@@ -514,7 +507,7 @@ const NewTransitFilePage = () => {
               </div>
 
               {/* Product Type */}
-              <div className="md:col-span-2">
+              <div className="lg:col-span-2">
                 <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
                   {t('product_type')} *
                 </label>
@@ -537,143 +530,173 @@ const NewTransitFilePage = () => {
                 </div>
               </div>
             </div>
+
+            {/* Content Description */}
+            <div>
+              <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                {t('content_description')} *
+              </label>
+              <textarea
+                value={formData.contentDescription}
+                onChange={(e) => handleInputChange('contentDescription', e.target.value)}
+                placeholder={t('describe_content')}
+                rows={4}
+                className={`block w-full px-3 py-2.5 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                  errors.contentDescription ? 'border-red-500' : borderColor
+                }`}
+              />
+              {errors.contentDescription && (
+                <p className="mt-1 text-sm text-red-500">{errors.contentDescription}</p>
+              )}
+            </div>
           </div>
         );
 
       case 2:
         return (
           <div className="space-y-6">
-            {/* Client Search */}
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search size={18} className={textMuted} />
-              </div>
-              <input
-                type="text"
-                value={clientSearch}
-                onChange={(e) => {
-                  setClientSearch(e.target.value);
-                  setShowClientDropdown(true);
-                }}
-                onFocus={() => setShowClientDropdown(true)}
-                placeholder={t('search_client')}
-                className={`block w-full pl-10 pr-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all`}
-              />
+            {/* Clients Section */}
+            <div className={`p-4 rounded-lg border ${borderColor} ${bgSecondary}`}>
+              <h3 className={`text-lg font-medium ${textPrimary} mb-4 flex items-center`}>
+                <Users size={20} className="mr-2 text-blue-600" />
+                {t('clients_selection')}
+              </h3>
+              
+              {/* Client Search */}
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search size={18} className={textMuted} />
+                </div>
+                <input
+                  type="text"
+                  value={clientSearch}
+                  onChange={(e) => {
+                    setClientSearch(e.target.value);
+                    setShowClientDropdown(true);
+                  }}
+                  onFocus={() => setShowClientDropdown(true)}
+                  placeholder={t('search_client')}
+                  className={`block w-full pl-10 pr-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all`}
+                />
 
-              {/* Client Dropdown */}
-              {showClientDropdown && filteredClients.length > 0 && (
-                <div className={`absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-md ${bgPrimary} py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm border ${borderColor}`}>
-                  {filteredClients.map((client) => (
-                    <div
-                      key={client.id}
-                      className={`px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${textPrimary}`}
-                      onClick={() => handleClientSelect(client)}
-                    >
-                      <div className="font-medium">{client.name}</div>
-                      <div className={`text-sm ${textMuted}`}>{client.company}</div>
-                    </div>
-                  ))}
+                {/* Client Dropdown */}
+                {showClientDropdown && filteredClients.length > 0 && (
+                  <div className={`absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-md ${bgPrimary} py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm border ${borderColor}`}>
+                    {filteredClients.map((client) => (
+                      <div
+                        key={client.id}
+                        className={`px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${textPrimary}`}
+                        onClick={() => handleClientSelect(client)}
+                      >
+                        <div className="font-medium">{client.name}</div>
+                        <div className={`text-sm ${textMuted}`}>{client.company}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Selected Clients */}
+              {formData.clientIds.length > 0 && (
+                <div>
+                  <h3 className={`text-sm font-medium ${textSecondary} mb-3`}>
+                    {t('selected_clients')}
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {formData.clientIds.map((clientId) => (
+                      <span
+                        key={clientId}
+                        className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                      >
+                        {getClientName(clientId)}
+                        <button
+                          type="button"
+                          onClick={() => handleClientRemove(clientId)}
+                          className="ml-2 hover:text-blue-600 dark:hover:text-blue-400"
+                        >
+                          <X size={14} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
-            </div>
 
-            {/* Selected Clients */}
-            {formData.clientIds.length > 0 && (
-              <div>
-                <h3 className={`text-sm font-medium ${textSecondary} mb-3`}>
-                  {t('selected_clients')}
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {formData.clientIds.map((clientId) => (
-                    <span
-                      key={clientId}
-                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                    >
-                      {getClientName(clientId)}
-                      <button
-                        type="button"
-                        onClick={() => handleClientRemove(clientId)}
-                        className="ml-2 hover:text-blue-600 dark:hover:text-blue-400"
-                      >
-                        <X size={14} />
-                      </button>
-                    </span>
-                  ))}
+              {errors.clientIds && (
+                <p className="text-sm text-red-500">{errors.clientIds}</p>
+              )}
+            </div>
+            
+            {/* Route and Capacity Section */}
+            <div className={`p-4 rounded-lg border ${borderColor} ${bgSecondary}`}>
+              <h3 className={`text-lg font-medium ${textPrimary} mb-4 flex items-center`}>
+                <MapPin size={20} className="mr-2 text-blue-600" />
+                {t('route_and_capacity')}
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Origin */}
+                <div>
+                  <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                    {t('origin')} *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.origin}
+                    onChange={(e) => handleInputChange('origin', e.target.value)}
+                    placeholder={t('city_country')}
+                    className={`block w-full px-3 py-2.5 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                      errors.origin ? 'border-red-500' : borderColor
+                    }`}
+                  />
+                  {errors.origin && (
+                    <p className="mt-1 text-sm text-red-500">{errors.origin}</p>
+                  )}
+                </div>
+
+                {/* Destination */}
+                <div>
+                  <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                    {t('destination')} *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.destination}
+                    onChange={(e) => handleInputChange('destination', e.target.value)}
+                    placeholder={t('city_country')}
+                    className={`block w-full px-3 py-2.5 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                      errors.destination ? 'border-red-500' : borderColor
+                    }`}
+                  />
+                  {errors.destination && (
+                    <p className="mt-1 text-sm text-red-500">{errors.destination}</p>
+                  )}
+                </div>
+
+                {/* Capacity */}
+                <div className="md:col-span-2">
+                  <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                    {t('capacity')} *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.capacity}
+                    onChange={(e) => handleInputChange('capacity', e.target.value)}
+                    placeholder={t('capacity_example')}
+                    className={`block w-full px-3 py-2.5 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                      errors.capacity ? 'border-red-500' : borderColor
+                    }`}
+                  />
+                  {errors.capacity && (
+                    <p className="mt-1 text-sm text-red-500">{errors.capacity}</p>
+                  )}
                 </div>
               </div>
-            )}
-
-            {errors.clientIds && (
-              <p className="text-sm text-red-500">{errors.clientIds}</p>
-            )}
+            </div>
           </div>
         );
 
       case 3:
-        return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Origin */}
-              <div>
-                <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
-                  {t('origin')} *
-                </label>
-                <input
-                  type="text"
-                  value={formData.origin}
-                  onChange={(e) => handleInputChange('origin', e.target.value)}
-                  placeholder={t('city_country')}
-                  className={`block w-full px-3 py-2.5 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
-                    errors.origin ? 'border-red-500' : borderColor
-                  }`}
-                />
-                {errors.origin && (
-                  <p className="mt-1 text-sm text-red-500">{errors.origin}</p>
-                )}
-              </div>
-
-              {/* Destination */}
-              <div>
-                <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
-                  {t('destination')} *
-                </label>
-                <input
-                  type="text"
-                  value={formData.destination}
-                  onChange={(e) => handleInputChange('destination', e.target.value)}
-                  placeholder={t('city_country')}
-                  className={`block w-full px-3 py-2.5 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
-                    errors.destination ? 'border-red-500' : borderColor
-                  }`}
-                />
-                {errors.destination && (
-                  <p className="mt-1 text-sm text-red-500">{errors.destination}</p>
-                )}
-              </div>
-
-              {/* Capacity */}
-              <div className="md:col-span-2">
-                <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
-                  {t('capacity')} *
-                </label>
-                <input
-                  type="text"
-                  value={formData.capacity}
-                  onChange={(e) => handleInputChange('capacity', e.target.value)}
-                  placeholder={t('capacity_example')}
-                  className={`block w-full px-3 py-2.5 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
-                    errors.capacity ? 'border-red-500' : borderColor
-                  }`}
-                />
-                {errors.capacity && (
-                  <p className="mt-1 text-sm text-red-500">{errors.capacity}</p>
-                )}
-              </div>
-            </div>
-          </div>
-        );
-
-      case 4:
         return formData.transportType === 'sea' ? (
           <div onClick={(e) => e.stopPropagation()}>
             <ContainerManager
@@ -693,195 +716,190 @@ const NewTransitFilePage = () => {
           </div>
         );
 
-      case 5:
+      case 4:
         return (
           <div className="space-y-6">
-            <textarea
-              value={formData.contentDescription}
-              onChange={(e) => handleInputChange('contentDescription', e.target.value)}
-              placeholder={t('describe_content')}
-              rows={6}
-              className={`block w-full px-3 py-2.5 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
-                errors.contentDescription ? 'border-red-500' : borderColor
-              }`}
-            />
-            {errors.contentDescription && (
-              <p className="mt-1 text-sm text-red-500">{errors.contentDescription}</p>
-            )}
-          </div>
-        );
-
-      case 6:
-        return (
-          <div className="space-y-6">
-            {/* Invoice */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className={`text-sm font-medium ${textSecondary}`}>
-                  {t('invoice')}
-                </label>
-                {formData.documents.invoice && (
-                  <div className="flex items-center space-x-2">
-                    <span className={`text-xs ${textMuted}`}>
-                      {t('client_visible')}:
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => toggleFileVisibility('invoice', !formData.documents.invoice?.clientVisible)}
-                      className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-                        formData.documents.invoice?.clientVisible 
-                          ? 'bg-blue-600' 
-                          : 'bg-gray-300 dark:bg-gray-600'
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
-                          formData.documents.invoice?.clientVisible ? 'translate-x-5' : 'translate-x-1'
-                        }`}
-                      />
-                    </button>
-                  </div>
-                )}
-              </div>
-              <FileUploadComponent
-                onFileSelect={(files) => handleFileUpload(files, 'invoice', false)}
-                maxFileSize={5}
-              />
-            </div>
-
-            {/* Packing List */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className={`text-sm font-medium ${textSecondary}`}>
-                  {t('packing_list')}
-                </label>
-                {formData.documents.packingList && (
-                  <div className="flex items-center space-x-2">
-                    <span className={`text-xs ${textMuted}`}>
-                      {t('client_visible')}:
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => toggleFileVisibility('packingList', !formData.documents.packingList?.clientVisible)}
-                      className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-                        formData.documents.packingList?.clientVisible 
-                          ? 'bg-blue-600' 
-                          : 'bg-gray-300 dark:bg-gray-600'
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
-                          formData.documents.packingList?.clientVisible ? 'translate-x-5' : 'translate-x-1'
-                        }`}
-                      />
-                    </button>
-                  </div>
-                )}
-              </div>
-              <FileUploadComponent
-                onFileSelect={(files) => handleFileUpload(files, 'packingList', false)}
-                maxFileSize={5}
-              />
-            </div>
-
-            {/* Other Documents */}
-            <div>
-              <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
-                {t('other_documents')}
-              </label>
-              <FileUploadComponent
-                onFileSelect={(files) => handleFileUpload(files, 'otherDocuments', false)}
-                maxFileSize={5}
-              />
-            </div>
-          </div>
-        );
-
-      case 7:
-        return (
-          <div className="space-y-6">
-            <div className={`p-4 rounded-lg ${isDark ? 'bg-blue-900/20' : 'bg-blue-50'} border ${isDark ? 'border-blue-800' : 'border-blue-200'}`}>
-              <div className="flex items-start">
-                <Info size={18} className={`mr-2 mt-0.5 flex-shrink-0 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+            {/* Documents Section */}
+            <div className={`p-4 rounded-lg border ${borderColor} ${bgSecondary}`}>
+              <h3 className={`text-lg font-medium ${textPrimary} mb-4 flex items-center`}>
+                <Upload size={20} className="mr-2 text-blue-600" />
+                {t('documents')}
+              </h3>
+              
+              <div className="space-y-6">
+                {/* Invoice */}
                 <div>
-                  <h4 className={`font-medium ${isDark ? 'text-blue-300' : 'text-blue-800'} mb-1`}>
-                    {t('events_management')}
-                  </h4>
-                  <p className={`text-sm ${isDark ? 'text-blue-200' : 'text-blue-700'}`}>
-                    {t('events_management_desc')}
-                  </p>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className={`text-sm font-medium ${textSecondary}`}>
+                      {t('invoice')}
+                    </label>
+                    {formData.documents.invoice && (
+                      <div className="flex items-center space-x-2">
+                        <span className={`text-xs ${textMuted}`}>
+                          {t('client_visible')}:
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => toggleFileVisibility('invoice', !formData.documents.invoice?.clientVisible)}
+                          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                            formData.documents.invoice?.clientVisible 
+                              ? 'bg-blue-600' 
+                              : 'bg-gray-300 dark:bg-gray-600'
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                              formData.documents.invoice?.clientVisible ? 'translate-x-5' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <FileUploadComponent
+                    onFileSelect={(files) => handleFileUpload(files, 'invoice', false)}
+                    maxFileSize={5}
+                  />
+                </div>
+
+                {/* Packing List */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className={`text-sm font-medium ${textSecondary}`}>
+                      {t('packing_list')}
+                    </label>
+                    {formData.documents.packingList && (
+                      <div className="flex items-center space-x-2">
+                        <span className={`text-xs ${textMuted}`}>
+                          {t('client_visible')}:
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => toggleFileVisibility('packingList', !formData.documents.packingList?.clientVisible)}
+                          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                            formData.documents.packingList?.clientVisible 
+                              ? 'bg-blue-600' 
+                              : 'bg-gray-300 dark:bg-gray-600'
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                              formData.documents.packingList?.clientVisible ? 'translate-x-5' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <FileUploadComponent
+                    onFileSelect={(files) => handleFileUpload(files, 'packingList', false)}
+                    maxFileSize={5}
+                  />
+                </div>
+
+                {/* Other Documents */}
+                <div>
+                  <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                    {t('other_documents')}
+                  </label>
+                  <FileUploadComponent
+                    onFileSelect={(files) => handleFileUpload(files, 'otherDocuments', false)}
+                    maxFileSize={5}
+                  />
                 </div>
               </div>
             </div>
+            
+            {/* Events Section */}
+            <div className={`p-4 rounded-lg border ${borderColor} ${bgSecondary}`}>
+              <h3 className={`text-lg font-medium ${textPrimary} mb-4 flex items-center`}>
+                <Clock size={20} className="mr-2 text-blue-600" />
+                {t('events')}
+              </h3>
+              
+              <div className={`p-4 rounded-lg ${isDark ? 'bg-blue-900/20' : 'bg-blue-50'} border ${isDark ? 'border-blue-800' : 'border-blue-200'} mb-6`}>
+                <div className="flex items-start">
+                  <Info size={18} className={`mr-2 mt-0.5 flex-shrink-0 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                  <div>
+                    <h4 className={`font-medium ${isDark ? 'text-blue-300' : 'text-blue-800'} mb-1`}>
+                      {t('events_management')}
+                    </h4>
+                    <p className={`text-sm ${isDark ? 'text-blue-200' : 'text-blue-700'}`}>
+                      {t('events_management_desc')}
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-            <div className="space-y-4">
-              {formData.events.map((event, index) => (
-                <div
-                  key={event.id}
-                  className={`p-4 rounded-lg border transition-all ${
-                    event.completed 
-                      ? 'border-green-300 bg-green-50 dark:bg-green-900/20 dark:border-green-700' 
-                      : `${borderColor} ${bgSecondary}`
-                  }`}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
-                        event.completed 
-                          ? 'bg-green-500 text-white' 
-                          : 'bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
-                      }`}>
-                        {event.completed ? <Check size={16} /> : <span className="text-sm font-medium">{index + 1}</span>}
+              <div className="space-y-4">
+                {formData.events.map((event, index) => (
+                  <div
+                    key={event.id}
+                    className={`p-4 rounded-lg border transition-all ${
+                      event.completed 
+                        ? 'border-green-300 bg-green-50 dark:bg-green-900/20 dark:border-green-700' 
+                        : `${borderColor} ${bgSecondary}`
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
+                          event.completed 
+                            ? 'bg-green-500 text-white' 
+                            : 'bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                        }`}>
+                          {event.completed ? <Check size={16} /> : <span className="text-sm font-medium">{index + 1}</span>}
+                        </div>
+                        <div>
+                          <h4 className={`font-medium ${textPrimary}`}>
+                            {event.name}
+                          </h4>
+                          <p className={`text-sm ${textMuted}`}>
+                            {t('agent')}: {event.agentName}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleEventChange(event.id, 'completed', !event.completed)}
+                        className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                          event.completed
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                        }`}
+                      >
+                        {event.completed ? t('completed') : t('mark_completed')}
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className={`block text-xs font-medium ${textMuted} mb-1`}>
+                          {t('date')} *
+                        </label>
+                        <input
+                          type="date"
+                          value={event.date}
+                          onChange={(e) => handleEventChange(event.id, 'date', e.target.value)}
+                          className={`block w-full px-2 py-1.5 text-sm border ${borderColor} rounded ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                        />
                       </div>
                       <div>
-                        <h4 className={`font-medium ${textPrimary}`}>
-                          {event.name}
-                        </h4>
-                        <p className={`text-sm ${textMuted}`}>
-                          {t('agent')}: {event.agentName}
-                        </p>
+                        <label className={`block text-xs font-medium ${textMuted} mb-1`}>
+                          {t('details')}
+                        </label>
+                        <input
+                          type="text"
+                          value={event.details || ''}
+                          onChange={(e) => handleEventChange(event.id, 'details', e.target.value)}
+                          placeholder={t('optional_details')}
+                          className={`block w-full px-2 py-1.5 text-sm border ${borderColor} rounded ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-1 focus:ring-blue-500`}
+                        />
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleEventChange(event.id, 'completed', !event.completed)}
-                      className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                        event.completed
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                          : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                      }`}
-                    >
-                      {event.completed ? t('completed') : t('mark_completed')}
-                    </button>
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className={`block text-xs font-medium ${textMuted} mb-1`}>
-                        {t('date')} *
-                      </label>
-                      <input
-                        type="date"
-                        value={event.date}
-                        onChange={(e) => handleEventChange(event.id, 'date', e.target.value)}
-                        className={`block w-full px-2 py-1.5 text-sm border ${borderColor} rounded ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-1 focus:ring-blue-500`}
-                      />
-                    </div>
-                    <div>
-                      <label className={`block text-xs font-medium ${textMuted} mb-1`}>
-                        {t('details')}
-                      </label>
-                      <input
-                        type="text"
-                        value={event.details || ''}
-                        onChange={(e) => handleEventChange(event.id, 'details', e.target.value)}
-                        placeholder={t('optional_details')}
-                        className={`block w-full px-2 py-1.5 text-sm border ${borderColor} rounded ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-1 focus:ring-blue-500`}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         );
@@ -925,50 +943,76 @@ const NewTransitFilePage = () => {
       </div>
 
       {/* Steps Navigation */}
-      <div className={`${bgSecondary} rounded-lg ${shadowClass} p-6 mb-8 border ${borderColor}`}>
-        <div className="flex flex-wrap items-center justify-between">
-          {steps.map((step, index) => {
+      <div className={`${bgSecondary} rounded-xl ${shadowClass} p-4 sm:p-6 mb-8 border ${borderColor}`}>
+        <div className="flex items-center justify-center">
+          <div className="flex items-center space-x-2 sm:space-x-4 w-full max-w-2xl">
+            {steps.map((step, index) => {
             const Icon = step.icon;
             const isActive = step.id === currentStep;
             const isCompleted = completedSteps.includes(step.id);
             const isAccessible = step.id <= currentStep || completedSteps.includes(step.id);
 
             return (
-              <div key={step.id} className="flex items-center">
+              <React.Fragment key={step.id}>
                 <button
                   onClick={() => handleStepClick(step.id)}
                   disabled={!isAccessible}
-                  className={`flex items-center px-3 py-2 rounded-lg transition-all ${
+                  className={`flex flex-col items-center p-2 sm:p-3 rounded-xl transition-all duration-300 min-w-0 flex-1 ${
                     isActive
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-blue-600 text-white shadow-lg scale-105'
                       : isCompleted
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 hover:scale-105'
                         : isAccessible
-                          ? `${bgPrimary} ${textPrimary} hover:bg-gray-100 dark:hover:bg-gray-700`
+                          ? `${bgPrimary} ${textPrimary} hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-105`
                           : `${textMuted} cursor-not-allowed`
                   }`}
                 >
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-2 text-xs font-medium ${
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center mb-2 text-sm font-bold transition-all duration-300 ${
                     isActive
-                      ? 'bg-white text-blue-600'
+                      ? 'bg-white text-blue-600 shadow-md'
                       : isCompleted
-                        ? 'bg-green-500 text-white'
-                        : 'bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                        ? 'bg-green-500 text-white shadow-md'
+                        : isAccessible
+                          ? 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500'
                   }`}>
-                    {isCompleted ? <Check size={12} /> : step.id}
+                    {isCompleted ? <Check size={16} /> : <Icon size={16} />}
                   </div>
-                  <span className="hidden sm:inline text-sm font-medium">
+                  <span className={`text-xs sm:text-sm font-medium text-center leading-tight transition-all duration-300 ${
+                    isActive ? 'text-white' : isCompleted ? 'text-green-800 dark:text-green-300' : ''
+                  }`}>
                     {step.name}
                   </span>
                 </button>
                 {index < steps.length - 1 && (
-                  <div className={`w-8 h-0.5 mx-2 ${
-                    completedSteps.includes(step.id) ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
+                  <div className={`flex-1 h-0.5 mx-1 sm:mx-2 transition-all duration-300 ${
+                    completedSteps.includes(step.id) || currentStep > step.id
+                      ? 'bg-green-500 shadow-sm' 
+                      : 'bg-gray-300 dark:bg-gray-600'
                   }`} />
                 )}
-              </div>
+              </React.Fragment>
             );
           })}
+          </div>
+        </div>
+        
+        {/* Progress indicator */}
+        <div className="mt-4">
+          <div className={`w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden`}>
+            <div
+              className="bg-gradient-to-r from-blue-500 to-blue-600 h-1.5 rounded-full transition-all duration-500 ease-out shadow-sm"
+              style={{ width: `${(currentStep / steps.length) * 100}%` }}
+            />
+          </div>
+          <div className="flex justify-between mt-2">
+            <span className={`text-xs ${textMuted}`}>
+              Étape {currentStep} sur {steps.length}
+            </span>
+            <span className={`text-xs ${textMuted}`}>
+              {Math.round((currentStep / steps.length) * 100)}% complété
+            </span>
+          </div>
         </div>
       </div>
 
@@ -979,12 +1023,6 @@ const NewTransitFilePage = () => {
             {React.createElement(steps[currentStep - 1].icon, { size: 20, className: "mr-2 text-blue-600" })}
             {steps[currentStep - 1].name}
           </h2>
-          <div className={`w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2`}>
-            <div
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${(currentStep / steps.length) * 100}%` }}
-            />
-          </div>
         </div>
 
         {renderStepContent()}
