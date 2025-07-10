@@ -1249,7 +1249,7 @@ const NewTransitFilePage = () => {
         {t('step')} {currentStep} {t('of')} {steps.length}
       </span>
       <span className={`text-sm font-medium ${textMuted}`}>
-        {Math.round((currentStep / steps.length) * 100)}% {t('compléted')}
+        {Math.round((currentStep / steps.length) * 100)}% {t('completed')}
       </span>
     </div>
   </div>
