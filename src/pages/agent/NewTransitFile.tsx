@@ -1041,7 +1041,7 @@ const NewTransitFilePage = () => {
                         <div className="mt-4 flex items-center text-sm text-green-600 dark:text-green-400">
                           <CheckCircle size={16} className="mr-2" />
                           <span className="font-medium">
-                            Complété le {format(new Date(event.date), 'dd/MM/yyyy')}
+                            {t('completed')} {t('on')} {format(new Date(event.date), 'dd/MM/yyyy')}
                           </span>
                         </div>
                       )}
@@ -1055,10 +1055,10 @@ const NewTransitFilePage = () => {
             <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border border-blue-200 dark:border-blue-700">
               <div className="flex items-center justify-between mb-3">
                 <h4 className={`font-semibold ${textPrimary}`}>
-                  Progression des événements
+                  {t('eventProgression')}
                 </h4>
                 <span className={`text-sm ${textMuted}`}>
-                  {formData.events.filter(e => e.completed).length} / {formData.events.length} complétés
+                  {formData.events.filter(e => e.completed).length} / {formData.events.length} {t('completed')}
                 </span>
               </div>
               
@@ -1072,7 +1072,7 @@ const NewTransitFilePage = () => {
               </div>
               
               <div className="mt-3 text-xs text-gray-600 dark:text-gray-400">
-                {Math.round((formData.events.filter(e => e.completed).length / formData.events.length) * 100)}% des événements terminés
+                {Math.round((formData.events.filter(e => e.completed).length / formData.events.length) * 100)}% {t('completedEvents')}
               </div>
             </div>
           </div>
