@@ -1118,78 +1118,142 @@ const NewTransitFilePage = () => {
       </div>
 
       {/* Steps Navigation */}
-      <div className={`${bgSecondary} rounded-xl ${shadowClass} p-4 sm:p-6 mb-8 border ${borderColor}`}>
-        <div className="flex items-center justify-center">
-          <div className="flex items-center space-x-2 sm:space-x-4 w-full max-w-2xl">
-            {steps.map((step, index) => {
-            const Icon = step.icon;
-            const isActive = step.id === currentStep;
-            const isCompleted = completedSteps.includes(step.id);
-            const isAccessible = step.id <= currentStep || completedSteps.includes(step.id);
+<div className={`${bgSecondary} rounded-xl ${shadowClass} p-4 sm:p-6 mb-8 border ${borderColor}`}>
+  {/* Version Desktop/Tablette - Navigation classique */}
+  <div className="hidden md:block">
+    <div className="flex items-center justify-center">
+      <div className="flex items-center space-x-4 w-full">
+        {steps.map((step, index) => {
+          const Icon = step.icon;
+          const isActive = step.id === currentStep;
+          const isCompleted = completedSteps.includes(step.id);
+          const isAccessible = step.id <= currentStep || completedSteps.includes(step.id);
 
-            return (
-              <React.Fragment key={step.id}>
-                <button
-                  onClick={() => handleStepClick(step.id)}
-                  disabled={!isAccessible}
-                  className={`flex flex-col items-center p-2 sm:p-3 rounded-xl transition-all duration-300 min-w-0 flex-1 ${
-                    isActive
-                      ? 'bg-blue-600 text-white shadow-lg scale-105'
-                      : isCompleted
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 hover:scale-105'
-                        : isAccessible
-                          ? `${bgPrimary} ${textPrimary} hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-105`
-                          : `${textMuted} cursor-not-allowed`
-                  }`}
-                >
-                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center mb-2 text-sm font-bold transition-all duration-300 ${
-                    isActive
-                      ? 'bg-white text-blue-600 shadow-md'
-                      : isCompleted
-                        ? 'bg-green-500 text-white shadow-md'
-                        : isAccessible
-                          ? 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500'
-                  }`}>
-                    {isCompleted ? <Check size={16} /> : <Icon size={16} />}
-                  </div>
-                  <span className={`text-xs sm:text-sm font-medium text-center leading-tight transition-all duration-300 ${
-                    isActive ? 'text-white' : isCompleted ? 'text-green-800 dark:text-green-300' : ''
-                  }`}>
-                    {step.name}
-                  </span>
-                </button>
-                {index < steps.length - 1 && (
-                  <div className={`flex-1 h-0.5 mx-1 sm:mx-2 transition-all duration-300 ${
-                    completedSteps.includes(step.id) || currentStep > step.id
-                      ? 'bg-green-500 shadow-sm' 
-                      : 'bg-gray-300 dark:bg-gray-600'
-                  }`} />
-                )}
-              </React.Fragment>
-            );
-          })}
-          </div>
-        </div>
-        
-        {/* Progress indicator */}
-        <div className="mt-4">
-          <div className={`w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden`}>
-            <div
-              className="bg-gradient-to-r from-blue-500 to-blue-600 h-1.5 rounded-full transition-all duration-500 ease-out shadow-sm"
-              style={{ width: `${(currentStep / steps.length) * 100}%` }}
-            />
-          </div>
-          <div className="flex justify-between mt-2">
-            <span className={`text-xs ${textMuted}`}>
-              Étape {currentStep} sur {steps.length}
-            </span>
-            <span className={`text-xs ${textMuted}`}>
-              {Math.round((currentStep / steps.length) * 100)}% complété
-            </span>
-          </div>
-        </div>
+          return (
+            <React.Fragment key={step.id}>
+              <button
+                onClick={() => handleStepClick(step.id)}
+                disabled={!isAccessible}
+                className={`flex flex-col items-center p-3 rounded-xl transition-all duration-300 min-w-0 flex-1 ${
+                  isActive
+                    ? 'bg-blue-600 text-white shadow-lg scale-105'
+                    : isCompleted
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 hover:scale-105'
+                      : isAccessible
+                        ? `${bgPrimary} ${textPrimary} hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-105`
+                        : `${textMuted} cursor-not-allowed`
+                }`}
+              >
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 text-sm font-bold transition-all duration-300 ${
+                  isActive
+                    ? 'bg-white text-blue-600 shadow-md'
+                    : isCompleted
+                      ? 'bg-green-500 text-white shadow-md'
+                      : isAccessible
+                        ? 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500'
+                }`}>
+                  {isCompleted ? <Check size={16} /> : <Icon size={16} />}
+                </div>
+                <span className={`text-sm font-medium text-center leading-tight transition-all duration-300 ${
+                  isActive ? 'text-white' : isCompleted ? 'text-green-800 dark:text-green-300' : ''
+                }`}>
+                  {step.name}
+                </span>
+              </button>
+              {index < steps.length - 1 && (
+                <div className={`flex-1 h-0.5 mx-2 transition-all duration-300 ${
+                  completedSteps.includes(step.id) || currentStep > step.id
+                    ? 'bg-green-500 shadow-sm' 
+                    : 'bg-gray-300 dark:bg-gray-600'
+                }`} />
+              )}
+            </React.Fragment>
+          );
+        })}
       </div>
+    </div>
+  </div>
+
+  {/* Version Mobile - Navigation verticale compacte */}
+  <div className="block md:hidden">
+    <div className="space-y-3">
+      {steps.map((step, index) => {
+        const Icon = step.icon;
+        const isActive = step.id === currentStep;
+        const isCompleted = completedSteps.includes(step.id);
+        const isAccessible = step.id <= currentStep || completedSteps.includes(step.id);
+
+        return (
+          <div key={step.id} className="relative">
+            <button
+              onClick={() => handleStepClick(step.id)}
+              disabled={!isAccessible}
+              className={`flex items-center w-full p-3 rounded-lg transition-all duration-300 ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-lg'
+                  : isCompleted
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                    : isAccessible
+                      ? `${bgPrimary} ${textPrimary} hover:bg-gray-100 dark:hover:bg-gray-700`
+                      : `${textMuted} cursor-not-allowed`
+              }`}
+            >
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm font-bold transition-all duration-300 flex-shrink-0 ${
+                isActive
+                  ? 'bg-white text-blue-600 shadow-md'
+                  : isCompleted
+                    ? 'bg-green-500 text-white shadow-md'
+                    : isAccessible
+                      ? 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500'
+              }`}>
+                {isCompleted ? <Check size={14} /> : <Icon size={14} />}
+              </div>
+              <div className="flex-1 text-left">
+                <span className={`text-sm font-medium transition-all duration-300 ${
+                  isActive ? 'text-white' : isCompleted ? 'text-green-800 dark:text-green-300' : ''
+                }`}>
+                  {step.name}
+                </span>
+                <div className={`text-xs mt-0.5 ${
+                  isActive ? 'text-blue-100' : isCompleted ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'
+                }`}>
+                  Étape {step.id} sur {steps.length}
+                </div>
+              </div>
+              {isActive && (
+                <div className="w-2 h-2 bg-white rounded-full animate-pulse ml-2" />
+              )}
+            </button>
+            {/* Connecteur vertical */}
+            {index < steps.length - 1 && (
+              <div className="absolute left-6 top-full w-0.5 h-3 bg-gray-300 dark:bg-gray-600 transform -translate-x-1/2" />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  </div>
+  
+  {/* Progress indicator - Commun */}
+  <div className="mt-6">
+    <div className={`w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden`}>
+      <div
+        className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-500 ease-out shadow-sm"
+        style={{ width: `${(currentStep / steps.length) * 100}%` }}
+      />
+    </div>
+    <div className="flex justify-between mt-3">
+      <span className={`text-sm font-medium ${textMuted}`}>
+        Étape {currentStep} sur {steps.length}
+      </span>
+      <span className={`text-sm font-medium ${textMuted}`}>
+        {Math.round((currentStep / steps.length) * 100)}% complété
+      </span>
+    </div>
+  </div>
+</div>
 
       {/* Step Content */}
       <div className={`${bgSecondary} rounded-lg ${shadowClass} p-6 mb-8 border ${borderColor}`}>
