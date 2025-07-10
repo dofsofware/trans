@@ -857,9 +857,9 @@ const NewTransitFilePage = () => {
             </div>
             
             {/* Events Section */}
-            <div className={`p-4 rounded-lg border ${borderColor} ${bgSecondary}`}>
-              <h3 className={`text-lg font-medium ${textPrimary} mb-4 flex items-center`}>
-                <Clock size={20} className="mr-2 text-blue-600" />
+            <div className={`p-6 rounded-xl border ${borderColor} ${bgSecondary} shadow-lg`}>
+              <h3 className={`text-xl font-bold ${textPrimary} mb-6 flex items-center`}>
+                <Clock size={24} className="mr-3 text-blue-600" />
                 {t('events')}
               </h3>
               
@@ -877,74 +877,197 @@ const NewTransitFilePage = () => {
                 </div>
               </div>
 
-              <div className="space-y-4">
-                {formData.events.map((event, index) => (
-                  <div
-                    key={event.id}
-                    className={`p-4 rounded-lg border transition-all ${
-                      event.completed 
-                        ? 'border-green-300 bg-green-50 dark:bg-green-900/20 dark:border-green-700' 
-                        : `${borderColor} ${bgSecondary}`
-                    }`}
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
+              {/* Department Legend */}
+              <div className="mb-6">
+                <h4 className={`text-sm font-semibold ${textSecondary} mb-3`}>
+                  {t('departments')}:
+                </h4>
+                <div className="flex flex-wrap gap-3">
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 bg-blue-500 rounded-full mr-2"></div>
+                    <span className={`text-sm ${textPrimary}`}>Operations</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 bg-green-500 rounded-full mr-2"></div>
+                    <span className={`text-sm ${textPrimary}`}>Douanes</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 bg-purple-500 rounded-full mr-2"></div>
+                    <span className={`text-sm ${textPrimary}`}>Transport</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 bg-orange-500 rounded-full mr-2"></div>
+                    <span className={`text-sm ${textPrimary}`}>Logistique</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 bg-pink-500 rounded-full mr-2"></div>
+                    <span className={`text-sm ${textPrimary}`}>Commercial</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Events Timeline */}
+              <div className="relative">
+                {/* Timeline Line */}
+                <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 via-green-500 to-purple-500 opacity-30"></div>
+                
+                <div className="space-y-4">
+                  {formData.events.map((event, index) => {
+                    // Determine department and color based on event name
+                    const getDepartmentInfo = (eventName) => {
+                      const eventKey = eventName.toLowerCase();
+                      
+                      if (eventKey.includes('pregate') || eventKey.includes('declaration') || eventKey.includes('customs') || eventKey.includes('clearance')) {
+                        return { dept: 'Douanes', color: 'green', bg: 'bg-green-50 dark:bg-green-900/20', border: 'border-green-200 dark:border-green-700', text: 'text-green-800 dark:text-green-300' };
+                      } else if (eventKey.includes('transport') || eventKey.includes('loading') || eventKey.includes('departure') || eventKey.includes('arrival')) {
+                        return { dept: 'Transport', color: 'purple', bg: 'bg-purple-50 dark:bg-purple-900/20', border: 'border-purple-200 dark:border-purple-700', text: 'text-purple-800 dark:text-purple-300' };
+                      } else if (eventKey.includes('warehouse') || eventKey.includes('reception') || eventKey.includes('pickup') || eventKey.includes('delivery')) {
+                        return { dept: 'Logistique', color: 'orange', bg: 'bg-orange-50 dark:bg-orange-900/20', border: 'border-orange-200 dark:border-orange-700', text: 'text-orange-800 dark:text-orange-300' };
+                      } else if (eventKey.includes('billing') || eventKey.includes('prealert')) {
+                        return { dept: 'Commercial', color: 'pink', bg: 'bg-pink-50 dark:bg-pink-900/20', border: 'border-pink-200 dark:border-pink-700', text: 'text-pink-800 dark:text-pink-300' };
+                      }
+                      return { dept: 'Operations', color: 'blue', bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-200 dark:border-blue-700', text: 'text-blue-800 dark:text-blue-300' };
+                    };
+
+                    const deptInfo = getDepartmentInfo(event.name);
+                    const colorClasses = {
+                      blue: 'from-blue-500 to-blue-600',
+                      green: 'from-green-500 to-green-600',
+                      purple: 'from-purple-500 to-purple-600',
+                      orange: 'from-orange-500 to-orange-600',
+                      pink: 'from-pink-500 to-pink-600'
+                    };
+
+                    return (
+                      <div
+                        key={event.id}
+                        className={`relative pl-16 pr-4 py-4 rounded-xl border-2 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.02] ${
                           event.completed 
-                            ? 'bg-green-500 text-white' 
-                            : 'bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
-                        }`}>
-                          {event.completed ? <Check size={16} /> : <span className="text-sm font-medium">{index + 1}</span>}
-                        </div>
-                        <div>
-                          <h4 className={`font-medium ${textPrimary}`}>
-                            {event.name}
-                          </h4>
-                          <p className={`text-sm ${textMuted}`}>
-                            {t('agent')}: {event.agentName}
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleEventChange(event.id, 'completed', !event.completed)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                          event.completed
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                            ? `${deptInfo.bg} ${deptInfo.border} shadow-md` 
+                            : `${bgSecondary} ${borderColor} hover:${deptInfo.bg}`
                         }`}
                       >
-                        {event.completed ? t('completed') : t('mark_completed')}
-                      </button>
-                    </div>
+                        {/* Timeline Node */}
+                        <div className={`absolute left-6 top-6 w-4 h-4 rounded-full border-2 border-white shadow-lg bg-gradient-to-r ${colorClasses[deptInfo.color]} ${
+                          event.completed ? 'ring-2 ring-white ring-offset-2' : ''
+                        }`}></div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className={`block text-xs font-medium ${textMuted} mb-1`}>
-                          {t('date')} *
-                        </label>
-                        <input
-                          type="date"
-                          value={event.date}
-                          onChange={(e) => handleEventChange(event.id, 'date', e.target.value)}
-                          className={`block w-full px-2 py-1.5 text-sm border ${borderColor} rounded ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-1 focus:ring-blue-500`}
-                        />
+                        {/* Event Header */}
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center mb-2">
+                              <h4 className={`font-semibold ${textPrimary} text-lg mr-3`}>
+                                {event.name}
+                              </h4>
+                              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${deptInfo.bg} ${deptInfo.text} border ${deptInfo.border}`}>
+                                {deptInfo.dept}
+                              </span>
+                            </div>
+                            <div className="flex items-center text-sm text-gray-500">
+                              <User size={14} className="mr-1" />
+                              <span className={textMuted}>
+                                {t('agent')}: {event.agentName}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          {/* Status Toggle */}
+                          <div className="flex items-center space-x-3">
+                            <div className={`flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                              event.completed
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                            }`}>
+                              {event.completed ? <CheckCircle size={14} className="mr-1" /> : <Clock size={14} className="mr-1" />}
+                              {event.completed ? t('completed') : t('pending')}
+                            </div>
+                            
+                            <button
+                              type="button"
+                              onClick={() => handleEventChange(event.id, 'completed', !event.completed)}
+                              className={`p-2 rounded-full transition-all duration-200 hover:scale-110 ${
+                                event.completed
+                                  ? 'bg-green-500 text-white shadow-lg hover:bg-green-600'
+                                  : 'bg-gray-200 text-gray-600 dark:bg-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500'
+                              }`}
+                            >
+                              {event.completed ? <Check size={16} /> : <Plus size={16} />}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Event Details */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className={`block text-xs font-semibold ${textMuted} mb-2 uppercase tracking-wide`}>
+                              <Calendar size={12} className="inline mr-1" />
+                              {t('date')} *
+                            </label>
+                            <input
+                              type="date"
+                              value={event.date}
+                              onChange={(e) => handleEventChange(event.id, 'date', e.target.value)}
+                              className={`block w-full px-3 py-2 text-sm border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-${deptInfo.color}-500 focus:border-${deptInfo.color}-500 transition-all ${
+                                event.completed ? deptInfo.border : borderColor
+                              }`}
+                            />
+                          </div>
+                          
+                          <div>
+                            <label className={`block text-xs font-semibold ${textMuted} mb-2 uppercase tracking-wide`}>
+                              <Edit3 size={12} className="inline mr-1" />
+                              {t('details')}
+                            </label>
+                            <input
+                              type="text"
+                              value={event.details || ''}
+                              onChange={(e) => handleEventChange(event.id, 'details', e.target.value)}
+                              placeholder={t('optional_details')}
+                              className={`block w-full px-3 py-2 text-sm border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-${deptInfo.color}-500 focus:border-${deptInfo.color}-500 transition-all ${
+                                event.completed ? deptInfo.border : borderColor
+                              }`}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Progress indicator for completed events */}
+                        {event.completed && (
+                          <div className="mt-4 flex items-center text-sm text-green-600 dark:text-green-400">
+                            <CheckCircle size={16} className="mr-2" />
+                            <span className="font-medium">
+                              Complété le {format(new Date(event.date), 'dd/MM/yyyy')}
+                            </span>
+                          </div>
+                        )}
                       </div>
-                      <div>
-                        <label className={`block text-xs font-medium ${textMuted} mb-1`}>
-                          {t('details')}
-                        </label>
-                        <input
-                          type="text"
-                          value={event.details || ''}
-                          onChange={(e) => handleEventChange(event.id, 'details', e.target.value)}
-                          placeholder={t('optional_details')}
-                          className={`block w-full px-2 py-1.5 text-sm border ${borderColor} rounded ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-1 focus:ring-blue-500`}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Progress Summary */}
+              <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border border-blue-200 dark:border-blue-700">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className={`font-semibold ${textPrimary}`}>
+                    Progression des événements
+                  </h4>
+                  <span className={`text-sm ${textMuted}`}>
+                    {formData.events.filter(e => e.completed).length} / {formData.events.length} complétés
+                  </span>
+                </div>
+                
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                  <div
+                    className="bg-gradient-to-r from-blue-500 via-green-500 to-purple-500 h-2 rounded-full transition-all duration-700 ease-out"
+                    style={{ 
+                      width: `${(formData.events.filter(e => e.completed).length / formData.events.length) * 100}%` 
+                    }}
+                  />
+                </div>
+                
+                <div className="mt-3 text-xs text-gray-600 dark:text-gray-400">
+                  {Math.round((formData.events.filter(e => e.completed).length / formData.events.length) * 100)}% des événements terminés
+                </div>
               </div>
             </div>
           </div>
