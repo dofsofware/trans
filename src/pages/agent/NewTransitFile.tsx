@@ -1246,10 +1246,10 @@ const NewTransitFilePage = () => {
     </div>
     <div className="flex justify-between mt-3">
       <span className={`text-sm font-medium ${textMuted}`}>
-        Étape {currentStep} sur {steps.length}
+        {t('step')} {currentStep} {t('of')} {steps.length}
       </span>
       <span className={`text-sm font-medium ${textMuted}`}>
-        {Math.round((currentStep / steps.length) * 100)}% complété
+        {Math.round((currentStep / steps.length) * 100)}% {t('compléted')}
       </span>
     </div>
   </div>

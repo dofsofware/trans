@@ -388,6 +388,8 @@ const translations = {
     upload_success: 'Upload successful',
     upload_error: 'Upload error',
     upload_in_progress: 'Upload in progress',
+    step: 'step',
+    complited: 'complited',
   },
   fr: {
     // Navigation & General
@@ -758,6 +760,8 @@ const translations = {
     upload_success: 'Téléversement réussi',
     upload_error: 'Erreur de téléversement',
     upload_in_progress: 'Téléversement en cours',
+    step: 'étape',
+    complited: 'complété',
   }
 };
 
