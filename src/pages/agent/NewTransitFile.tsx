@@ -1013,8 +1013,9 @@ const NewTransitFilePage = () => {
                             type="date"
                             value={event.date}
                             onChange={(e) => handleEventChange(event.id, 'date', e.target.value)}
+                            disabled={event.completed}
                             className={`block w-full px-3 py-2 text-sm border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-${deptInfo.color}-500 focus:border-${deptInfo.color}-500 transition-all ${
-                              event.completed ? deptInfo.border : borderColor
+                              event.completed ? `${deptInfo.border} opacity-60 cursor-not-allowed` : borderColor
                             }`}
                           />
                         </div>
@@ -1029,8 +1030,9 @@ const NewTransitFilePage = () => {
                             value={event.details || ''}
                             onChange={(e) => handleEventChange(event.id, 'details', e.target.value)}
                             placeholder={t('optional_details')}
+                            disabled={event.completed}
                             className={`block w-full px-3 py-2 text-sm border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-${deptInfo.color}-500 focus:border-${deptInfo.color}-500 transition-all ${
-                              event.completed ? deptInfo.border : borderColor
+                              event.completed ? `${deptInfo.border} opacity-60 cursor-not-allowed` : borderColor
                             }`}
                           />
                         </div>
