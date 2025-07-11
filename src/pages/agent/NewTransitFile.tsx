@@ -20,6 +20,7 @@ import {
   Ship,
   Plane,
   Building,
+  AlertCircle,
   User,
   Calendar,
   CheckCircle,
@@ -860,7 +861,7 @@ const NewTransitFilePage = () => {
       );
 
       case 5:
-      return (
+        return (
         <div className="space-y-6">
           {/* Events Section */}
           <div className={`p-6 rounded-xl border ${borderColor} ${bgSecondary} shadow-lg`}>
@@ -877,7 +878,7 @@ const NewTransitFilePage = () => {
                     {t('events_management')}
                   </h4>
                   <p className={`text-sm ${isDark ? 'text-blue-200' : 'text-blue-700'}`}>
-                    {t('events_management_desc')}
+                    {t('events_management_desc')} Les événements doivent être complétés dans l'ordre séquentiel.
                   </p>
                 </div>
               </div>
@@ -944,68 +945,144 @@ const NewTransitFilePage = () => {
                     pink: 'from-pink-500 to-pink-600'
                   };
 
+                  // Check if previous event is completed (sequential validation)
+                  const isPreviousCompleted = index === 0 || formData.events[index - 1].completed;
+                  const canBeCompleted = isPreviousCompleted && !event.completed;
+                  const isBlocked = !isPreviousCompleted && !event.completed;
+
+                  // Check if this event can be reactivated (if there are no completed events after it)
+                  const hasCompletedAfter = formData.events.slice(index + 1).some(e => e.completed);
+                  const canReactivate = event.completed && !hasCompletedAfter;
+
                   return (
                     <div
                       key={event.id}
-                      className={`relative pl-16 pr-4 py-4 rounded-xl border-2 transition-all duration-300 hover:shadow-lg transform hover:scale-[1.02] ${
+                      className={`relative pl-16 pr-4 py-4 rounded-xl border-2 transition-all duration-300 ${
                         event.completed 
-                          ? `${deptInfo.bg} ${deptInfo.border} shadow-md` 
-                          : `${bgSecondary} ${borderColor} hover:${deptInfo.bg}`
+                          ? `${deptInfo.bg} ${deptInfo.border} shadow-md transform hover:scale-[1.02]` 
+                          : isBlocked
+                            ? `${bgSecondary} ${borderColor} border-dashed opacity-75 cursor-not-allowed`
+                            : `${bgSecondary} ${borderColor} hover:${deptInfo.bg} hover:shadow-lg transform hover:scale-[1.02]`
                       }`}
                     >
                       {/* Timeline Node */}
-                      <div className={`absolute left-6 top-6 w-4 h-4 rounded-full border-2 border-white shadow-lg bg-gradient-to-r ${colorClasses[deptInfo.color]} ${
-                        event.completed ? 'ring-2 ring-white ring-offset-2' : ''
+                      <div className={`absolute left-6 top-6 w-4 h-4 rounded-full border-2 border-white shadow-lg bg-gradient-to-r ${colorClasses[deptInfo.color]} transition-all duration-300 ${
+                        event.completed 
+                          ? 'ring-2 ring-white ring-offset-2 scale-110' 
+                          : isBlocked
+                            ? 'opacity-40 scale-75 grayscale'
+                            : 'hover:scale-110'
                       }`}></div>
 
                       {/* Event Header */}
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center mb-2">
-                            <h4 className={`font-semibold ${textPrimary} text-lg mr-3`}>
+                            <h4 className={`font-semibold ${textPrimary} text-lg mr-3 ${isBlocked ? 'opacity-60' : ''}`}>
                               {event.name}
                             </h4>
-                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${deptInfo.bg} ${deptInfo.text} border ${deptInfo.border}`}>
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${deptInfo.bg} ${deptInfo.text} border ${deptInfo.border} ${isBlocked ? 'opacity-60' : ''}`}>
                               {deptInfo.dept}
                             </span>
                           </div>
                           <div className="flex items-center text-sm text-gray-500">
                             <User size={14} className="mr-1" />
-                            <span className={textMuted}>
+                            <span className={`${textMuted} ${isBlocked ? 'opacity-60' : ''}`}>
                               {t('agent')}: {event.agentName}
                             </span>
                           </div>
                         </div>
                         
-                        {/* Status Toggle */}
-                        <div className="flex items-center space-x-3">
-                          <div className={`flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                        {/* Status and Actions */}
+                        <div className="flex items-center space-x-2">
+                          {/* Status Badge */}
+                          <div className={`flex items-center px-3 py-1 rounded-full text-xs font-medium transition-all ${
                             event.completed
                               ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                              : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                              : isBlocked
+                                ? 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+                                : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
                           }`}>
-                            {event.completed ? <CheckCircle size={14} className="mr-1" /> : <Clock size={14} className="mr-1" />}
-                            {event.completed ? t('completed') : t('pending')}
+                            {event.completed ? (
+                              <><CheckCircle size={14} className="mr-1" /> {t('completed')}</>
+                            ) : isBlocked ? (
+                              <><Clock size={14} className="mr-1 opacity-50" /> En attente</>
+                            ) : (
+                              <><Clock size={14} className="mr-1" /> {t('pending')}</>
+                            )}
                           </div>
                           
-                          <button
-                            type="button"
-                            onClick={() => handleEventChange(event.id, 'completed', !event.completed)}
-                            className={`p-2 rounded-full transition-all duration-200 hover:scale-110 ${
-                              event.completed
-                                ? 'bg-green-500 text-white shadow-lg hover:bg-green-600'
-                                : 'bg-gray-200 text-gray-600 dark:bg-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500'
-                            }`}
-                          >
-                            {event.completed ? <Check size={16} /> : <Plus size={16} />}
-                          </button>
+                          {/* Action Button - Edit for reactivatable completed events, Complete/Pending for others */}
+                          <div className="relative group">
+                            {event.completed && canReactivate ? (
+                              // Edit Button for completed events that can be reactivated
+                              <button
+                                type="button"
+                                onClick={() => handleEventChange(event.id, 'completed', false)}
+                                className="p-2 rounded-full bg-yellow-500 text-white shadow-lg hover:bg-yellow-600 hover:scale-110 transition-all duration-200"
+                                title="Réactiver pour modifier"
+                              >
+                                <Edit3 size={16} />
+                              </button>
+                            ) : (
+                              // Complete/Pending Button for all other states
+                              <button
+                                type="button"
+                                onClick={() => canBeCompleted && handleEventChange(event.id, 'completed', !event.completed)}
+                                disabled={!canBeCompleted}
+                                className={`p-2 rounded-full transition-all duration-200 ${
+                                  event.completed
+                                    ? 'bg-green-500 text-white shadow-lg hover:bg-green-600 hover:scale-110'
+                                    : canBeCompleted
+                                      ? 'bg-blue-500 text-white shadow-lg hover:bg-blue-600 hover:scale-110'
+                                      : 'bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed'
+                                }`}
+                              >
+                                {event.completed ? (
+                                  <Check size={16} />
+                                ) : isBlocked ? (
+                                  <div className="relative">
+                                    <CheckCircle size={16} className="opacity-30" />
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <CheckCircle size={16} />
+                                )}
+                              </button>
+                            )}
+                            
+                            {/* Tooltip for edit button */}
+                            {event.completed && canReactivate && (
+                              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                Réactiver pour modifier
+                                <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-2 border-transparent border-t-black"></div>
+                              </div>
+                            )}
+                            
+                            {/* Tooltip for blocked events */}
+                            {isBlocked && (
+                              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                Complétez l'étape précédente d'abord
+                                <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-2 border-transparent border-t-black"></div>
+                              </div>
+                            )}
+                            
+                            {/* Tooltip for completed events that can't be reactivated */}
+                            {event.completed && hasCompletedAfter && (
+                              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                Impossible de réactiver - étapes suivantes complétées
+                                <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-2 border-transparent border-t-black"></div>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
 
                       {/* Event Details */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className={`block text-xs font-semibold ${textMuted} mb-2 uppercase tracking-wide`}>
+                          <label className={`block text-xs font-semibold ${textMuted} mb-2 uppercase tracking-wide ${(isBlocked || event.completed) ? 'opacity-60' : ''}`}>
                             <Calendar size={12} className="inline mr-1" />
                             {t('date')} *
                           </label>
@@ -1013,15 +1090,17 @@ const NewTransitFilePage = () => {
                             type="date"
                             value={event.date}
                             onChange={(e) => handleEventChange(event.id, 'date', e.target.value)}
-                            disabled={event.completed}
-                            className={`block w-full px-3 py-2 text-sm border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-${deptInfo.color}-500 focus:border-${deptInfo.color}-500 transition-all ${
-                              event.completed ? `${deptInfo.border} opacity-60 cursor-not-allowed` : borderColor
+                            disabled={isBlocked || event.completed}
+                            className={`block w-full px-3 py-2 text-sm border rounded-lg ${bgPrimary} ${textPrimary} transition-all ${
+                              (isBlocked || event.completed)
+                                ? `${borderColor} opacity-60 cursor-not-allowed bg-gray-50 dark:bg-gray-800`
+                                : `${borderColor} focus:outline-none focus:ring-2 focus:ring-${deptInfo.color}-500 focus:border-${deptInfo.color}-500`
                             }`}
                           />
                         </div>
                         
                         <div>
-                          <label className={`block text-xs font-semibold ${textMuted} mb-2 uppercase tracking-wide`}>
+                          <label className={`block text-xs font-semibold ${textMuted} mb-2 uppercase tracking-wide ${(isBlocked || event.completed) ? 'opacity-60' : ''}`}>
                             <Edit3 size={12} className="inline mr-1" />
                             {t('details')}
                           </label>
@@ -1029,10 +1108,18 @@ const NewTransitFilePage = () => {
                             type="text"
                             value={event.details || ''}
                             onChange={(e) => handleEventChange(event.id, 'details', e.target.value)}
-                            placeholder={t('optional_details')}
-                            disabled={event.completed}
-                            className={`block w-full px-3 py-2 text-sm border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-${deptInfo.color}-500 focus:border-${deptInfo.color}-500 transition-all ${
-                              event.completed ? `${deptInfo.border} opacity-60 cursor-not-allowed` : borderColor
+                            placeholder={
+                              isBlocked 
+                                ? "Complétez l'étape précédente..." 
+                                : event.completed 
+                                  ? "Cliquez sur 'Modifier' pour éditer..."
+                                  : t('optional_details')
+                            }
+                            disabled={isBlocked || event.completed}
+                            className={`block w-full px-3 py-2 text-sm border rounded-lg ${bgPrimary} ${textPrimary} transition-all ${
+                              (isBlocked || event.completed)
+                                ? `${borderColor} opacity-60 cursor-not-allowed bg-gray-50 dark:bg-gray-800`
+                                : `${borderColor} focus:outline-none focus:ring-2 focus:ring-${deptInfo.color}-500 focus:border-${deptInfo.color}-500`
                             }`}
                           />
                         </div>
@@ -1040,10 +1127,38 @@ const NewTransitFilePage = () => {
 
                       {/* Progress indicator for completed events */}
                       {event.completed && (
-                        <div className="mt-4 flex items-center text-sm text-green-600 dark:text-green-400">
-                          <CheckCircle size={16} className="mr-2" />
+                        <div className="mt-4 flex items-center justify-between">
+                          <div className="flex items-center text-sm text-green-600 dark:text-green-400">
+                            <CheckCircle size={16} className="mr-2" />
+                            <span className="font-medium">
+                              {t('completed')} {t('on')} {format(new Date(event.date), 'dd/MM/yyyy')}
+                            </span>
+                          </div>
+                          {canReactivate && (
+                            <div className="text-xs text-yellow-600 dark:text-yellow-400">
+                              <Edit3 size={12} className="inline mr-1" />
+                              Cliquez sur l'icône d'édition pour modifier
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Warning for completed events that can't be reactivated */}
+                      {event.completed && hasCompletedAfter && (
+                        <div className="mt-4 flex items-center text-sm text-amber-600 dark:text-amber-400">
+                          <Info size={16} className="mr-2" />
                           <span className="font-medium">
-                            {t('completed')} {t('on')} {format(new Date(event.date), 'dd/MM/yyyy')}
+                            Modification bloquée - des étapes suivantes sont terminées
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Next step indicator */}
+                      {!event.completed && canBeCompleted && (
+                        <div className="mt-4 flex items-center text-sm text-blue-600 dark:text-blue-400">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
+                          <span className="font-medium">
+                            Étape suivante disponible
                           </span>
                         </div>
                       )}
