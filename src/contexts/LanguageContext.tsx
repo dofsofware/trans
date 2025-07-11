@@ -81,7 +81,7 @@ const translations = {
     error: 'Error',
     warning: 'Warning',
     info: 'Information',
-    
+
     // Authentication
     login: 'Sign In',
     logout: 'Sign Out',
@@ -103,7 +103,7 @@ const translations = {
     english: 'English',
     french: 'Français',
     allRightsReserved: '© 2024 ShipTrack. All rights reserved.',
-    
+
     // Password Reset
     resetPasswordInstructions: 'Enter your email address and we\'ll send you a link to reset your password.',
     sendResetLink: 'Send Reset Link',
@@ -128,7 +128,7 @@ const translations = {
     lowerCase: 'One lowercase letter',
     number: 'One number',
     specialChar: 'One special character',
-    
+
     // User Roles
     client: 'Client',
     agent: 'Agent',
@@ -137,7 +137,7 @@ const translations = {
     finance: 'Finance',
     supervisor: 'Supervisor',
     admin: 'Administrator',
-    
+
     // Shipment Status
     draft: 'Draft',
     warehouse: 'Warehouse',
@@ -145,7 +145,7 @@ const translations = {
     inTransit: 'In Transit',
     delivered: 'Delivered',
     issue: 'Issue',
-    
+
     // Transport Types
     air: 'Air',
     sea: 'Sea',
@@ -153,12 +153,12 @@ const translations = {
     aerial: 'Aerial',
     type_air: 'Air',
     type_sea: 'Sea',
-    
+
     // Product Types
     standard: 'Standard',
     dangerous: 'Dangerous',
     fragile: 'Fragile',
-    
+
     // Form Fields
     reference: 'Reference',
     file_reference: 'File Reference',
@@ -190,7 +190,7 @@ const translations = {
     city_country: 'City, Country',
     city_country_placeholder: 'e.g., Paris, France',
     cityCountryPlaceholder: 'e.g., Paris, France',
-    
+
     // Client Management
     client_name: 'Client Name',
     client_email: 'Client Email',
@@ -212,7 +212,7 @@ const translations = {
     noClientsFound: 'No clients found',
     allClients: 'All Clients',
     unknown_client: 'Unknown Client',
-    
+
     // Agent Management
     agent_in_charge: 'Agent in Charge',
     assignedTo: 'Assigned To',
@@ -222,7 +222,7 @@ const translations = {
     contact_the_agent_in_charge: 'Contact the Agent in Charge',
     noAgentsFound: 'No agents found',
     allAgents: 'All Agents',
-    
+
     // Documents
     invoice: 'Invoice',
     packing_list: 'Packing List',
@@ -230,7 +230,7 @@ const translations = {
     uploaded_files: 'Uploaded Files',
     client_visible: 'Client Visible',
     file_visibility_settings: 'File Visibility Settings',
-    
+
     // Containers
     containers: 'Containers',
     add_container: 'Add Container',
@@ -251,12 +251,12 @@ const translations = {
     invalid_weight: 'Invalid weight',
     air_transport_selected: 'Air Transport Selected',
     containers_not_applicable_air: 'Containers are not applicable for air transport',
-    
+
     // System Information
     system_information: 'System Information',
     general_information: 'General Information',
     route_and_capacity: 'Route and Capacity',
-    
+
     // Transit Files
     new_transit_file: 'New Transit File',
     create_transit_file: 'Create a new transit file',
@@ -271,10 +271,10 @@ const translations = {
     create_file: 'Create File',
     newFile: 'New File',
     manage_transit_files: 'Manage your transit files',
-    
+
     // Dashboard
     manageFilesAndClients: 'Manage your files and clients',
-    
+
     // Search and Filters
     searchPlaceholder: 'Search by reference, BL number, origin, destination...',
     allStatuses: 'All Statuses',
@@ -284,7 +284,7 @@ const translations = {
     sortBy: 'Sort by',
     itemsPerPage: 'Items per page',
     of: 'of',
-    
+
     // Results
     filesFound: 'files found',
     files_found: 'files found',
@@ -300,7 +300,7 @@ const translations = {
     show_less: 'Show Less',
     showAll: 'Show All ({count})',
     show_all: 'Show All ({count})',
-    
+
     // Events Management
     events: 'Events',
     events_management: 'Events Management',
@@ -309,7 +309,7 @@ const translations = {
     details: 'Details',
     optional_details: 'Optional details...',
     mark_completed: 'Mark as Completed',
-    
+
     // Export Events
     export_pregate: 'Export Pre-gate (Document Reception)',
     warehouse_reception: 'Package Reception in Warehouse',
@@ -321,7 +321,7 @@ const translations = {
     departure: 'Departure',
     estimated_arrival: 'Estimated Arrival',
     billing: 'Billing',
-    
+
     // Import Events
     import_prealert: 'Import Pre-alert (Document Reception)',
     arrival: 'Arrival',
@@ -331,18 +331,18 @@ const translations = {
     pickup: 'Pickup',
     delivery: 'Delivery',
     warehouse_arrival: 'Warehouse Arrival',
-    
+
     // Notifications
     unread_count: '{count} unread',
     no_notifications: 'No notifications',
     mark_all_as_read: 'Mark all as read',
     view_all_notifications: 'View all notifications',
-    
+
     // Messages
     write_your_message_here: 'Write your message here...',
     send_message: 'Send Message',
     message_sent_successfully: 'Message sent successfully',
-    
+
     // Claims
     file_claim: 'File Claim',
     claim_type: 'Claim Type',
@@ -360,7 +360,7 @@ const translations = {
     submit_claim: 'Submit Claim',
     claim_sent_successfully: 'Claim sent successfully',
     message: 'Message',
-    
+
     // Password Change
     change_password: 'Change Password',
     password_change_instruction: 'For your security, please enter your current password to confirm your identity before setting a new password.',
@@ -375,7 +375,7 @@ const translations = {
     error_passwords_dont_match: 'Passwords do not match',
     save_changes: 'Save Changes',
     password_changed_successfully: 'Password changed successfully',
-    
+
     // File Upload
     upload_file: 'Upload File',
     drag_files: 'Drag and drop files or click to browse',
@@ -390,9 +390,9 @@ const translations = {
     upload_in_progress: 'Upload in progress',
     step: 'step',
     complited: 'complited',
-    completedEvents:'completed events',
-    eventProgression:'Event progression',
-    
+    completedEvents: 'completed events',
+    eventProgression: 'Event progression',
+
     // Events Step
     events_step: 'Events',
     events_step_description: 'Configure the key events for tracking your transit file',
@@ -409,7 +409,7 @@ const translations = {
     select_at_least_one_event: 'Please select at least one event to continue',
     events_configuration: 'Events Configuration',
     configure_selected_events: 'Configure the selected events with dates and details',
-    
+
     // Export Events
     export_events: 'Export Events',
     export_pregate_event: 'Export Pre-gate',
@@ -451,6 +451,36 @@ const translations = {
     delivery_description: 'Final delivery to consignee',
     warehouse_arrival_event: 'Warehouse Arrival',
     warehouse_arrival_description: 'Arrival at destination warehouse',
+    // Navigation et sections
+    sequential_completion_required: 'Events must be completed in sequential order.',
+    departments: 'Departments',
+
+    // Départements
+    transport: 'Transport',
+    logistics: 'Logistics',
+    commercial: 'Commercial',
+
+    // Statuts
+    waiting: 'Waiting',
+
+    // Messages d'état
+    complete_previous_step: 'Complete the previous step...',
+    click_edit_to_modify: 'Click \'Edit\' to modify...',
+    reactivate_to_modify: 'Reactivate to modify',
+    complete_previous_step_first: 'Complete the previous step first',
+    cannot_reactivate_subsequent_completed: 'Cannot reactivate - subsequent steps completed',
+    click_edit_icon_to_modify: 'Click the edit icon to modify',
+    modification_blocked_subsequent_completed: 'Modification blocked - subsequent steps are completed',
+    next_step_available: 'Next step available',
+
+    // Actions
+    complete: 'Complete',
+    reactivate: 'Reactivate',
+
+     // Nouveaux termes identifiés
+  cannot_reactivate_following_completed: 'Cannot reactivate - following steps completed',
+  complete_previous_step_placeholder: 'Complete the previous step...',
+  modification_blocked_following_completed: 'Modification blocked - following steps are completed',
   },
   fr: {
     // Navigation & General
@@ -514,7 +544,7 @@ const translations = {
     error: 'Erreur',
     warning: 'Avertissement',
     info: 'Information',
-    
+
     // Authentication
     login: 'Se connecter',
     logout: 'Se déconnecter',
@@ -536,7 +566,7 @@ const translations = {
     english: 'English',
     french: 'Français',
     allRightsReserved: '© 2024 ShipTrack. Tous droits réservés.',
-    
+
     // Password Reset
     resetPasswordInstructions: 'Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.',
     sendResetLink: 'Envoyer le lien de réinitialisation',
@@ -561,7 +591,7 @@ const translations = {
     lowerCase: 'Une lettre minuscule',
     number: 'Un chiffre',
     specialChar: 'Un caractère spécial',
-    
+
     // User Roles
     client: 'Client',
     agent: 'Agent',
@@ -570,7 +600,7 @@ const translations = {
     finance: 'Finance',
     supervisor: 'Superviseur',
     admin: 'Administrateur',
-    
+
     // Shipment Status
     draft: 'Brouillon',
     warehouse: 'Entrepôt',
@@ -578,7 +608,7 @@ const translations = {
     inTransit: 'En transit',
     delivered: 'Livré',
     issue: 'Problème',
-    
+
     // Transport Types
     air: 'Aérien',
     sea: 'Maritime',
@@ -586,12 +616,12 @@ const translations = {
     aerial: 'Aérien',
     type_air: 'Aérien',
     type_sea: 'Maritime',
-    
+
     // Product Types
     standard: 'Standard',
     dangerous: 'Dangereux',
     fragile: 'Fragile',
-    
+
     // Form Fields
     reference: 'Référence',
     file_reference: 'Référence du dossier',
@@ -623,7 +653,7 @@ const translations = {
     city_country: 'Ville, Pays',
     city_country_placeholder: 'ex: Paris, France',
     cityCountryPlaceholder: 'ex: Paris, France',
-    
+
     // Client Management
     client_name: 'Nom du client',
     client_email: 'Email du client',
@@ -645,7 +675,7 @@ const translations = {
     noClientsFound: 'Aucun client trouvé',
     allClients: 'Tous les clients',
     unknown_client: 'Client inconnu',
-    
+
     // Agent Management
     agent_in_charge: 'Agent responsable',
     assignedTo: 'Assigné à',
@@ -655,7 +685,7 @@ const translations = {
     contact_the_agent_in_charge: 'Contacter l\'agent responsable',
     noAgentsFound: 'Aucun agent trouvé',
     allAgents: 'Tous les agents',
-    
+
     // Documents
     invoice: 'Facture',
     packing_list: 'Liste de colisage',
@@ -663,7 +693,7 @@ const translations = {
     uploaded_files: 'Fichiers téléversés',
     client_visible: 'Visible par le client',
     file_visibility_settings: 'Paramètres de visibilité des fichiers',
-    
+
     // Containers
     containers: 'Conteneurs',
     add_container: 'Ajouter un conteneur',
@@ -684,12 +714,12 @@ const translations = {
     invalid_weight: 'Poids invalide',
     air_transport_selected: 'Transport aérien sélectionné',
     containers_not_applicable_air: 'Les conteneurs ne s\'appliquent pas au transport aérien',
-    
+
     // System Information
     system_information: 'Informations système',
     general_information: 'Informations générales',
     route_and_capacity: 'Itinéraire et capacité',
-    
+
     // Transit Files
     new_transit_file: 'Nouveau dossier de transit',
     create_transit_file: 'Créer un nouveau dossier de transit',
@@ -704,10 +734,10 @@ const translations = {
     create_file: 'Créer le dossier',
     newFile: 'Nouveau dossier',
     manage_transit_files: 'Gérer vos dossiers de transit',
-    
+
     // Dashboard
     manageFilesAndClients: 'Gérez vos dossiers et clients',
-    
+
     // Search and Filters
     searchPlaceholder: 'Rechercher par référence, numéro BL, origine, destination...',
     allStatuses: 'Tous les statuts',
@@ -717,7 +747,7 @@ const translations = {
     sortBy: 'Trier par',
     itemsPerPage: 'Éléments par page',
     of: 'sur',
-    
+
     // Results
     filesFound: 'dossiers trouvés',
     files_found: 'dossiers trouvés',
@@ -733,7 +763,7 @@ const translations = {
     show_less: 'Afficher moins',
     showAll: 'Tout afficher ({count})',
     show_all: 'Tout afficher ({count})',
-    
+
     // Events Management
     events: 'Événements',
     events_management: 'Gestion des événements',
@@ -742,7 +772,7 @@ const translations = {
     details: 'Détails',
     optional_details: 'Détails optionnels...',
     mark_completed: 'Marquer comme terminé',
-    
+
     // Export Events
     export_pregate: 'Prégate export (Réception documents)',
     warehouse_reception: 'Réception colis dans l\'entrepôt',
@@ -754,7 +784,7 @@ const translations = {
     departure: 'Départ',
     estimated_arrival: 'Estimation arrivée',
     billing: 'Facturation',
-    
+
     // Import Events
     import_prealert: 'Préalerte import (Réception documents)',
     arrival: 'Arrivée',
@@ -764,18 +794,18 @@ const translations = {
     pickup: 'Enlèvement',
     delivery: 'Livraison',
     warehouse_arrival: 'Arrivée entrepôt',
-    
+
     // Notifications
     unread_count: '{count} non lu(s)',
     no_notifications: 'Aucune notification',
     mark_all_as_read: 'Tout marquer comme lu',
     view_all_notifications: 'Voir toutes les notifications',
-    
+
     // Messages
     write_your_message_here: 'Écrivez votre message ici...',
     send_message: 'Envoyer le message',
     message_sent_successfully: 'Message envoyé avec succès',
-    
+
     // Claims
     file_claim: 'Déposer une réclamation',
     claim_type: 'Type de réclamation',
@@ -793,7 +823,7 @@ const translations = {
     submit_claim: 'Soumettre la réclamation',
     claim_sent_successfully: 'Réclamation envoyée avec succès',
     message: 'Message',
-    
+
     // Password Change
     change_password: 'Changer le mot de passe',
     password_change_instruction: 'Pour votre sécurité, veuillez entrer votre mot de passe actuel pour confirmer votre identité avant de définir un nouveau mot de passe.',
@@ -808,7 +838,7 @@ const translations = {
     error_passwords_dont_match: 'Les mots de passe ne correspondent pas',
     save_changes: 'Enregistrer les modifications',
     password_changed_successfully: 'Mot de passe modifié avec succès',
-    
+
     // File Upload
     upload_file: 'Téléverser un fichier',
     drag_files: 'Glissez-déposez des fichiers ou cliquez pour parcourir',
@@ -824,9 +854,9 @@ const translations = {
     step: 'étape',
     complited: 'complété',
     on: 'le',
-    completedEvents:'des événements terminés',
-    eventProgression:'Progression des événements',
-    
+    completedEvents: 'des événements terminés',
+    eventProgression: 'Progression des événements',
+
     // Events Step
     events_step: 'Événements',
     events_step_description: 'Configurez les événements clés pour le suivi de votre dossier de transit',
@@ -843,7 +873,7 @@ const translations = {
     select_at_least_one_event: 'Veuillez sélectionner au moins un événement pour continuer',
     events_configuration: 'Configuration des événements',
     configure_selected_events: 'Configurez les événements sélectionnés avec les dates et détails',
-    
+
     // Export Events
     export_events: 'Événements d\'export',
     export_pregate_event: 'Prégate export',
@@ -866,7 +896,7 @@ const translations = {
     estimated_arrival_description: 'Arrivée prévue à destination',
     billing_event: 'Facturation',
     billing_description: 'Génération de facture et facturation',
-    
+
     // Import Events
     import_events: 'Événements d\'import',
     import_prealert_event: 'Préalerte import',
@@ -885,6 +915,34 @@ const translations = {
     delivery_description: 'Livraison finale au destinataire',
     warehouse_arrival_event: 'Arrivée entrepôt',
     warehouse_arrival_description: 'Arrivée à l\'entrepôt de destination',
+    // Navigation et sections
+    sequential_completion_required: 'Les événements doivent être complétés dans l\'ordre séquentiel.',
+    departments: 'Départements',
+
+    // Départements
+    transport: 'Transport',
+    logistics: 'Logistique',
+    commercial: 'Commercial',
+
+    // Statuts
+    waiting: 'En attente',
+
+    // Messages d'état
+    complete_previous_step: 'Complétez l\'étape précédente...',
+    click_edit_to_modify: 'Cliquez sur \'Modifier\' pour éditer...',
+    reactivate_to_modify: 'Réactiver pour modifier',
+    complete_previous_step_first: 'Complétez l\'étape précédente d\'abord',
+    cannot_reactivate_subsequent_completed: 'Impossible de réactiver - étapes suivantes complétées',
+    click_edit_icon_to_modify: 'Cliquez sur l\'icône d\'édition pour modifier',
+    modification_blocked_subsequent_completed: 'Modification bloquée - des étapes suivantes sont terminées',
+    next_step_available: 'Étape suivante disponible',
+
+    // Actions
+    complete: 'Terminer',
+    reactivate: 'Réactiver',
+    cannot_reactivate_following_completed: 'Impossible de réactiver - étapes suivantes complétées',
+    complete_previous_step_placeholder: 'Complétez l\'étape précédente...',
+    modification_blocked_following_completed: 'Modification bloquée - des étapes suivantes sont terminées',
   }
 };
 
@@ -896,13 +954,13 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const t = (key: string, params?: Record<string, any>): string => {
     let translation = translations[language][key] || translations['en'][key] || key;
-    
+
     if (params) {
       Object.keys(params).forEach(param => {
         translation = translation.replace(`{${param}}`, params[param]);
       });
     }
-    
+
     return translation;
   };
 
