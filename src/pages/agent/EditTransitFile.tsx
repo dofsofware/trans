@@ -1382,7 +1382,7 @@ const EditTransitFilePage = () => {
             ) : (
               <>
                 <Save size={18} className="mr-2" />
-                {t('update_file')}
+                {t('update')}
               </>
             )}
           </button>
