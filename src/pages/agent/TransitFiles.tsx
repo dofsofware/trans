@@ -42,32 +42,8 @@ import {
 } from 'lucide-react';
 import { format, subDays } from 'date-fns';
 import backImage from '../../utils/backGround_hearder.png';
-
-// Interface pour les dossiers de transit conforme à NewTransitFilePage
-interface TransitFile {
-  id: string;
-  reference: string;
-  blNumber: string;
-  clientIds: string[];
-  origin: string;
-  destination: string;
-  transportType: 'air' | 'sea';
-  shipmentType: 'import' | 'export';
-  productType: 'standard' | 'dangerous' | 'fragile';
-  capacity: string;
-  contentDescription: string;
-  status: 'draft' | 'processing' | 'warehouse' | 'customs' | 'in_transit' | 'delivered' | 'issue';
-  assignedAgentId: string;
-  createdAt: string;
-  updatedAt: string;
-  createdBy: string;
-  containers?: Container[];
-  documents: {
-    invoice?: { file: string; clientVisible: boolean };
-    packingList?: { file: string; clientVisible: boolean };
-    otherDocuments?: { file: string; clientVisible: boolean }[];
-  };
-}
+import { TransitFile } from '../../types/transitFile';
+import { getTransitFiles } from '../../services/transitFileService';
 
 interface FilterState {
   search: string;
@@ -82,138 +58,6 @@ interface FilterState {
   dateFrom: string;
   dateTo: string;
 }
-
-// Générateur de données mock pour les dossiers de transit
-const generateMockTransitFiles = (count = 20): TransitFile[] => {
-  const origins = [
-    'Shanghai, Chine', 'Shenzhen, Chine', 'Hong Kong', 'Singapour', 'Dubai, EAU',
-    'Rotterdam, Pays-Bas', 'Hamburg, Allemagne', 'Le Havre, France', 'Anvers, Belgique',
-    'Los Angeles, USA', 'New York, USA', 'Tokyo, Japon', 'Busan, Corée du Sud'
-  ];
-
-  const destinations = [
-    'Dakar, Sénégal', 'Abidjan, Côte d\'Ivoire', 'Lagos, Nigeria', 'Casablanca, Maroc',
-    'Tunis, Tunisie', 'Alger, Algérie', 'Douala, Cameroun', 'Lomé, Togo',
-    'Cotonou, Bénin', 'Conakry, Guinée', 'Bamako, Mali', 'Ouagadougou, Burkina Faso'
-  ];
-
-  const productTypes: ('standard' | 'dangerous' | 'fragile')[] = ['standard', 'dangerous', 'fragile'];
-  const transportTypes: ('air' | 'sea')[] = ['air', 'sea'];
-  const shipmentTypes: ('import' | 'export')[] = ['import', 'export'];
-  const statuses: ('draft' | 'processing' | 'warehouse' | 'customs' | 'in_transit' | 'delivered' | 'issue')[] = 
-    ['draft', 'processing', 'warehouse', 'customs', 'in_transit', 'delivered', 'issue'];
-
-  const contentDescriptions = [
-    'Équipements électroniques et composants informatiques',
-    'Textiles et vêtements prêt-à-porter',
-    'Pièces automobiles et accessoires',
-    'Produits alimentaires et boissons',
-    'Matériaux de construction et quincaillerie',
-    'Produits pharmaceutiques et médicaux',
-    'Machines industrielles et équipements',
-    'Produits chimiques et matières premières',
-    'Mobilier et articles de décoration',
-    'Jouets et articles de sport'
-  ];
-
-  const capacities = [
-    '20 pieds, 15 tonnes',
-    '40 pieds, 25 tonnes',
-    '40 pieds HC, 28 tonnes',
-    '500 kg, 2 m³',
-    '1000 kg, 5 m³',
-    '2000 kg, 10 m³',
-    '5000 kg, 25 m³',
-    '10 tonnes, 50 m³'
-  ];
-
-  // Generate mock containers for sea transport
-  const generateMockContainers = (transportType: 'air' | 'sea', count: number): Container[] => {
-    if (transportType !== 'sea') return [];
-    
-    const containerTypes: Container['containerType'][] = ['dry', 'refrigerated', 'open_top', 'flat_rack', 'tank'];
-    const containerSizes: Container['size'][] = ['20ft', '40ft', '40ft_hc', '45ft'];
-    const containers: Container[] = [];
-    
-    const numContainers = Math.floor(Math.random() * 3) + 1; // 1-3 containers
-    
-    for (let i = 0; i < numContainers; i++) {
-      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      const containerNumber = 
-        letters.charAt(Math.floor(Math.random() * letters.length)) +
-        letters.charAt(Math.floor(Math.random() * letters.length)) +
-        letters.charAt(Math.floor(Math.random() * letters.length)) +
-        letters.charAt(Math.floor(Math.random() * letters.length)) +
-        Math.floor(Math.random() * 10000000).toString().padStart(7, '0');
-      
-      containers.push({
-        id: `container-${count}-${i}`,
-        containerNumber,
-        volume: Math.floor(Math.random() * 50) + 10, // 10-60 m³
-        weight: Math.floor(Math.random() * 20000) + 5000, // 5000-25000 kg
-        containerType: containerTypes[Math.floor(Math.random() * containerTypes.length)],
-        size: containerSizes[Math.floor(Math.random() * containerSizes.length)]
-      });
-    }
-    
-    return containers;
-  };
-
-  const files: TransitFile[] = [];
-
-  for (let i = 0; i < count; i++) {
-    const createdAt = format(subDays(new Date(), Math.floor(Math.random() * 90)), "yyyy-MM-dd'T'HH:mm:ss");
-    const updatedAt = format(subDays(new Date(), Math.floor(Math.random() * 30)), "yyyy-MM-dd'T'HH:mm:ss");
-    const transportType = transportTypes[Math.floor(Math.random() * transportTypes.length)];
-    
-    // Générer un numéro BL/LTA réaliste
-    const blPrefix = transportType === 'air' ? 'LTA' : 'BL';
-    const blNumber = `${blPrefix}${new Date().getFullYear()}${(1000 + i).toString().padStart(4, '0')}`;
-    
-    // Générer une référence de dossier
-    const reference = `TF-${new Date().getFullYear()}-${(10000 + i).toString()}`;
-
-    // Sélectionner 1-3 clients aléatoirement
-    const numClients = Math.floor(Math.random() * 3) + 1;
-    const clientIds = [];
-    for (let j = 0; j < numClients; j++) {
-      const clientId = `client-${1000 + Math.floor(Math.random() * 25)}`;
-      if (!clientIds.includes(clientId)) {
-        clientIds.push(clientId);
-      }
-    }
-
-    files.push({
-      id: `tf-${1000 + i}`,
-      reference,
-      blNumber,
-      clientIds,
-      origin: origins[Math.floor(Math.random() * origins.length)],
-      destination: destinations[Math.floor(Math.random() * destinations.length)],
-      transportType,
-      shipmentType: shipmentTypes[Math.floor(Math.random() * shipmentTypes.length)],
-      productType: productTypes[Math.floor(Math.random() * productTypes.length)],
-      capacity: capacities[Math.floor(Math.random() * capacities.length)],
-      contentDescription: contentDescriptions[Math.floor(Math.random() * contentDescriptions.length)],
-      status: statuses[Math.floor(Math.random() * statuses.length)],
-      assignedAgentId: `agent-${Math.floor(Math.random() * 4) + 1}`,
-      createdAt,
-      updatedAt,
-      createdBy: '2', // Agent actuel
-      containers: generateMockContainers(transportType, i),
-      documents: {
-        invoice: Math.random() > 0.3 ? { file: `invoice-${i}.pdf`, clientVisible: Math.random() > 0.5 } : undefined,
-        packingList: Math.random() > 0.5 ? { file: `packing-list-${i}.pdf`, clientVisible: Math.random() > 0.5 } : undefined,
-        otherDocuments: Math.random() > 0.7 ? [
-          { file: `doc1-${i}.pdf`, clientVisible: Math.random() > 0.5 },
-          { file: `doc2-${i}.pdf`, clientVisible: Math.random() > 0.5 }
-        ] : undefined
-      }
-    });
-  }
-
-  return files;
-};
 
 const TransitFilesPage = () => {
   const { user } = useAuth();
@@ -279,10 +123,7 @@ const TransitFilesPage = () => {
     const fetchData = async () => {
       try {
         const [filesData, clientsData] = await Promise.all([
-          // Simuler le chargement des dossiers de transit
-          new Promise<TransitFile[]>(resolve => 
-            setTimeout(() => resolve(generateMockTransitFiles(25)), 1000)
-          ),
+          getTransitFiles(),
           getMockClients()
         ]);
         setTransitFiles(filesData);
@@ -532,6 +373,10 @@ const TransitFilesPage = () => {
       delivered: isDark ? 'bg-green-800 text-green-300' : 'bg-green-100 text-green-800',
       issue: isDark ? 'bg-red-800 text-red-300' : 'bg-red-100 text-red-800'
     };
+    
+    // Map new status values to existing colors
+    if (status === 'in_progress') return colors.processing;
+    if (status === 'completed') return colors.delivered;
     return colors[status as keyof typeof colors] || colors.draft;
   };
 
@@ -881,7 +726,7 @@ const TransitFilesPage = () => {
               >
                 <option value="">{t('all_statuses')}</option>
                 <option value="draft">{t('draft')}</option>
-                <option value="processing">{t('processing')}</option>
+                <option value="in_progress">{t('in_progress')}</option>
                 <option value="warehouse">{t('warehouse')}</option>
                 <option value="customs">{t('customs')}</option>
                 <option value="in_transit">{t('in_transit')}</option>
@@ -889,6 +734,7 @@ const TransitFilesPage = () => {
                 <option value="issue">{t('issue')}</option>
               </select>
             </div>
+            <option value="completed">{t('completed')}</option>
 
             {/* Transport Type Filter */}
             <div>
