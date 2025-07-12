@@ -575,6 +575,10 @@ const EditTransitFilePage = () => {
                     setShowClientDropdown(true);
                   }}
                   onFocus={() => setShowClientDropdown(true)}
+                  onBlur={() => {
+                    // Délai pour permettre le clic sur un élément de la liste
+                    setTimeout(() => setShowClientDropdown(false), 200);
+                  }}
                   placeholder={t('search_client')}
                   className={`block w-full pl-10 pr-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all`}
                 />
@@ -586,6 +590,10 @@ const EditTransitFilePage = () => {
                       <div
                         key={client.id}
                         className={`px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${textPrimary}`}
+                        onMouseDown={(e) => {
+                          // Empêche le blur de l'input lors du clic
+                          e.preventDefault();
+                        }}
                         onClick={() => handleClientSelect(client)}
                       >
                         <div className="font-medium">{client.name}</div>
