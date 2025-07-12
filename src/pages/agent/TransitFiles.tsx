@@ -64,6 +64,10 @@ const TransitFilesPage = () => {
   const { theme } = useTheme();
   const { t } = useLanguage();
   const navigate = useNavigate();
+
+  const handleViewFile = (fileId: string) => {
+    navigate(`/transit-files/${fileId}`);
+  };
   const [transitFiles, setTransitFiles] = useState<TransitFile[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [filteredFiles, setFilteredFiles] = useState<TransitFile[]>([]);
@@ -505,7 +509,11 @@ const TransitFilesPage = () => {
               </span>
             </div>
             <div className="flex items-center space-x-1">
-              <button className={`p-1 rounded ${textMuted} hover:${textPrimary} transition-colors`} title={t('view_details')}>
+              <button 
+                onClick={() => handleViewFile(file.id)}
+                className={`p-1 rounded ${textMuted} hover:${textPrimary} transition-colors`} 
+                title={t('view_details')}
+              >
                 <Eye size={14} />
               </button>
               <button 
@@ -596,7 +604,11 @@ const TransitFilesPage = () => {
                 </td>
                 <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div className="flex items-center justify-end space-x-2">
-                    <button className={`${textMuted} hover:text-blue-600 transition-colors`} title={t('view_details')}>
+                    <button 
+                      onClick={() => handleViewFile(file.id)} 
+                      className={`${textMuted} hover:text-blue-600 transition-colors`} 
+                      title={t('view_details')}
+                    >
                       <Eye size={16} />
                     </button>
                     <button 

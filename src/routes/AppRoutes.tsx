@@ -26,6 +26,7 @@ import LoadingScreen from '../components/common/LoadingScreen';
 // import InvoiceDetails from '../pages/client/InvoiceDetails';
 import ForgotPasswordPage from '../pages/ForgotPasswordPage';
 import ResetPasswordPage from '../pages/ResetPasswordPage';
+import ViewTransitFilePage from '../pages/agent/ViewTransitFile';
 
 const AppRoutes = () => {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -70,6 +71,7 @@ const AppRoutes = () => {
               {/* <Route path="/clients/new-client" element={<NewClientPage />} /> */}
               {/* <Route path="/clients/:clientId" element={<ClientDetailsPage />} /> */}
               <Route path="/transit-files/new" element={<NewTransitFilePage />} />
+              <Route path="/transit-files/:id" element={<ViewTransitFilePage />} />
               <Route path="/transit-files/:id/edit" element={<EditTransitFilePage />} />
               {/* <Route path="/clients/:clientId/edit" element={<EditClientPage />} />
               <Route path="/messages" element={<MessagesPage />} /> */}

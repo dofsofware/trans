@@ -191,6 +191,21 @@ const translations = {
     city_country_placeholder: 'e.g., Paris, France',
     cityCountryPlaceholder: 'e.g., Paris, France',
 
+    // Transit File Details
+    transit_file_details: 'Transit File Details',
+    view_details: 'View Details',
+    file_details: 'File Details',
+    file_information: 'File Information',
+    file_status: 'File Status',
+    file_type: 'File Type',
+    file_date: 'File Date',
+    file_documents: 'File Documents',
+    file_events: 'File Events',
+    file_history: 'File History',
+    file_notes: 'File Notes',
+    file_comments: 'File Comments',
+    file_attachments: 'File Attachments',
+
     // Client Management
     client_name: 'Client Name',
     client_email: 'Client Email',
@@ -485,7 +500,22 @@ const translations = {
   modification_blocked_following_completed: 'Modification blocked - following steps are completed',
   },
   fr: {
-    // Navigation & General
+      // Transit File Details
+      transit_file_details: 'Détails du Dossier de Transit',
+      view_details: 'Voir les Détails',
+      file_details: 'Détails du Dossier',
+      file_information: 'Informations du Dossier',
+      file_status: 'Statut du Dossier',
+      file_type: 'Type de Dossier',
+      file_date: 'Date du Dossier',
+      file_documents: 'Documents du Dossier',
+      file_events: 'Événements du Dossier',
+      file_history: 'Historique du Dossier',
+      file_notes: 'Notes du Dossier',
+      file_comments: 'Commentaires du Dossier',
+      file_attachments: 'Pièces Jointes du Dossier',
+
+      // Navigation & General
     dashboard: 'Tableau de bord',
     shipments: 'Expéditions',
     documents: 'Documents',
