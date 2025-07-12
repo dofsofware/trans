@@ -92,6 +92,14 @@ export const mockTransitFiles: TransitFile[] = [
         {
           file: '/documents/TF-2023-001/certificate.pdf',
           clientVisible: false
+        },
+        {
+          file: '/documents/TF-2023-001/certificate.pdf',
+          clientVisible: true
+        },
+        {
+          file: '/documents/TF-2023-001/certificate.pdf',
+          clientVisible: false
         }
       ]
     },
