@@ -119,8 +119,8 @@ const generateMockTransitFiles = (count = 25): TransitFile[] => {
       contentDescription: contentDescriptions[Math.floor(Math.random() * contentDescriptions.length)],
       containers: generateMockContainers(transportType, i),
       documents: {
-        invoice: Math.random() > 0.3 ? { file: `invoice-${i}.pdf`, clientVisible: Math.random() > 0.5 } : undefined,
-        packingList: Math.random() > 0.5 ? { file: `packing-list-${i}.pdf`, clientVisible: Math.random() > 0.5 } : undefined,
+        invoice: Math.random() > 0.0 ? { file: `invoice-${i}.pdf`, clientVisible: Math.random() > 0.5 } : undefined,
+        packingList: Math.random() > 0.0 ? { file: `packing-list-${i}.pdf`, clientVisible: Math.random() > 0.5 } : undefined,
         otherDocuments: Math.random() > 0.7 ? [
           { file: `doc1-${i}.pdf`, clientVisible: Math.random() > 0.5 },
           { file: `doc2-${i}.pdf`, clientVisible: Math.random() > 0.5 }
