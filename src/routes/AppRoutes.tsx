@@ -17,6 +17,7 @@ import EditClientPage from '../pages/agent/EditClient';
 import ClientDetailsPage from '../pages/agent/ClientDetails';
 import EditTransitFilePage from '../pages/agent/EditTransitFile';
 import TransitFilesPage from '../pages/agent/TransitFiles';
+import FileTrackingPage from '../pages/agent/FileTracking';
 import Layout from '../components/layout/Layout';
 import LoadingScreen from '../components/common/LoadingScreen';
 import SettingsPage from '../pages/client/Settings';
@@ -67,6 +68,7 @@ const AppRoutes = () => {
               <Route path="/shipments" element={<AgentShipments />} />
               <Route path="/shipments/:id" element={<AgentShipmentDetails />} />
               <Route path="/transit-files" element={<TransitFilesPage />} />
+              <Route path="/file-tracking" element={<FileTrackingPage />} />
               <Route path="/clients" element={<ClientsPage />} />
               <Route path="/clients/new-client" element={<NewClientPage />} /> 
               <Route path="/clients/:clientId" element={<ClientDetailsPage />} />

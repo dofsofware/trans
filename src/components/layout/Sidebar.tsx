@@ -54,6 +54,7 @@ const Sidebar = ({ role, onNavigate }: SidebarProps) => {
   const agentLinks: NavLink[] = [
     { name: t('dashboard'), to: '/', icon: Home },
     { name: t('transit_files'), to: '/transit-files', icon: FolderOpen },
+    { name: t('file_tracking'), to: '/file-tracking', icon: FileText },
     { name: t('clients'), to: '/clients', icon: Users },
     { name: t('messages'), to: '/messages', icon: MessageSquare, unreadCount: 5 },
   ];

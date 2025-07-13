@@ -21,6 +21,9 @@ export const useLanguage = () => {
 const translations = {
   en: {
     // Navigation & General
+    file_tracking: 'File Tracking',
+    tracking_events: 'Tracking Events',
+    search_files: 'Search files',
     dashboard: 'Dashboard',
     shipments: 'Shipments',
     documents: 'Documents',
@@ -518,6 +521,11 @@ const translations = {
   modification_blocked_following_completed: 'Modification blocked - following steps are completed',
   },
   fr: {
+      // Navigation & General
+      file_tracking: 'Suivi dossier',
+      tracking_events: 'Événements de suivi',
+      search_files: 'Rechercher des dossiers',
+
       // Transit File Details
       transit_file_details: 'Détails du dossier de transit',
       all_statuses: 'Tous les statuts',
