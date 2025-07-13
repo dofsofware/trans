@@ -662,18 +662,19 @@ const FileTrackingPage = () => {
                                   )}
                                 </div>
 
-                                {(canBeCompleted || canReactivate) && (
-                                  <button
-                                    onClick={() => handleEventChange(event.id, 'completed', !event.completed)}
-                                    className={`px-2 sm:px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                                      canBeCompleted
-                                        ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/40'
-                                        : 'bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-900/40'
-                                    }`}
-                                  >
-                                    {canBeCompleted ? t('complete') : t('reactivate')}
-                                  </button>
-                                )}
+                                <button
+                                  onClick={() => handleEventChange(event.id, 'completed', !event.completed)}
+                                  disabled={!canBeCompleted && !canReactivate}
+                                  className={`px-2 sm:px-3 py-1 rounded-lg text-xs font-medium transition-all ${
+                                    canBeCompleted
+                                      ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/40'
+                                      : canReactivate
+                                        ? 'bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-900/40'
+                                        : 'bg-gray-100 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400'
+                                  }`}
+                                >
+                                  {canBeCompleted ? t('complete') : canReactivate ? t('reactivate') : t('waiting')}
+                                </button>
                               </div>
                             </div>
                           </div>
