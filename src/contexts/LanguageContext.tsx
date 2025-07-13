@@ -525,6 +525,8 @@ const translations = {
       file_tracking: 'Suivi dossier',
       tracking_events: 'Événements de suivi',
       search_files: 'Rechercher des dossiers',
+      export_events: 'Événements d\'exportation',
+      import_events: 'Événements d\'importation',
 
       // Transit File Details
       transit_file_details: 'Détails du dossier de transit',

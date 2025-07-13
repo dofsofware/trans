@@ -153,7 +153,7 @@ const FileTrackingPage = () => {
         { id: 'ep9', name: t('estimated_arrival'), details: 'ETA to be confirmed', date: currentDate, agentName: 'Henry Clark', completed: false },
         { id: 'ep10', name: t('billing'), details: 'Pending completion', date: currentDate, agentName: 'Ivy Anderson', completed: false }
       ];
-      
+
       // Mark first N events as completed
       events.slice(0, completedCount).forEach(event => event.completed = true);
       return events;
@@ -170,7 +170,7 @@ const FileTrackingPage = () => {
         { id: 'ip9', name: t('warehouse_arrival'), details: 'Not yet scheduled', date: currentDate, agentName: 'Henry Clark', completed: false },
         { id: 'ip10', name: t('billing'), details: 'To be processed', date: currentDate, agentName: 'Ivy Anderson', completed: false }
       ];
-      
+
       // Mark first N events as completed
       events.slice(0, completedCount).forEach(event => event.completed = true);
       return events;
@@ -284,461 +284,352 @@ const FileTrackingPage = () => {
     return <LoadingScreen />;
   }
 
+  const getEventStats = () => {
+    const stats = {
+      export: {} as Record<string, number>,
+      import: {} as Record<string, number>
+    };
+
+    filteredFiles.forEach(file => {
+      const currentEventName = getCurrentEvent(file);
+      if (file.shipmentType === 'export') {
+        stats.export[currentEventName] = (stats.export[currentEventName] || 0) + 1;
+      } else {
+        stats.import[currentEventName] = (stats.import[currentEventName] || 0) + 1;
+      }
+    });
+
+    return stats;
+  };
+
+  const eventStats = getEventStats();
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <div
-        className="bg-cover bg-center"
-        style={{ backgroundImage: `url(${backImage})` }}
-      >
-        <div className="px-4 sm:px-6 lg:px-8 py-4 bg-gradient-to-r from-blue-600/90 to-blue-800/90">
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <h1 className="text-xl font-semibold text-white">
-                {t('file_tracking')}
-              </h1>
-            </div>
-
-            {/* Search and filters */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <input
-                    type="text"
-                    className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
-                    placeholder={t('search_files')}
-                    value={filters.search}
-                    onChange={(e) => handleFilterChange('search', e.target.value)}
-                  />
-                  <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                </div>
-              </div>
-
-              <button
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${borderColor} ${bgPrimary} ${textPrimary} ${shadowClass} transition-shadow duration-200 ${hoverShadow}`}
-                onClick={() => setShowFilters(!showFilters)}
+      <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        {/* Export Events */}
+        <div className={`p-4 rounded-lg border ${borderColor} ${bgPrimary} ${shadowClass}`}>
+          <h2 className={`text-lg font-medium ${textPrimary} mb-4`}>{t('export_events')}</h2>
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(eventStats.export).map(([eventName, count]) => (
+              <div
+                key={`export-${eventName}`}
+                className={`px-3 py-1 rounded-full text-sm ${getDepartmentInfo(eventName).bg} ${getDepartmentInfo(eventName).text} ${getDepartmentInfo(eventName).border} flex items-center gap-2`}
               >
-                <Filter className="h-5 w-5" />
-                <span>{t('filters')}</span>
-                {activeFiltersCount > 0 && (
-                  <span className="px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 text-sm">
-                    {activeFiltersCount}
-                  </span>
-                )}
-              </button>
-            </div>
-
-            {/* Filters panel */}
-            {showFilters && (
-              <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 rounded-lg ${bgPrimary} ${borderColor} border ${shadowClass}`}>
-                <div className="space-y-2">
-                  <label className={`block ${textSecondary}`}>{t('status')}</label>
-                  <select
-                    className={`w-full rounded-lg border ${borderColor} ${bgSecondary} ${textPrimary} p-2`}
-                    value={filters.status}
-                    onChange={(e) => handleFilterChange('status', e.target.value)}
-                  >
-                    <option value="">{t('all')}</option>
-                    <option value="draft">{t('draft')}</option>
-                    <option value="in_transit">{t('in_transit')}</option>
-                    <option value="completed">{t('completed')}</option>
-                    <option value="archived">{t('archived')}</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className={`block ${textSecondary}`}>{t('transport_type')}</label>
-                  <select
-                    className={`w-full rounded-lg border ${borderColor} ${bgSecondary} ${textPrimary} p-2`}
-                    value={filters.transportType}
-                    onChange={(e) => handleFilterChange('transportType', e.target.value)}
-                  >
-                    <option value="">{t('all')}</option>
-                    <option value="air">{t('air')}</option>
-                    <option value="sea">{t('sea')}</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className={`block ${textSecondary}`}>{t('shipment_type')}</label>
-                  <select
-                    className={`w-full rounded-lg border ${borderColor} ${bgSecondary} ${textPrimary} p-2`}
-                    value={filters.shipmentType}
-                    onChange={(e) => handleFilterChange('shipmentType', e.target.value)}
-                  >
-                    <option value="">{t('all')}</option>
-                    <option value="import">{t('import')}</option>
-                    <option value="export">{t('export')}</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className={`block ${textSecondary}`}>{t('product_type')}</label>
-                  <select
-                    className={`w-full rounded-lg border ${borderColor} ${bgSecondary} ${textPrimary} p-2`}
-                    value={filters.productType}
-                    onChange={(e) => handleFilterChange('productType', e.target.value)}
-                  >
-                    <option value="">{t('all')}</option>
-                    <option value="standard">{t('standard')}</option>
-                    <option value="dangerous">{t('dangerous')}</option>
-                    <option value="fragile">{t('fragile')}</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className={`block ${textSecondary}`}>{t('client')}</label>
-                  <select
-                    className={`w-full rounded-lg border ${borderColor} ${bgSecondary} ${textPrimary} p-2`}
-                    value={filters.client}
-                    onChange={(e) => handleFilterChange('client', e.target.value)}
-                  >
-                    <option value="">{t('all')}</option>
-                    {clients.map(client => (
-                      <option key={client.id} value={client.id}>
-                        {client.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className={`block ${textSecondary}`}>{t('origin')}</label>
-                  <input
-                    type="text"
-                    className={`w-full rounded-lg border ${borderColor} ${bgSecondary} ${textPrimary} p-2`}
-                    value={filters.origin}
-                    onChange={(e) => handleFilterChange('origin', e.target.value)}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className={`block ${textSecondary}`}>{t('destination')}</label>
-                  <input
-                    type="text"
-                    className={`w-full rounded-lg border ${borderColor} ${bgSecondary} ${textPrimary} p-2`}
-                    value={filters.destination}
-                    onChange={(e) => handleFilterChange('destination', e.target.value)}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className={`block ${textSecondary}`}>{t('date_range')}</label>
-                  <div className="flex gap-2">
-                    <input
-                      type="date"
-                      className={`w-full rounded-lg border ${borderColor} ${bgSecondary} ${textPrimary} p-2`}
-                      value={filters.dateFrom}
-                      onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
-                    />
-                    <input
-                      type="date"
-                      className={`w-full rounded-lg border ${borderColor} ${bgSecondary} ${textPrimary} p-2`}
-                      value={filters.dateTo}
-                      onChange={(e) => handleFilterChange('dateTo', e.target.value)}
-                    />
-                  </div>
-                </div>
+                <span>{eventName}</span>
+                <span className="px-2 py-0.5 rounded-full bg-white/10 text-xs">{count}</span>
               </div>
-            )}
+            ))}
           </div>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredFiles.map(file => (
-            <div
-              key={file.id}
-              className={`rounded-lg border ${borderColor} ${bgPrimary} ${shadowClass} transition-shadow duration-200 ${hoverShadow} overflow-hidden cursor-pointer`}
-              onClick={() => handleFileSelect(file)}
-            >
-              <div className="p-4 space-y-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className={`font-medium ${textPrimary}`}>{file.reference}</h3>
-                    <p className={textMuted}>{file.blNumber}</p>
-                  </div>
-                  <div className={`px-3 py-1 rounded-full text-sm ${getDepartmentInfo(getCurrentEvent(file)).bg} ${getDepartmentInfo(getCurrentEvent(file)).text} ${getDepartmentInfo(getCurrentEvent(file)).border}`}>
-                    {getCurrentEvent(file)}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center gap-2">
-                    <Users className={`h-5 w-5 ${textMuted}`} />
-                    <span className={textSecondary}>{getClientNames(file.clientIds)}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {file.transportType === 'air' ? (
-                      <Plane className={`h-5 w-5 ${textMuted}`} />
-                    ) : (
-                      <Ship className={`h-5 w-5 ${textMuted}`} />
-                    )}
-                    <span className={textSecondary}>{t(file.transportType)}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Package className={`h-5 w-5 ${textMuted}`} />
-                    <span className={textSecondary}>{t(file.shipmentType)}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className={`h-5 w-5 ${textMuted}`} />
-                    <span className={textSecondary}>
-                      {format(new Date(file.createdAt), 'dd/MM/yyyy')}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <MapPin className={`h-5 w-5 ${textMuted}`} />
-                  <span className={textSecondary}>
-                    {file.origin} → {file.destination}
-                  </span>
-                </div>
+        {/* Import Events */}
+        <div className={`p-4 rounded-lg border ${borderColor} ${bgPrimary} ${shadowClass}`}>
+          <h2 className={`text-lg font-medium ${textPrimary} mb-4`}>{t('import_events')}</h2>
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(eventStats.import).map(([eventName, count]) => (
+              <div
+                key={`import-${eventName}`}
+                className={`px-3 py-1 rounded-full text-sm ${getDepartmentInfo(eventName).bg} ${getDepartmentInfo(eventName).text} ${getDepartmentInfo(eventName).border} flex items-center gap-2`}
+              >
+                <span>{eventName}</span>
+                <span className="px-2 py-0.5 rounded-full bg-white/10 text-xs">{count}</span>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        {/* File details modal */}
-        {selectedFile && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={handleCloseModal}>
-            <div className={`w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg ${bgPrimary} ${shadowClass}`} onClick={e => e.stopPropagation()}>
-              <div className="p-6 space-y-6">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h2 className={`text-xl font-semibold ${textPrimary}`}>{selectedFile.reference}</h2>
-                    <p className={textMuted}>{selectedFile.blNumber}</p>
+        {/* Content */}
+        <div className="px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredFiles.map(file => (
+              <div
+                key={file.id}
+                className={`rounded-lg border ${borderColor} ${bgPrimary} ${shadowClass} transition-shadow duration-200 ${hoverShadow} overflow-hidden cursor-pointer`}
+                onClick={() => handleFileSelect(file)}
+              >
+                <div className="p-4 space-y-4">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className={`font-medium ${textPrimary}`}>{file.reference}</h3>
+                      <p className={textMuted}>{file.blNumber}</p>
+                    </div>
+                    <div className={`px-3 py-1 rounded-full text-sm ${getDepartmentInfo(getCurrentEvent(file)).bg} ${getDepartmentInfo(getCurrentEvent(file)).text} ${getDepartmentInfo(getCurrentEvent(file)).border}`}>
+                      {getCurrentEvent(file)}
+                    </div>
                   </div>
-                  <button
-                    className={`p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 ${textMuted}`}
-                    onClick={handleCloseModal}
-                  >
-                    <X className="h-6 w-6" />
-                  </button>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="flex items-center gap-2">
                       <Users className={`h-5 w-5 ${textMuted}`} />
-                      <span className={textSecondary}>{getClientNames(selectedFile.clientIds)}</span>
+                      <span className={textSecondary}>{getClientNames(file.clientIds)}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      {selectedFile.transportType === 'air' ? (
+                      {file.transportType === 'air' ? (
                         <Plane className={`h-5 w-5 ${textMuted}`} />
                       ) : (
                         <Ship className={`h-5 w-5 ${textMuted}`} />
                       )}
-                      <span className={textSecondary}>{t(selectedFile.transportType)}</span>
+                      <span className={textSecondary}>{t(file.transportType)}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Package className={`h-5 w-5 ${textMuted}`} />
-                      <span className={textSecondary}>{t(selectedFile.shipmentType)}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin className={`h-5 w-5 ${textMuted}`} />
-                      <span className={textSecondary}>
-                        {selectedFile.origin} → {selectedFile.destination}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Building className={`h-5 w-5 ${textMuted}`} />
-                      <span className={textSecondary}>{t(selectedFile.productType)}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Hash className={`h-5 w-5 ${textMuted}`} />
-                      <span className={textSecondary}>{selectedFile.capacity}</span>
+                      <span className={textSecondary}>{t(file.shipmentType)}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Clock className={`h-5 w-5 ${textMuted}`} />
                       <span className={textSecondary}>
-                        {format(new Date(selectedFile.createdAt), 'dd/MM/yyyy HH:mm')}
+                        {format(new Date(file.createdAt), 'dd/MM/yyyy')}
                       </span>
                     </div>
                   </div>
+
+                  <div className="flex items-center gap-2">
+                    <MapPin className={`h-5 w-5 ${textMuted}`} />
+                    <span className={textSecondary}>
+                      {file.origin} → {file.destination}
+                    </span>
+                  </div>
                 </div>
+              </div>
+            ))}
+          </div>
 
-                {/* Events timeline */}
-                <div className="mt-8">
-                  <h3 className={`text-lg sm:text-xl font-bold ${textPrimary} mb-4 sm:mb-6 flex items-center flex-wrap gap-2`}>
-                    <Clock size={20} className="sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" />
-                    <span>{t('events')}</span>
-                  </h3>
+          {/* File details modal */}
+          {selectedFile && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={handleCloseModal}>
+              <div className={`w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg ${bgPrimary} ${shadowClass}`} onClick={e => e.stopPropagation()}>
+                <div className="p-6 space-y-6">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h2 className={`text-xl font-semibold ${textPrimary}`}>{selectedFile.reference}</h2>
+                      <p className={textMuted}>{selectedFile.blNumber}</p>
+                    </div>
+                    <button
+                      className={`p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 ${textMuted}`}
+                      onClick={handleCloseModal}
+                    >
+                      <X className="h-6 w-6" />
+                    </button>
+                  </div>
 
-                  <div className={`p-3 sm:p-4 rounded-lg ${isDark ? 'bg-blue-900/20' : 'bg-blue-50'} border ${isDark ? 'border-blue-800' : 'border-blue-200'} mb-4 sm:mb-6`}>
-                    <div className="flex items-start gap-2 sm:gap-3">
-                      <Info size={16} className={`sm:w-5 sm:h-5 mt-0.5 flex-shrink-0 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
-                      <div className="min-w-0 flex-1">
-                        <h4 className={`font-medium ${isDark ? 'text-blue-300' : 'text-blue-800'} mb-1 text-sm sm:text-base`}>
-                          {t('events_management')}
-                        </h4>
-                        <p className={`text-xs sm:text-sm ${isDark ? 'text-blue-200' : 'text-blue-700'} leading-relaxed`}>
-                          {t('events_management_desc')} {t('sequential_completion_required')}
-                        </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <Users className={`h-5 w-5 ${textMuted}`} />
+                        <span className={textSecondary}>{getClientNames(selectedFile.clientIds)}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {selectedFile.transportType === 'air' ? (
+                          <Plane className={`h-5 w-5 ${textMuted}`} />
+                        ) : (
+                          <Ship className={`h-5 w-5 ${textMuted}`} />
+                        )}
+                        <span className={textSecondary}>{t(selectedFile.transportType)}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Package className={`h-5 w-5 ${textMuted}`} />
+                        <span className={textSecondary}>{t(selectedFile.shipmentType)}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin className={`h-5 w-5 ${textMuted}`} />
+                        <span className={textSecondary}>
+                          {selectedFile.origin} → {selectedFile.destination}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <Building className={`h-5 w-5 ${textMuted}`} />
+                        <span className={textSecondary}>{t(selectedFile.productType)}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Hash className={`h-5 w-5 ${textMuted}`} />
+                        <span className={textSecondary}>{selectedFile.capacity}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className={`h-5 w-5 ${textMuted}`} />
+                        <span className={textSecondary}>
+                          {format(new Date(selectedFile.createdAt), 'dd/MM/yyyy HH:mm')}
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Department Legend */}
-                  <div className="mb-4 sm:mb-6">
-                    <h4 className={`text-xs sm:text-sm font-semibold ${textSecondary} mb-2 sm:mb-3`}>
-                      {t('departments')}:
-                    </h4>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
-                      <div className="flex items-center min-w-0">
-                        <div className="w-3 h-3 sm:w-4 sm:h-4 bg-blue-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
-                        <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('operations')}</span>
-                      </div>
-                      <div className="flex items-center min-w-0">
-                        <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
-                        <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('customs')}</span>
-                      </div>
-                      <div className="flex items-center min-w-0">
-                        <div className="w-3 h-3 sm:w-4 sm:h-4 bg-purple-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
-                        <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('transport')}</span>
-                      </div>
-                      <div className="flex items-center min-w-0">
-                        <div className="w-3 h-3 sm:w-4 sm:h-4 bg-orange-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
-                        <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('logistics')}</span>
-                      </div>
-                      <div className="flex items-center min-w-0 col-span-2 sm:col-span-1">
-                        <div className="w-3 h-3 sm:w-4 sm:h-4 bg-pink-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
-                        <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('commercial')}</span>
+                  {/* Events timeline */}
+                  <div className="mt-8">
+                    <h3 className={`text-lg sm:text-xl font-bold ${textPrimary} mb-4 sm:mb-6 flex items-center flex-wrap gap-2`}>
+                      <Clock size={20} className="sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" />
+                      <span>{t('events')}</span>
+                    </h3>
+
+                    <div className={`p-3 sm:p-4 rounded-lg ${isDark ? 'bg-blue-900/20' : 'bg-blue-50'} border ${isDark ? 'border-blue-800' : 'border-blue-200'} mb-4 sm:mb-6`}>
+                      <div className="flex items-start gap-2 sm:gap-3">
+                        <Info size={16} className={`sm:w-5 sm:h-5 mt-0.5 flex-shrink-0 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                        <div className="min-w-0 flex-1">
+                          <h4 className={`font-medium ${isDark ? 'text-blue-300' : 'text-blue-800'} mb-1 text-sm sm:text-base`}>
+                            {t('events_management')}
+                          </h4>
+                          <p className={`text-xs sm:text-sm ${isDark ? 'text-blue-200' : 'text-blue-700'} leading-relaxed`}>
+                            {t('events_management_desc')} {t('sequential_completion_required')}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Events Timeline */}
-                  <div className="relative">
-                    <div className="hidden sm:block absolute left-6 lg:left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 via-green-500 to-purple-500 opacity-30"></div>
+                    {/* Department Legend */}
+                    <div className="mb-4 sm:mb-6">
+                      <h4 className={`text-xs sm:text-sm font-semibold ${textSecondary} mb-2 sm:mb-3`}>
+                        {t('departments')}:
+                      </h4>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
+                        <div className="flex items-center min-w-0">
+                          <div className="w-3 h-3 sm:w-4 sm:h-4 bg-blue-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
+                          <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('operations')}</span>
+                        </div>
+                        <div className="flex items-center min-w-0">
+                          <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
+                          <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('customs')}</span>
+                        </div>
+                        <div className="flex items-center min-w-0">
+                          <div className="w-3 h-3 sm:w-4 sm:h-4 bg-purple-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
+                          <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('transport')}</span>
+                        </div>
+                        <div className="flex items-center min-w-0">
+                          <div className="w-3 h-3 sm:w-4 sm:h-4 bg-orange-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
+                          <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('logistics')}</span>
+                        </div>
+                        <div className="flex items-center min-w-0 col-span-2 sm:col-span-1">
+                          <div className="w-3 h-3 sm:w-4 sm:h-4 bg-pink-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
+                          <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('commercial')}</span>
+                        </div>
+                      </div>
+                    </div>
 
-                    <div className="space-y-3 sm:space-y-4">
-                      {events.map((event, index) => {
-                        const deptInfo = getDepartmentInfo(event.name);
-                        const colorClasses = {
-                          blue: 'from-blue-500 to-blue-600',
-                          green: 'from-green-500 to-green-600',
-                          purple: 'from-purple-500 to-purple-600',
-                          orange: 'from-orange-500 to-orange-600',
-                          pink: 'from-pink-500 to-pink-600'
-                        };
+                    {/* Events Timeline */}
+                    <div className="relative">
+                      <div className="hidden sm:block absolute left-6 lg:left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 via-green-500 to-purple-500 opacity-30"></div>
 
-                        const isPreviousCompleted = index === 0 || events[index - 1].completed;
-                        const canBeCompleted = isPreviousCompleted && !event.completed;
-                        const isBlocked = !isPreviousCompleted && !event.completed;
+                      <div className="space-y-3 sm:space-y-4">
+                        {events.map((event, index) => {
+                          const deptInfo = getDepartmentInfo(event.name);
+                          const colorClasses = {
+                            blue: 'from-blue-500 to-blue-600',
+                            green: 'from-green-500 to-green-600',
+                            purple: 'from-purple-500 to-purple-600',
+                            orange: 'from-orange-500 to-orange-600',
+                            pink: 'from-pink-500 to-pink-600'
+                          };
 
-                        const hasCompletedAfter = events.slice(index + 1).some(e => e.completed);
-                        const canReactivate = event.completed && !hasCompletedAfter;
+                          const isPreviousCompleted = index === 0 || events[index - 1].completed;
+                          const canBeCompleted = isPreviousCompleted && !event.completed;
+                          const isBlocked = !isPreviousCompleted && !event.completed;
 
-                        return (
-                          <div
-                            key={event.id}
-                            className={`relative pl-4 sm:pl-12 lg:pl-16 pr-3 sm:pr-4 py-3 sm:py-4 rounded-xl border-2 transition-all duration-300 ${
-                              event.completed
-                                ? `${deptInfo.bg} ${deptInfo.border} shadow-md transform hover:scale-[1.01] sm:hover:scale-[1.02]`
-                                : isBlocked
-                                  ? `${bgSecondary} ${borderColor} border-dashed opacity-75 cursor-not-allowed`
-                                  : `${bgSecondary} ${borderColor} hover:${deptInfo.bg} hover:shadow-lg transform hover:scale-[1.01] sm:hover:scale-[1.02]`
-                            }`}
-                          >
-                            <div className={`hidden sm:block absolute left-4 lg:left-6 top-4 sm:top-6 w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 border-white shadow-lg bg-gradient-to-r ${colorClasses[deptInfo.color]} transition-all duration-300 ${
-                              event.completed
-                                ? 'ring-2 ring-white ring-offset-2 scale-110'
-                                : isBlocked
-                                  ? 'opacity-40 scale-75 grayscale'
-                                  : 'hover:scale-110'
-                            }`}></div>
+                          const hasCompletedAfter = events.slice(index + 1).some(e => e.completed);
+                          const canReactivate = event.completed && !hasCompletedAfter;
 
-                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
-                              <div className="flex-1 min-w-0">
-                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                                  <h4 className={`font-semibold ${textPrimary} text-base sm:text-lg ${isBlocked ? 'opacity-60' : ''} break-words`}>
-                                    {event.name}
-                                  </h4>
-                                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${deptInfo.bg} ${deptInfo.text} border ${deptInfo.border} ${isBlocked ? 'opacity-60' : ''} self-start sm:self-auto flex-shrink-0`}>
-                                    {deptInfo.dept}
-                                  </span>
-                                </div>
-                                <div className="flex items-center text-xs sm:text-sm text-gray-500">
-                                  <User size={12} className="sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-                                  <span className={`${textMuted} ${isBlocked ? 'opacity-60' : ''} truncate`}>
-                                    {t('agent')}: {event.agentName}
-                                  </span>
-                                </div>
-                                <div className="mt-2 grid grid-cols-1 lg:grid-cols-2 gap-3">
-                                  <div>
-                                    <label className={`block text-xs font-medium ${textMuted} mb-1`}>{t('date')}:</label>
-                                    <input
-                                      type="date"
-                                      value={event.date}
-                                      onChange={(e) => handleEventChange(event.id, 'date', e.target.value)}
-                                      disabled={isBlocked || event.completed}
-                                      className={`w-full px-2 py-1 text-sm rounded border ${borderColor} ${bgPrimary} ${textPrimary}`}
-                                    />
+                          return (
+                            <div
+                              key={event.id}
+                              className={`relative pl-4 sm:pl-12 lg:pl-16 pr-3 sm:pr-4 py-3 sm:py-4 rounded-xl border-2 transition-all duration-300 ${event.completed
+                                  ? `${deptInfo.bg} ${deptInfo.border} shadow-md transform hover:scale-[1.01] sm:hover:scale-[1.02]`
+                                  : isBlocked
+                                    ? `${bgSecondary} ${borderColor} border-dashed opacity-75 cursor-not-allowed`
+                                    : `${bgSecondary} ${borderColor} hover:${deptInfo.bg} hover:shadow-lg transform hover:scale-[1.01] sm:hover:scale-[1.02]`
+                                }`}
+                            >
+                              <div className={`hidden sm:block absolute left-4 lg:left-6 top-4 sm:top-6 w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 border-white shadow-lg bg-gradient-to-r ${colorClasses[deptInfo.color]} transition-all duration-300 ${event.completed
+                                  ? 'ring-2 ring-white ring-offset-2 scale-110'
+                                  : isBlocked
+                                    ? 'opacity-40 scale-75 grayscale'
+                                    : 'hover:scale-110'
+                                }`}></div>
+
+                              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                                    <h4 className={`font-semibold ${textPrimary} text-base sm:text-lg ${isBlocked ? 'opacity-60' : ''} break-words`}>
+                                      {event.name}
+                                    </h4>
+                                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${deptInfo.bg} ${deptInfo.text} border ${deptInfo.border} ${isBlocked ? 'opacity-60' : ''} self-start sm:self-auto flex-shrink-0`}>
+                                      {deptInfo.dept}
+                                    </span>
                                   </div>
-                                  <div>
-                                    <label className={`block text-xs font-medium ${textMuted} mb-1`}>{t('details')}:</label>
-                                    <input
-                                      type="text"
-                                      value={event.details}
-                                      onChange={(e) => handleEventChange(event.id, 'details', e.target.value)}
-                                      disabled={isBlocked || event.completed}
-                                      placeholder={t('enter_details')}
-                                      className={`w-full px-2 py-1 text-sm rounded border ${borderColor} ${bgPrimary} ${textPrimary}`}
-                                    />
+                                  <div className="flex items-center text-xs sm:text-sm text-gray-500">
+                                    <User size={12} className="sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                                    <span className={`${textMuted} ${isBlocked ? 'opacity-60' : ''} truncate`}>
+                                      {t('agent')}: {event.agentName}
+                                    </span>
+                                  </div>
+                                  <div className="mt-2 grid grid-cols-1 lg:grid-cols-2 gap-3">
+                                    <div>
+                                      <label className={`block text-xs font-medium ${textMuted} mb-1`}>{t('date')}:</label>
+                                      <input
+                                        type="date"
+                                        value={event.date}
+                                        onChange={(e) => handleEventChange(event.id, 'date', e.target.value)}
+                                        disabled={isBlocked || event.completed}
+                                        className={`w-full px-2 py-1 text-sm rounded border ${borderColor} ${bgPrimary} ${textPrimary}`}
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className={`block text-xs font-medium ${textMuted} mb-1`}>{t('details')}:</label>
+                                      <input
+                                        type="text"
+                                        value={event.details}
+                                        onChange={(e) => handleEventChange(event.id, 'details', e.target.value)}
+                                        disabled={isBlocked || event.completed}
+                                        placeholder={t('enter_details')}
+                                        className={`w-full px-2 py-1 text-sm rounded border ${borderColor} ${bgPrimary} ${textPrimary}`}
+                                      />
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
 
-                              <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
-                                <div className={`flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium transition-all flex-shrink-0 ${
-                                  event.completed
-                                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                                    : isBlocked
-                                      ? 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
-                                      : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                                }`}>
-                                  {event.completed ? (
-                                    <><Check size={12} className="sm:w-4 sm:h-4 mr-1" /> {t('completed')}</>
-                                  ) : isBlocked ? (
-                                    <><AlertTriangle size={12} className="sm:w-4 sm:h-4 mr-1 opacity-50" /> {t('waiting')}</>
-                                  ) : (
-                                    <><Clock size={12} className="sm:w-4 sm:h-4 mr-1" /> {t('pending')}</>
-                                  )}
-                                </div>
-
-                                <button
-                                  onClick={() => handleEventChange(event.id, 'completed', !event.completed)}
-                                  disabled={!canBeCompleted && !canReactivate}
-                                  className={`px-2 sm:px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                                    canBeCompleted
-                                      ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/40'
-                                      : canReactivate
-                                        ? 'bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-900/40'
-                                        : 'bg-gray-100 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400'
-                                  }`}
-                                >
-                                  <div title={canBeCompleted ? t('complete') : canReactivate ? t('reactivate') : t('waiting')}>
-                                    {canBeCompleted ? <Check size={14} className="sm:w-4 sm:h-4" /> : canReactivate ? <RefreshCw size={14} className="sm:w-4 sm:h-4" /> : <Check size={14} className="sm:w-4 sm:h-4" />}
+                                <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
+                                  <div className={`flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium transition-all flex-shrink-0 ${event.completed
+                                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                      : isBlocked
+                                        ? 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+                                        : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                                    }`}>
+                                    {event.completed ? (
+                                      <><Check size={12} className="sm:w-4 sm:h-4 mr-1" /> {t('completed')}</>
+                                    ) : isBlocked ? (
+                                      <><AlertTriangle size={12} className="sm:w-4 sm:h-4 mr-1 opacity-50" /> {t('waiting')}</>
+                                    ) : (
+                                      <><Clock size={12} className="sm:w-4 sm:h-4 mr-1" /> {t('pending')}</>
+                                    )}
                                   </div>
-                                </button>
+
+                                  <button
+                                    onClick={() => handleEventChange(event.id, 'completed', !event.completed)}
+                                    disabled={!canBeCompleted && !canReactivate}
+                                    className={`px-2 sm:px-3 py-1 rounded-lg text-xs font-medium transition-all ${canBeCompleted
+                                        ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/40'
+                                        : canReactivate
+                                          ? 'bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-900/40'
+                                          : 'bg-gray-100 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400'
+                                      }`}
+                                  >
+                                    <div title={canBeCompleted ? t('complete') : canReactivate ? t('reactivate') : t('waiting')}>
+                                      {canBeCompleted ? <Check size={14} className="sm:w-4 sm:h-4" /> : canReactivate ? <RefreshCw size={14} className="sm:w-4 sm:h-4" /> : <Check size={14} className="sm:w-4 sm:h-4" />}
+                                    </div>
+                                  </button>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
