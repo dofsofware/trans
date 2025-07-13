@@ -44,6 +44,8 @@ import { format, subDays } from 'date-fns';
 import backImage from '../../utils/backGround_hearder.png';
 import { TransitFile } from '../../types/transitFile';
 import { getTransitFiles } from '../../services/transitFileService';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface FilterState {
   search: string;
@@ -67,6 +69,67 @@ const TransitFilesPage = () => {
 
   const handleViewFile = (fileId: string) => {
     navigate(`/transit-files/${fileId}`);
+  };
+
+  const handleExport = () => {
+    // Préparer les données pour l'export
+    const tableData = filteredFiles.map(file => ([
+      file.reference,
+      file.blNumber,
+      t(file.status),
+      t(file.transportType),
+      t(file.shipmentType),
+      t(file.productType),
+      file.origin,
+      file.destination,
+      getClientNames(file.clientIds),
+      format(new Date(file.createdAt), 'dd/MM/yyyy'),
+      file.volume ? `${file.volume} m³` : '-',
+      file.weight ? `${file.weight} kg` : '-'
+    ]));
+
+    // Créer l'en-tête
+    const headers = [
+      t('reference'),
+      t('bl_number'),
+      t('status'),
+      t('transport_type'),
+      t('shipment_type'),
+      t('product_type'),
+      t('origin'),
+      t('destination'),
+      t('clients'),
+      t('creation_date'),
+      t('volume'),
+      t('weight')
+    ];
+
+    // Initialiser le PDF en mode paysage
+    const doc = new jsPDF({
+      orientation: 'landscape'
+    });
+
+    // Ajouter le titre
+    doc.setFontSize(16);
+    doc.text(t('transit_files_list'), 14, 15);
+
+    // Ajouter la date d'export
+    doc.setFontSize(10);
+    doc.text(format(new Date(), 'dd/MM/yyyy HH:mm'), 14, 22);
+
+    // Générer le tableau
+    autoTable(doc, {
+      head: [headers],
+      body: tableData,
+      startY: 30,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [51, 51, 51] },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+      margin: { top: 30 }
+    });
+
+    // Sauvegarder le PDF
+    doc.save(`transit_files_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
   };
   const [transitFiles, setTransitFiles] = useState<TransitFile[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
@@ -673,7 +736,10 @@ const TransitFilesPage = () => {
               <Plus size={18} className="mr-2" />
               {t('new_transit_file')}
             </button>
-            <button className={`inline-flex items-center justify-center px-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm sm:text-base`}>
+            <button 
+              onClick={handleExport}
+              className={`inline-flex items-center justify-center px-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm sm:text-base`}
+            >
               <Download size={18} className="mr-2" />
               {t('export')}
             </button>

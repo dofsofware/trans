@@ -27,6 +27,7 @@ const translations = {
     messages: 'Messages',
     invoices: 'Invoices',
     transit_files: 'Transit Files',
+    transit_files_list: 'Transit Files List',
     clients: 'Clients',
     settings: 'Settings',
     profile: 'Profile',
@@ -193,6 +194,10 @@ const translations = {
 
     // Transit File Details
     transit_file_details: 'Transit File Details',
+    all_statuses: 'All Statuses',
+    all_types: 'All Types',
+    all_clients: 'All Clients',
+    all_agents: 'All Agents',
     no_containers: 'No containers available',
     invoice: 'Invoice',
     packing_list: 'Packing List',
@@ -515,6 +520,10 @@ const translations = {
   fr: {
       // Transit File Details
       transit_file_details: 'Détails du dossier de transit',
+      all_statuses: 'Tous les statuts',
+      all_types: 'Tous les types',
+      all_clients: 'Tous les clients',
+      all_agents: 'Tous les agents',
       no_containers: 'Aucun conteneur disponible',
       invoice: 'Facture',
       packing_list: 'Liste de colisage',
@@ -543,6 +552,7 @@ const translations = {
     messages: 'Messages',
     invoices: 'Factures',
     transit_files: 'Dossiers de transit',
+    transit_files_list: 'Liste des dossiers de transit',
     clients: 'Clients',
     settings: 'Paramètres',
     profile: 'Profil',
