@@ -487,8 +487,8 @@ const FileTrackingPage = () => {
 
         {/* File details modal */}
         {selectedFile && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div className={`w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg ${bgPrimary} ${shadowClass}`}>
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={handleCloseModal}>
+            <div className={`w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg ${bgPrimary} ${shadowClass}`} onClick={e => e.stopPropagation()}>
               <div className="p-6 space-y-6">
                 <div className="flex items-start justify-between">
                   <div>
