@@ -23,7 +23,10 @@ import {
   Eye,
   Info,
   Clock,
-  Edit3
+  Edit3,
+  Weight,
+  Box,
+  Truck
 } from 'lucide-react';
 import { format } from 'date-fns';
 import backImage from '../../utils/backGround_hearder.png';
@@ -98,8 +101,52 @@ const ViewTransitFilePage = () => {
           productType: 'standard',
           capacity: '20 tonnes',
           contentDescription: 'Electronics and accessories',
-          containers: [],
-          documents: {},
+          containers: [
+            {
+              id: 'cont1',
+              containerNumber: 'CONT123456',
+              containerType: 'dry',
+              size: 'ft20',
+              weight: 15000,
+              volume: 33
+            },
+            {
+              id: 'cont2',
+              containerNumber: 'CONT789012',
+              containerType: 'dry',
+              size: 'ft_hc40',
+              weight: 25000,
+              volume: 76
+            },
+            {
+              id: 'cont3',
+              containerNumber: 'CONT345678',
+              containerType: 'refrigerated',
+              size: 'ft20',
+              weight: 18000,
+              volume: 28
+            }
+          ],
+          documents: {
+            invoice: {
+              file: 'https://example.com/documents/invoice-123.pdf',
+              clientVisible: true
+            },
+            packingList: {
+              file: 'https://example.com/documents/packing-list-123.pdf',
+              clientVisible: true
+            },
+            otherDocuments: [
+              {
+                file: 'https://example.com/documents/certificate-of-origin.pdf',
+                clientVisible: false
+              },
+              {
+                file: 'https://example.com/documents/insurance-certificate.pdf',
+                clientVisible: true
+              }
+            ]
+          },
           events: [
             {
               id: 'event1',
@@ -291,7 +338,194 @@ const ViewTransitFilePage = () => {
         </div>
       </div>
 
-      {/* Events Timeline */}
+      {/* Documents Section */}
+      <div className={`${bgSecondary} rounded-lg ${shadowClass} p-6 mb-8 border ${borderColor}`}>
+        <h2 className={`text-xl font-semibold ${textPrimary} mb-6 flex items-center`}>
+          <FileText size={20} className="mr-2 text-blue-600" />
+          {t('file_documents')}
+        </h2>
+
+        <div className="space-y-4">
+          {/* Invoice */}
+          <div className={`p-4 rounded-lg border ${borderColor} ${bgPrimary} hover:shadow-lg transition-shadow duration-200`}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center space-x-2">
+                <FileText size={18} className="text-blue-600" />
+                <span className={`font-medium ${textPrimary}`}>{t('invoice')}</span>
+                {transitFile.documents.invoice?.clientVisible && (
+                  <span className="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                    {t('visible_to_client')}
+                  </span>
+                )}
+              </div>
+              {transitFile.documents.invoice ? (
+                <button
+                  className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                  onClick={() => window.open(transitFile.documents.invoice?.file as string)}
+                >
+                  <Eye size={14} className="mr-1.5" />
+                  {t('view_document')}
+                </button>
+              ) : (
+                <span className={`text-sm ${textMuted} italic`}>{t('no_document')}</span>
+              )}
+            </div>
+            {transitFile.documents.invoice && (
+              <div className={`text-sm ${textMuted} flex items-center`}>
+                <Calendar size={14} className="mr-1.5" />
+                {t('uploaded_on')} {format(new Date(), 'dd/MM/yyyy')}
+              </div>
+            )}
+          </div>
+
+          {/* Packing List */}
+          <div className={`p-4 rounded-lg border ${borderColor} ${bgPrimary} hover:shadow-lg transition-shadow duration-200`}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center space-x-2">
+                <FileText size={18} className="text-blue-600" />
+                <span className={`font-medium ${textPrimary}`}>{t('packing_list')}</span>
+                {transitFile.documents.packingList?.clientVisible && (
+                  <span className="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                    {t('visible_to_client')}
+                  </span>
+                )}
+              </div>
+              {transitFile.documents.packingList ? (
+                <button
+                  className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                  onClick={() => window.open(transitFile.documents.packingList?.file as string)}
+                >
+                  <Eye size={14} className="mr-1.5" />
+                  {t('view_document')}
+                </button>
+              ) : (
+                <span className={`text-sm ${textMuted} italic`}>{t('no_document')}</span>
+              )}
+            </div>
+            {transitFile.documents.packingList && (
+              <div className={`text-sm ${textMuted} flex items-center`}>
+                <Calendar size={14} className="mr-1.5" />
+                {t('uploaded_on')} {format(new Date(), 'dd/MM/yyyy')}
+              </div>
+            )}
+          </div>
+
+          {/* Other Documents */}
+          {transitFile.documents.otherDocuments?.map((doc, index) => (
+            <div key={index} className={`p-4 rounded-lg border ${borderColor} ${bgPrimary} hover:shadow-lg transition-shadow duration-200`}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-2">
+                  <FileText size={18} className="text-blue-600" />
+                  <span className={`font-medium ${textPrimary}`}>{t('other_document')} {index + 1}</span>
+                  {doc.clientVisible && (
+                    <span className="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                      {t('visible_to_client')}
+                    </span>
+                  )}
+                </div>
+                <button
+                  className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                  onClick={() => window.open(doc.file as string)}
+                >
+                  <Eye size={14} className="mr-1.5" />
+                  {t('view_document')}
+                </button>
+              </div>
+              <div className={`text-sm ${textMuted} flex items-center`}>
+                <Calendar size={14} className="mr-1.5" />
+                {t('uploaded_on')} {format(new Date(), 'dd/MM/yyyy')}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Containers Section */}
+      <div className={`${bgSecondary} rounded-lg ${shadowClass} p-6 mb-8 border ${borderColor}`}>
+        <h2 className={`text-xl font-semibold ${textPrimary} mb-6 flex items-center`}>
+          <Package size={20} className="mr-2 text-blue-600" />
+          {t('containers')}
+        </h2>
+
+        {transitFile.containers.length > 0 ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+            {transitFile.containers.map((container, index) => {
+              const getContainerTypeIcon = (type: string) => {
+                switch (type) {
+                  case 'refrigerated':
+                    return '❄️';
+                  case 'open_top':
+                    return '📦';
+                  case 'flat_rack':
+                    return '🚛';
+                  case 'tank':
+                    return '🛢️';
+                  default:
+                    return '📦';
+                }
+              };
+
+              return (
+                <div
+                  key={container.id}
+                  className={`p-4 rounded-xl border ${borderColor} ${bgPrimary} hover:shadow-lg transition-shadow duration-200`}
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-xl">{getContainerTypeIcon(container.containerType)}</span>
+                        <span className={`font-medium ${textPrimary}`}>{container.containerNumber}</span>
+                      </div>
+                      <span className={`text-sm font-medium px-2 py-1 rounded-full ${container.containerType === 'refrigerated' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'}`}>
+                        {t(container.size)}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className={`p-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 ${borderColor}`}>
+                        <div className="flex items-center space-x-2">
+                          <Weight size={16} className="text-gray-400" />
+                          <span className={`text-sm ${textMuted}`}>{t('weight')}</span>
+                        </div>
+                        <span className={`block mt-1 font-medium ${textPrimary}`}>
+                          {container.weight} kg
+                        </span>
+                      </div>
+
+                      <div className={`p-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 ${borderColor}`}>
+                        <div className="flex items-center space-x-2">
+                          <Box size={16} className="text-gray-400" />
+                          <span className={`text-sm ${textMuted}`}>{t('volume')}</span>
+                        </div>
+                        <span className={`block mt-1 font-medium ${textPrimary}`}>
+                          {container.volume} m³
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className={`p-2 rounded-lg bg-gray-50 dark:bg-gray-800/50 ${borderColor}`}>
+                      <div className="flex items-center space-x-2">
+                        <Truck size={16} className="text-gray-400" />
+                        <span className={`text-sm ${textMuted}`}>{t('type')}</span>
+                      </div>
+                      <span className={`block mt-1 font-medium ${textPrimary}`}>
+                        {t(container.containerType + '_container')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className={`text-center py-8 ${textMuted}`}>
+            <Package size={40} className="mx-auto mb-3 opacity-50" />
+            <p>{t('no_containers')}</p>
+          </div>
+        )}
+      </div>
+
+            {/* Events Timeline */}
       <div className={`${bgSecondary} rounded-lg ${shadowClass} p-6 mb-8 border ${borderColor}`}>
         <h2 className={`text-xl font-semibold ${textPrimary} mb-6 flex items-center`}>
           <Clock size={20} className="mr-2 text-blue-600" />
