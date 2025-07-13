@@ -690,7 +690,7 @@ const FileTrackingPage = () => {
                                   {event.completed ? (
                                     <><Check size={12} className="sm:w-4 sm:h-4 mr-1" /> {t('completed')}</>
                                   ) : isBlocked ? (
-                                    <><Clock size={12} className="sm:w-4 sm:h-4 mr-1 opacity-50" /> {t('waiting')}</>
+                                    <><AlertTriangle size={12} className="sm:w-4 sm:h-4 mr-1 opacity-50" /> {t('waiting')}</>
                                   ) : (
                                     <><Clock size={12} className="sm:w-4 sm:h-4 mr-1" /> {t('pending')}</>
                                   )}
@@ -707,7 +707,9 @@ const FileTrackingPage = () => {
                                         : 'bg-gray-100 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400'
                                   }`}
                                 >
-                                  {canBeCompleted ? t('complete') : canReactivate ? t('reactivate') : t('waiting')}
+                                  <div title={canBeCompleted ? t('complete') : canReactivate ? t('reactivate') : t('waiting')}>
+                                    {canBeCompleted ? <Check size={14} className="sm:w-4 sm:h-4" /> : canReactivate ? <RefreshCw size={14} className="sm:w-4 sm:h-4" /> : <Check size={14} className="sm:w-4 sm:h-4" />}
+                                  </div>
                                 </button>
                               </div>
                             </div>
