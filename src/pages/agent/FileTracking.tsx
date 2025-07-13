@@ -76,6 +76,8 @@ const FileTrackingPage = () => {
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
   const [selectedFile, setSelectedFile] = useState<TransitFile | null>(null);
   const [events, setEvents] = useState<TransitEvent[]>([]);
+  const [eventTypeFilter, setEventTypeFilter] = useState<'all' | 'export' | 'import'>('all');
+  const [currentEventFilter, setCurrentEventFilter] = useState<string>('');
 
   const [filters, setFilters] = useState<FilterState>({
     search: '',
@@ -218,6 +220,15 @@ const FileTrackingPage = () => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
+  const handleEventFilterClick = (eventName: string, shipmentType: 'export' | 'import') => {
+    setEventTypeFilter(shipmentType);
+    setCurrentEventFilter(eventName);
+  };
+
+  const clearEventFilter = () => {
+    setCurrentEventFilter('');
+  };
+
   useEffect(() => {
     let filtered = [...transitFiles];
 
@@ -307,42 +318,114 @@ const FileTrackingPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Export Events */}
+        {/* Event Type Toggle */}
         <div className={`p-4 rounded-lg border ${borderColor} ${bgPrimary} ${shadowClass}`}>
-          <h2 className={`text-lg font-medium ${textPrimary} mb-4`}>{t('export_events')}</h2>
-          <div className="flex flex-wrap gap-2">
-            {Object.entries(eventStats.export).map(([eventName, count]) => (
-              <div
-                key={`export-${eventName}`}
-                className={`px-3 py-1 rounded-full text-sm ${getDepartmentInfo(eventName).bg} ${getDepartmentInfo(eventName).text} ${getDepartmentInfo(eventName).border} flex items-center gap-2`}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center justify-between">
+              <h2 className={`text-lg font-medium ${textPrimary}`}>{t('event_types')}</h2>
+              {currentEventFilter && (
+                <button 
+                  onClick={clearEventFilter}
+                  className="ml-3 px-2 py-1 text-xs rounded-md bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center gap-1"
+                >
+                  <X size={14} />
+                  {t('clear_filter')}: {currentEventFilter}
+                </button>
+              )}
+            </div>
+            <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+              <button
+                onClick={() => {
+                  setEventTypeFilter('all');
+                  setCurrentEventFilter('');
+                }}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${eventTypeFilter === 'all' 
+                  ? 'bg-blue-500 text-white shadow-sm' 
+                  : `${textSecondary} hover:bg-gray-200 dark:hover:bg-gray-700`}`}
               >
-                <span>{eventName}</span>
-                <span className="px-2 py-0.5 rounded-full bg-white/10 text-xs">{count}</span>
-              </div>
-            ))}
+                {t('all')}
+              </button>
+              <button
+                onClick={() => {
+                  setEventTypeFilter('export');
+                  setCurrentEventFilter('');
+                }}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${eventTypeFilter === 'export' 
+                  ? 'bg-green-500 text-white shadow-sm' 
+                  : `${textSecondary} hover:bg-gray-200 dark:hover:bg-gray-700`}`}
+              >
+                {t('export')}
+              </button>
+              <button
+                onClick={() => {
+                  setEventTypeFilter('import');
+                  setCurrentEventFilter('');
+                }}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${eventTypeFilter === 'import' 
+                  ? 'bg-purple-500 text-white shadow-sm' 
+                  : `${textSecondary} hover:bg-gray-200 dark:hover:bg-gray-700`}`}
+              >
+                {t('import')}
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Import Events */}
-        <div className={`p-4 rounded-lg border ${borderColor} ${bgPrimary} ${shadowClass}`}>
-          <h2 className={`text-lg font-medium ${textPrimary} mb-4`}>{t('import_events')}</h2>
-          <div className="flex flex-wrap gap-2">
-            {Object.entries(eventStats.import).map(([eventName, count]) => (
-              <div
-                key={`import-${eventName}`}
-                className={`px-3 py-1 rounded-full text-sm ${getDepartmentInfo(eventName).bg} ${getDepartmentInfo(eventName).text} ${getDepartmentInfo(eventName).border} flex items-center gap-2`}
-              >
-                <span>{eventName}</span>
-                <span className="px-2 py-0.5 rounded-full bg-white/10 text-xs">{count}</span>
-              </div>
-            ))}
+        {/* Export Events */}
+        {(eventTypeFilter === 'all' || eventTypeFilter === 'export') && (
+          <div className={`p-4 rounded-lg border ${borderColor} ${bgPrimary} ${shadowClass}`}>
+            <h2 className={`text-lg font-medium ${textPrimary} mb-4`}>{t('export_events')}</h2>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(eventStats.export).map(([eventName, count]) => (
+                <button
+                  key={`export-${eventName}`}
+                  onClick={() => handleEventFilterClick(eventName, 'export')}
+                  className={`px-3 py-1 rounded-full text-sm ${getDepartmentInfo(eventName).bg} ${getDepartmentInfo(eventName).text} ${getDepartmentInfo(eventName).border} flex items-center gap-2 hover:shadow-md transition-shadow cursor-pointer ${currentEventFilter === eventName && eventTypeFilter === 'export' ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}`}
+                >
+                  <span>{eventName}</span>
+                  <span className="px-2 py-0.5 rounded-full bg-white/10 text-xs">{count}</span>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Import Events */}
+        {(eventTypeFilter === 'all' || eventTypeFilter === 'import') && (
+          <div className={`p-4 rounded-lg border ${borderColor} ${bgPrimary} ${shadowClass}`}>
+            <h2 className={`text-lg font-medium ${textPrimary} mb-4`}>{t('import_events')}</h2>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(eventStats.import).map(([eventName, count]) => (
+                <button
+                  key={`import-${eventName}`}
+                  onClick={() => handleEventFilterClick(eventName, 'import')}
+                  className={`px-3 py-1 rounded-full text-sm ${getDepartmentInfo(eventName).bg} ${getDepartmentInfo(eventName).text} ${getDepartmentInfo(eventName).border} flex items-center gap-2 hover:shadow-md transition-shadow cursor-pointer ${currentEventFilter === eventName && eventTypeFilter === 'import' ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}`}
+                >
+                  <span>{eventName}</span>
+                  <span className="px-2 py-0.5 rounded-full bg-white/10 text-xs">{count}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Content */}
         <div className="px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredFiles.map(file => (
+            {filteredFiles
+              .filter(file => {
+                // Filter by event type (export/import)
+                const typeMatch = eventTypeFilter === 'all' || file.shipmentType === eventTypeFilter;
+                
+                // Filter by specific event if one is selected
+                if (currentEventFilter && typeMatch) {
+                  const currentEvent = getCurrentEvent(file);
+                  return currentEvent === currentEventFilter;
+                }
+                
+                return typeMatch;
+              })
+              .map(file => (
               <div
                 key={file.id}
                 className={`rounded-lg border ${borderColor} ${bgPrimary} ${shadowClass} transition-shadow duration-200 ${hoverShadow} overflow-hidden cursor-pointer`}

@@ -472,6 +472,8 @@ const translations = {
     billing_description: 'Invoice generation and billing',
     on: 'on',
     // Import Events
+    event_types: 'Event Types',
+    all: 'All',
     import_events: 'Import Events',
     import_prealert_event: 'Import Pre-alert',
     import_prealert_description: 'Document reception and pre-alert',
@@ -955,6 +957,8 @@ const translations = {
     configure_selected_events: 'Configurez les événements sélectionnés avec les dates et détails',
 
     // Export Events
+    event_types: 'Types D\'événements',
+    all: 'Tout',
     export_events: 'Événements d\'export',
     export_pregate_event: 'Prégate export',
     export_pregate_description: 'Réception des documents et traitement initial',
