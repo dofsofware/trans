@@ -130,34 +130,50 @@ const FileTrackingPage = () => {
       .join(', ');
   };
 
-  const getEvents = (shipmentType: 'export' | 'import'): TransitEvent[] => {
+  const getEvents = (shipmentType: 'export' | 'import', fileId?: string): TransitEvent[] => {
     const currentDate = format(new Date(), 'yyyy-MM-dd');
+    const getRandomCompletedCount = () => {
+      // Use fileId as a seed to get consistent results for the same file
+      const seed = fileId ? parseInt(fileId.replace(/\D/g, '')) : Math.random() * 100;
+      return Math.floor((seed % 8) + 1); // 1 to 8 events completed
+    };
+
+    const completedCount = getRandomCompletedCount();
+
     if (shipmentType === 'export') {
-      return [
-        { id: 'ep1', name: t('export_pregate'), details: '', date: currentDate, agentName: 'John Doe', completed: true },
-        { id: 'ep2', name: t('warehouse_reception'), details: '', date: currentDate, agentName: 'Alice Smith', completed: true },
-        { id: 'ep3', name: t('declaration'), details: '', date: currentDate, agentName: 'Bob Johnson', completed: true },
-        { id: 'ep4', name: t('export_customs_clearance'), details: '', date: currentDate, agentName: 'Carol White', completed: false },
-        { id: 'ep5', name: t('warehouse_loading'), details: '', date: currentDate, agentName: 'David Brown', completed: false },
-        { id: 'ep6', name: t('effective_transport'), details: '', date: currentDate, agentName: 'Eve Wilson', completed: false },
-        { id: 'ep7', name: t('vessel_loading'), details: '', date: currentDate, agentName: 'Frank Miller', completed: false },
-        { id: 'ep8', name: t('departure'), details: '', date: currentDate, agentName: 'Grace Davis', completed: false },
-        { id: 'ep9', name: t('estimated_arrival'), details: '', date: currentDate, agentName: 'Henry Clark', completed: false },
-        { id: 'ep10', name: t('billing'), details: '', date: currentDate, agentName: 'Ivy Anderson', completed: false }
+      const events = [
+        { id: 'ep1', name: t('export_pregate'), details: 'Pregate completed successfully', date: currentDate, agentName: 'John Doe', completed: false },
+        { id: 'ep2', name: t('warehouse_reception'), details: 'Goods received at warehouse', date: currentDate, agentName: 'Alice Smith', completed: false },
+        { id: 'ep3', name: t('declaration'), details: 'Declaration submitted', date: currentDate, agentName: 'Bob Johnson', completed: false },
+        { id: 'ep4', name: t('export_customs_clearance'), details: 'Customs clearance in progress', date: currentDate, agentName: 'Carol White', completed: false },
+        { id: 'ep5', name: t('warehouse_loading'), details: 'Loading scheduled for tomorrow', date: currentDate, agentName: 'David Brown', completed: false },
+        { id: 'ep6', name: t('effective_transport'), details: 'Transport en route', date: currentDate, agentName: 'Eve Wilson', completed: false },
+        { id: 'ep7', name: t('vessel_loading'), details: 'Awaiting vessel arrival', date: currentDate, agentName: 'Frank Miller', completed: false },
+        { id: 'ep8', name: t('departure'), details: 'Scheduled for next week', date: currentDate, agentName: 'Grace Davis', completed: false },
+        { id: 'ep9', name: t('estimated_arrival'), details: 'ETA to be confirmed', date: currentDate, agentName: 'Henry Clark', completed: false },
+        { id: 'ep10', name: t('billing'), details: 'Pending completion', date: currentDate, agentName: 'Ivy Anderson', completed: false }
       ];
+      
+      // Mark first N events as completed
+      events.slice(0, completedCount).forEach(event => event.completed = true);
+      return events;
     } else {
-      return [
-        { id: 'ip1', name: t('import_prealert'), details: '', date: currentDate, agentName: 'John Doe', completed: true },
-        { id: 'ip2', name: t('arrival'), details: '', date: currentDate, agentName: 'Alice Smith', completed: true },
-        { id: 'ip3', name: t('declaration'), details: '', date: currentDate, agentName: 'Bob Johnson', completed: false },
-        { id: 'ip4', name: t('import_customs_clearance'), details: '', date: currentDate, agentName: 'Carol White', completed: false },
-        { id: 'ip5', name: t('maritime_company_slip'), details: '', date: currentDate, agentName: 'David Brown', completed: false },
-        { id: 'ip6', name: t('import_pregate'), details: '', date: currentDate, agentName: 'Eve Wilson', completed: false },
-        { id: 'ip7', name: t('pickup'), details: '', date: currentDate, agentName: 'Frank Miller', completed: false },
-        { id: 'ip8', name: t('delivery'), details: '', date: currentDate, agentName: 'Grace Davis', completed: false },
-        { id: 'ip9', name: t('warehouse_arrival'), details: '', date: currentDate, agentName: 'Henry Clark', completed: false },
-        { id: 'ip10', name: t('billing'), details: '', date: currentDate, agentName: 'Ivy Anderson', completed: false }
+      const events = [
+        { id: 'ip1', name: t('import_prealert'), details: 'Documents received', date: currentDate, agentName: 'John Doe', completed: false },
+        { id: 'ip2', name: t('arrival'), details: 'Vessel arrived at port', date: currentDate, agentName: 'Alice Smith', completed: false },
+        { id: 'ip3', name: t('declaration'), details: 'Declaration in process', date: currentDate, agentName: 'Bob Johnson', completed: false },
+        { id: 'ip4', name: t('import_customs_clearance'), details: 'Awaiting customs approval', date: currentDate, agentName: 'Carol White', completed: false },
+        { id: 'ip5', name: t('maritime_company_slip'), details: 'Slip issued', date: currentDate, agentName: 'David Brown', completed: false },
+        { id: 'ip6', name: t('import_pregate'), details: 'Pregate validation ongoing', date: currentDate, agentName: 'Eve Wilson', completed: false },
+        { id: 'ip7', name: t('pickup'), details: 'Scheduled for tomorrow', date: currentDate, agentName: 'Frank Miller', completed: false },
+        { id: 'ip8', name: t('delivery'), details: 'Pending pickup completion', date: currentDate, agentName: 'Grace Davis', completed: false },
+        { id: 'ip9', name: t('warehouse_arrival'), details: 'Not yet scheduled', date: currentDate, agentName: 'Henry Clark', completed: false },
+        { id: 'ip10', name: t('billing'), details: 'To be processed', date: currentDate, agentName: 'Ivy Anderson', completed: false }
       ];
+      
+      // Mark first N events as completed
+      events.slice(0, completedCount).forEach(event => event.completed = true);
+      return events;
     }
   };
 
@@ -169,7 +185,7 @@ const FileTrackingPage = () => {
 
   const handleFileSelect = (file: TransitFile) => {
     setSelectedFile(file);
-    setEvents(getEvents(file.shipmentType));
+    setEvents(getEvents(file.shipmentType, file.id));
   };
 
   const handleCloseModal = () => {
@@ -193,7 +209,7 @@ const FileTrackingPage = () => {
   };
 
   const getCurrentEvent = (file: TransitFile): string => {
-    const fileEvents = getEvents(file.shipmentType);
+    const fileEvents = getEvents(file.shipmentType, file.id);
     const currentEvent = fileEvents.find(event => !event.completed);
     return currentEvent ? currentEvent.name : t('completed');
   };
