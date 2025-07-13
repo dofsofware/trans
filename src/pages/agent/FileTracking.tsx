@@ -295,18 +295,51 @@ const FileTrackingPage = () => {
     return <LoadingScreen />;
   }
 
+  // Définir l'ordre des événements pour export et import
+  const exportEventOrder = [
+    t('export_pregate'),
+    t('warehouse_reception'),
+    t('declaration'),
+    t('export_customs_clearance'),
+    t('warehouse_loading'),
+    t('effective_transport'),
+    t('vessel_loading'),
+    t('departure'),
+    t('estimated_arrival'),
+    t('billing')
+  ];
+
+  const importEventOrder = [
+    t('import_prealert'),
+    t('arrival'),
+    t('declaration'),
+    t('import_customs_clearance'),
+    t('maritime_company_slip'),
+    t('import_pregate'),
+    t('pickup'),
+    t('delivery'),
+    t('warehouse_arrival'),
+    t('billing')
+  ];
+
   const getEventStats = () => {
+    // Initialiser tous les événements avec un compteur à 0
     const stats = {
-      export: {} as Record<string, number>,
-      import: {} as Record<string, number>
+      export: Object.fromEntries(exportEventOrder.map(event => [event, 0])),
+      import: Object.fromEntries(importEventOrder.map(event => [event, 0]))
     };
 
+    // Compter les événements pour chaque fichier
     filteredFiles.forEach(file => {
       const currentEventName = getCurrentEvent(file);
       if (file.shipmentType === 'export') {
-        stats.export[currentEventName] = (stats.export[currentEventName] || 0) + 1;
+        if (stats.export.hasOwnProperty(currentEventName)) {
+          stats.export[currentEventName] += 1;
+        }
       } else {
-        stats.import[currentEventName] = (stats.import[currentEventName] || 0) + 1;
+        if (stats.import.hasOwnProperty(currentEventName)) {
+          stats.import[currentEventName] += 1;
+        }
       }
     });
 
@@ -318,96 +351,122 @@ const FileTrackingPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Event Type Toggle */}
-        <div className={`p-4 rounded-lg border ${borderColor} ${bgPrimary} ${shadowClass}`}>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center justify-between">
-              <h2 className={`text-lg font-medium ${textPrimary}`}>{t('event_types')}</h2>
-              {currentEventFilter && (
-                <button 
-                  onClick={clearEventFilter}
-                  className="ml-3 px-2 py-1 text-xs rounded-md bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center gap-1"
-                >
-                  <X size={14} />
-                  {t('clear_filter')}: {currentEventFilter}
-                </button>
-              )}
-            </div>
-            <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
-              <button
-                onClick={() => {
-                  setEventTypeFilter('all');
-                  setCurrentEventFilter('');
-                }}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${eventTypeFilter === 'all' 
-                  ? 'bg-blue-500 text-white shadow-sm' 
-                  : `${textSecondary} hover:bg-gray-200 dark:hover:bg-gray-700`}`}
-              >
-                {t('all')}
-              </button>
-              <button
-                onClick={() => {
-                  setEventTypeFilter('export');
-                  setCurrentEventFilter('');
-                }}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${eventTypeFilter === 'export' 
-                  ? 'bg-green-500 text-white shadow-sm' 
-                  : `${textSecondary} hover:bg-gray-200 dark:hover:bg-gray-700`}`}
-              >
-                {t('export')}
-              </button>
-              <button
-                onClick={() => {
-                  setEventTypeFilter('import');
-                  setCurrentEventFilter('');
-                }}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${eventTypeFilter === 'import' 
-                  ? 'bg-purple-500 text-white shadow-sm' 
-                  : `${textSecondary} hover:bg-gray-200 dark:hover:bg-gray-700`}`}
-              >
-                {t('import')}
-              </button>
-            </div>
-          </div>
-        </div>
+        {/* Event Type Toggle - Design minimaliste */}
+<div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+  <div className="flex items-center justify-between mb-6">
+    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+      {t('event_types')}
+    </h2>
+    
+    {/* Clear Filter Button - Plus subtil */}
+    {currentEventFilter && (
+      <button 
+        onClick={clearEventFilter}
+        className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+      >
+        <X size={16} />
+        {currentEventFilter}
+      </button>
+    )}
+  </div>
 
-        {/* Export Events */}
-        {(eventTypeFilter === 'all' || eventTypeFilter === 'export') && (
-          <div className={`p-4 rounded-lg border ${borderColor} ${bgPrimary} ${shadowClass}`}>
-            <h2 className={`text-lg font-medium ${textPrimary} mb-4`}>{t('export_events')}</h2>
-            <div className="flex flex-wrap gap-2">
-              {Object.entries(eventStats.export).map(([eventName, count]) => (
-                <button
-                  key={`export-${eventName}`}
-                  onClick={() => handleEventFilterClick(eventName, 'export')}
-                  className={`px-3 py-1 rounded-full text-sm ${getDepartmentInfo(eventName).bg} ${getDepartmentInfo(eventName).text} ${getDepartmentInfo(eventName).border} flex items-center gap-2 hover:shadow-md transition-shadow cursor-pointer ${currentEventFilter === eventName && eventTypeFilter === 'export' ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}`}
-                >
-                  <span>{eventName}</span>
-                  <span className="px-2 py-0.5 rounded-full bg-white/10 text-xs">{count}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+  {/* Toggle Buttons - Design plus épuré */}
+  <div className="flex bg-gray-50 dark:bg-gray-800 rounded-lg p-1 mb-8">
+    <button
+      onClick={() => {
+        setEventTypeFilter('all');
+        setCurrentEventFilter('');
+      }}
+      className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+        eventTypeFilter === 'all' 
+          ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' 
+          : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+      }`}
+    >
+      {t('all')}
+    </button>
+    <button
+      onClick={() => {
+        setEventTypeFilter('export');
+        setCurrentEventFilter('');
+      }}
+      className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+        eventTypeFilter === 'export' 
+          ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' 
+          : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+      }`}
+    >
+      {t('export')}
+    </button>
+    <button
+      onClick={() => {
+        setEventTypeFilter('import');
+        setCurrentEventFilter('');
+      }}
+      className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+        eventTypeFilter === 'import' 
+          ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' 
+          : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+      }`}
+    >
+      {t('import')}
+    </button>
+  </div>
 
-        {/* Import Events */}
-        {(eventTypeFilter === 'all' || eventTypeFilter === 'import') && (
-          <div className={`p-4 rounded-lg border ${borderColor} ${bgPrimary} ${shadowClass}`}>
-            <h2 className={`text-lg font-medium ${textPrimary} mb-4`}>{t('import_events')}</h2>
-            <div className="flex flex-wrap gap-2">
-              {Object.entries(eventStats.import).map(([eventName, count]) => (
-                <button
-                  key={`import-${eventName}`}
-                  onClick={() => handleEventFilterClick(eventName, 'import')}
-                  className={`px-3 py-1 rounded-full text-sm ${getDepartmentInfo(eventName).bg} ${getDepartmentInfo(eventName).text} ${getDepartmentInfo(eventName).border} flex items-center gap-2 hover:shadow-md transition-shadow cursor-pointer ${currentEventFilter === eventName && eventTypeFilter === 'import' ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}`}
-                >
-                  <span>{eventName}</span>
-                  <span className="px-2 py-0.5 rounded-full bg-white/10 text-xs">{count}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+  {/* Export Events - Design minimaliste */}
+  {(eventTypeFilter === 'all' || eventTypeFilter === 'export') && (
+    <div className="mb-6">
+      <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+        {t('export_events')}
+      </h3>
+      <div className="flex flex-wrap gap-2">
+        {exportEventOrder.map(eventName => (
+          <button
+            key={`export-${eventName}`}
+            onClick={() => handleEventFilterClick(eventName, 'export')}
+            className={`group flex items-center gap-2 px-4 py-2 rounded-lg border transition-all hover:shadow-sm ${
+              currentEventFilter === eventName && eventTypeFilter === 'export'
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-700 dark:text-gray-300'
+            }`}
+          >
+            <span className="text-sm font-medium">{eventName}</span>
+            <span className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-xs text-gray-600 dark:text-gray-400">
+              {eventStats.export[eventName]}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {/* Import Events - Design minimaliste */}
+  {(eventTypeFilter === 'all' || eventTypeFilter === 'import') && (
+    <div>
+      <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
+        {t('import_events')}
+      </h3>
+      <div className="flex flex-wrap gap-2">
+        {importEventOrder.map(eventName => (
+          <button
+            key={`import-${eventName}`}
+            onClick={() => handleEventFilterClick(eventName, 'import')}
+            className={`group flex items-center gap-2 px-4 py-2 rounded-lg border transition-all hover:shadow-sm ${
+              currentEventFilter === eventName && eventTypeFilter === 'import'
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-700 dark:text-gray-300'
+            }`}
+          >
+            <span className="text-sm font-medium">{eventName}</span>
+            <span className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-xs text-gray-600 dark:text-gray-400">
+              {eventStats.import[eventName]}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )}
+</div>
 
         {/* Content */}
         <div className="px-4 sm:px-6 lg:px-8 py-8">
