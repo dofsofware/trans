@@ -71,6 +71,12 @@ const FileTrackingPage = () => {
   const [transitFiles, setTransitFiles] = useState<TransitFile[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [filteredFiles, setFilteredFiles] = useState<TransitFile[]>([]);
+  const [paginatedFiles, setPaginatedFiles] = useState<TransitFile[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(9);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [sortField, setSortField] = useState<'creationDate' | 'reference' | 'status'>('creationDate');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [isLoading, setIsLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
@@ -229,6 +235,95 @@ const FileTrackingPage = () => {
     setCurrentEventFilter('');
   };
 
+  const clearAllFilters = () => {
+    setFilters({
+      search: '',
+      status: '',
+      transportType: '',
+      shipmentType: '',
+      productType: '',
+      client: '',
+      origin: '',
+      destination: '',
+      dateFrom: '',
+      dateTo: '',
+    });
+    setEventTypeFilter('all');
+    setCurrentEventFilter('');
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (value: number) => {
+    setItemsPerPage(value);
+    setCurrentPage(1); // Reset to first page when changing items per page
+  };
+
+  const handleSortChange = (field: 'creationDate' | 'reference' | 'status') => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIcon = (field: 'creationDate' | 'reference' | 'status') => {
+    if (sortField !== field) return null;
+    return sortDirection === 'asc' ? '↑' : '↓';
+  };
+
+  const getPaginationNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      // Show all pages if total pages is less than or equal to max visible pages
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Always show first page
+      pages.push(1);
+      
+      // Calculate start and end of the middle section
+      let startPage = Math.max(2, currentPage - 1);
+      let endPage = Math.min(totalPages - 1, currentPage + 1);
+      
+      // Adjust if we're near the beginning
+      if (currentPage <= 3) {
+        endPage = Math.min(totalPages - 1, 4);
+      }
+      
+      // Adjust if we're near the end
+      if (currentPage >= totalPages - 2) {
+        startPage = Math.max(2, totalPages - 3);
+      }
+      
+      // Add ellipsis if needed before middle section
+      if (startPage > 2) {
+        pages.push('...');
+      }
+      
+      // Add middle section
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+      
+      // Add ellipsis if needed after middle section
+      if (endPage < totalPages - 1) {
+        pages.push('...');
+      }
+      
+      // Always show last page
+      pages.push(totalPages);
+    }
+    
+    return pages;
+  };
+
   useEffect(() => {
     let filtered = [...transitFiles];
 
@@ -290,6 +385,44 @@ const FileTrackingPage = () => {
     const activeFilters = Object.values(filters).filter(Boolean).length;
     setActiveFiltersCount(activeFilters);
   }, [filters, transitFiles, clients]);
+  
+  useEffect(() => {
+    if (!isLoading) {
+      // Apply sorting
+      const sorted = [...filteredFiles].sort((a, b) => {
+        if (sortField === 'creationDate') {
+          return sortDirection === 'asc'
+            ? new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+            : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        } else if (sortField === 'reference') {
+          return sortDirection === 'asc'
+            ? a.reference.localeCompare(b.reference)
+            : b.reference.localeCompare(a.reference);
+        } else if (sortField === 'status') {
+          const statusA = getCurrentEvent(a);
+          const statusB = getCurrentEvent(b);
+          return sortDirection === 'asc'
+            ? statusA.localeCompare(statusB)
+            : statusB.localeCompare(statusA);
+        }
+        return 0;
+      });
+
+      // Calculate total pages
+      const totalPagesCount = Math.ceil(sorted.length / itemsPerPage);
+      setTotalPages(totalPagesCount);
+
+      // Adjust current page if it exceeds total pages
+      if (currentPage > totalPagesCount) {
+        setCurrentPage(Math.max(1, totalPagesCount));
+      }
+
+      // Apply pagination
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      setPaginatedFiles(sorted.slice(startIndex, endIndex));
+    }
+  }, [filteredFiles, currentPage, itemsPerPage, sortField, sortDirection, isLoading]);
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -615,8 +748,46 @@ const FileTrackingPage = () => {
 
                 {/* Content */}
                 <div >
+                  <div className="flex justify-between items-center mb-4">
+                    {/* Options de tri */}
+                    <div className="flex items-center space-x-4">
+                      <button
+                        onClick={() => handleSortChange('creationDate')}
+                        className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${sortField === 'creationDate' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                      >
+                        {t('creation_date')} {getSortIcon('creationDate')}
+                      </button>
+                      <button
+                        onClick={() => handleSortChange('reference')}
+                        className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${sortField === 'reference' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                      >
+                        {t('reference')} {getSortIcon('reference')}
+                      </button>
+                      <button
+                        onClick={() => handleSortChange('status')}
+                        className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${sortField === 'status' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                      >
+                        {t('status')} {getSortIcon('status')}
+                      </button>
+                    </div>
+
+                    {/* Items per page */}
+                    <div className="flex items-center space-x-2">
+                      <span className={`text-sm ${textSecondary}`}>{t('items_per_page')}:</span>
+                      <select
+                        value={itemsPerPage}
+                        onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                        className={`px-2 py-1 text-sm border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                      >
+                        {[9, 18, 27, 36].map(value => (
+                          <option key={value} value={value}>{value}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredFiles
+                    {paginatedFiles
                       .filter(file => {
                         // Filter by event type (export/import)
                         const typeMatch = eventTypeFilter === 'all' || file.shipmentType === eventTypeFilter;
@@ -680,6 +851,47 @@ const FileTrackingPage = () => {
                           </div>
                         </div>
                       ))}
+                  </div>
+
+                  {/* Pagination */}
+                  <div className="mt-6 flex items-center justify-between">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      {t('showing')} <span className="font-medium">{Math.min(filteredFiles.length, (currentPage - 1) * itemsPerPage + 1)}</span> {t('to')} <span className="font-medium">{Math.min(filteredFiles.length, currentPage * itemsPerPage)}</span> {t('of')} <span className="font-medium">{filteredFiles.length}</span> {t('results')}.
+                    </div>
+                    
+                    <div className="flex items-center space-x-1">
+                      <button
+                        onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                        disabled={currentPage === 1}
+                        className={`px-3 py-1 rounded-md text-sm font-medium ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </button>
+                      
+                      {getPaginationNumbers().map((page, index) => (
+                        <button
+                          key={index}
+                          onClick={() => typeof page === 'number' ? handlePageChange(page) : null}
+                          disabled={page === '...'}
+                          className={`px-3 py-1 rounded-md text-sm font-medium ${typeof page === 'number' && page === currentPage
+                            ? 'bg-blue-500 text-white'
+                            : page === '...'
+                              ? 'text-gray-400 cursor-default'
+                              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      ))}
+                      
+                      <button
+                        onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                        disabled={currentPage === totalPages}
+                        className={`px-3 py-1 rounded-md text-sm font-medium ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
 
                   {/* File details modal */}
