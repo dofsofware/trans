@@ -379,12 +379,25 @@ const FileTrackingPage = () => {
         new Date(file.createdAt) <= new Date(filters.dateTo)
       );
     }
+    
+    // Filter by event type (export/import)
+    if (eventTypeFilter !== 'all') {
+      filtered = filtered.filter(file => file.shipmentType === eventTypeFilter);
+    }
+
+    // Filter by specific event if one is selected
+    if (currentEventFilter) {
+      filtered = filtered.filter(file => {
+        const currentEvent = getCurrentEvent(file);
+        return currentEvent === currentEventFilter;
+      });
+    }
 
     setFilteredFiles(filtered);
 
     const activeFilters = Object.values(filters).filter(Boolean).length;
     setActiveFiltersCount(activeFilters);
-  }, [filters, transitFiles, clients]);
+  }, [filters, transitFiles, clients, eventTypeFilter, currentEventFilter]);
   
   useEffect(() => {
     if (!isLoading) {
@@ -787,20 +800,7 @@ const FileTrackingPage = () => {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {paginatedFiles
-                      .filter(file => {
-                        // Filter by event type (export/import)
-                        const typeMatch = eventTypeFilter === 'all' || file.shipmentType === eventTypeFilter;
-
-                        // Filter by specific event if one is selected
-                        if (currentEventFilter && typeMatch) {
-                          const currentEvent = getCurrentEvent(file);
-                          return currentEvent === currentEventFilter;
-                        }
-
-                        return typeMatch;
-                      })
-                      .map(file => (
+                    {paginatedFiles.map(file => (
                         <div
                           key={file.id}
                           className={`rounded-lg border ${borderColor} ${bgSecondary} ${shadowClass} transition-shadow duration-200 ${hoverShadow} overflow-hidden cursor-pointer`}

@@ -521,6 +521,13 @@ const translations = {
   cannot_reactivate_following_completed: 'Cannot reactivate - following steps completed',
   complete_previous_step_placeholder: 'Complete the previous step...',
   modification_blocked_following_completed: 'Modification blocked - following steps are completed',
+  
+  // File Tracking Page
+  event_filters: 'Event Filters',
+  items_per_page: 'Items per page',
+  shipment: 'Shipment',
+  date_range: 'Date Range',
+  enter_détails: 'Enter details',
   },
   fr: {
       // Navigation & General
@@ -536,6 +543,13 @@ const translations = {
       all_types: 'Tous les types',
       all_clients: 'Tous les clients',
       all_agents: 'Tous les agents',
+      
+      // File Tracking Page
+      event_filters: 'Filtres d\'événements',
+      items_per_page: 'Éléments par page',
+      shipment: 'Expédition',
+      date_range: 'Plage de dates',
+      enter_détails: 'Saisir les détails',
       no_containers: 'Aucun conteneur disponible',
       invoice: 'Facture',
       packing_list: 'Liste de colisage',
