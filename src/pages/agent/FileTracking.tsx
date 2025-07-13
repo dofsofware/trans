@@ -349,11 +349,11 @@ const FileTrackingPage = () => {
   const eventStats = getEventStats();
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <div>
+      <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-6" >
 
         {/* Event Type Toggle - Design moderne compact */}
-        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-2xl p-4 shadow-sm">
+        <div className={`${bgSecondary} rounded-lg ${shadowClass} p-4 mb-6 ${borderColor} border`}>
           {/* Header moderne avec toggle glass */}
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -362,7 +362,7 @@ const FileTrackingPage = () => {
             
             <div className="flex items-center gap-3">
               {/* Toggle moderne avec effet glass */}
-              <div className="flex bg-gray-100/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-1 border border-gray-200/30 dark:border-gray-700/30">
+              <div className="flex bg-gray-100/60 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl p-1 border border-gray-200/30 dark:border-gray-700/30">
                 <button
                   onClick={() => {
                     setEventTypeFilter('all');
@@ -497,6 +497,210 @@ const FileTrackingPage = () => {
           </div>
         </div>
 
+        {/* Search and Filter Bar */}
+        <div className={`${bgSecondary} rounded-lg ${shadowClass} p-4 mb-6 ${borderColor} border`}>
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+            {/* Search Input */}
+            <div className="flex-1 relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search size={18} className={textMuted} />
+              </div>
+              <input
+                type="text"
+                placeholder={t('searchPlaceholder')}
+                value={filters.search}
+                onChange={(e) => handleFilterChange('search', e.target.value)}
+                className={`block w-full pl-10 pr-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base`}
+              />
+            </div>
+
+            {/* Filter Toggle Button */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`inline-flex items-center px-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors relative text-sm sm:text-base`}
+              >
+                <Filter size={18} className="mr-2" />
+                {t('filters')}
+                {activeFiltersCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {activeFiltersCount}
+                  </span>
+                )}
+              </button>
+
+              {activeFiltersCount > 0 && (
+                <button
+                  onClick={() => {
+                    setFilters({
+                      search: '',
+                      status: '',
+                      transportType: '',
+                      shipmentType: '',
+                      productType: '',
+                      client: '',
+                      origin: '',
+                      destination: '',
+                      dateFrom: '',
+                      dateTo: '',
+                    });
+                  }}
+                  className="inline-flex items-center px-3 py-2 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                >
+                  <X size={16} className="mr-1" />
+                  {t('clearAll')}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Advanced Filters */}
+          {showFilters && (
+            <div className={`mt-6 pt-6 border-t ${borderColor} grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4`}>
+              {/* Status Filter */}
+              <div>
+                <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
+                  {t('status')}
+                </label>
+                <select
+                  value={filters.status}
+                  onChange={(e) => handleFilterChange('status', e.target.value)}
+                  className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+                >
+                  <option value="">{t('all_statuses')}</option>
+                  {['draft', 'in_transit', 'completed', 'archived'].map(status => (
+                    <option key={status} value={status}>{t(status)}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Transport Type Filter */}
+              <div>
+                <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
+                  {t('transport_type')}
+                </label>
+                <select
+                  value={filters.transportType}
+                  onChange={(e) => handleFilterChange('transportType', e.target.value)}
+                  className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+                >
+                  <option value="">{t('all_types')}</option>
+                  {['air', 'sea'].map(type => (
+                    <option key={type} value={type}>{t(type)}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Shipment Type Filter */}
+              <div>
+                <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
+                  {t('shipment_type')}
+                </label>
+                <select
+                  value={filters.shipmentType}
+                  onChange={(e) => handleFilterChange('shipmentType', e.target.value)}
+                  className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+                >
+                  <option value="">{t('all_types')}</option>
+                  {['import', 'export'].map(type => (
+                    <option key={type} value={type}>{t(type)}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Product Type Filter */}
+              <div>
+                <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
+                  {t('product_type')}
+                </label>
+                <select
+                  value={filters.productType}
+                  onChange={(e) => handleFilterChange('productType', e.target.value)}
+                  className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+                >
+                  <option value="">{t('all_types')}</option>
+                  {['standard', 'dangerous', 'fragile'].map(type => (
+                    <option key={type} value={type}>{t(type)}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Client Filter */}
+              <div>
+                <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
+                  {t('client')}
+                </label>
+                <select
+                  value={filters.client}
+                  onChange={(e) => handleFilterChange('client', e.target.value)}
+                  className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+                >
+                  <option value="">{t('all_clients')}</option>
+                  {clients.map(client => (
+                    <option key={client.id} value={client.id}>
+                      {client.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Origin Filter */}
+              <div>
+                <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
+                  {t('origin')}
+                </label>
+                <input
+                  type="text"
+                  value={filters.origin}
+                  onChange={(e) => handleFilterChange('origin', e.target.value)}
+                  className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+                  placeholder={t('enter_origin')}
+                />
+              </div>
+
+              {/* Destination Filter */}
+              <div>
+                <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
+                  {t('destination')}
+                </label>
+                <input
+                  type="text"
+                  value={filters.destination}
+                  onChange={(e) => handleFilterChange('destination', e.target.value)}
+                  className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+                  placeholder={t('enter_destination')}
+                />
+              </div>
+
+              {/* Date From Filter */}
+              <div>
+                <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
+                  {t('date_from')}
+                </label>
+                <input
+                  type="date"
+                  value={filters.dateFrom}
+                  onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
+                  className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+                />
+              </div>
+
+              {/* Date To Filter */}
+              <div>
+                <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
+                  {t('date_to')}
+                </label>
+                <input
+                  type="date"
+                  value={filters.dateTo}
+                  onChange={(e) => handleFilterChange('dateTo', e.target.value)}
+                  className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Content */}
         <div className="px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -516,7 +720,7 @@ const FileTrackingPage = () => {
               .map(file => (
               <div
                 key={file.id}
-                className={`rounded-lg border ${borderColor} ${bgPrimary} ${shadowClass} transition-shadow duration-200 ${hoverShadow} overflow-hidden cursor-pointer`}
+                className={`rounded-lg border ${borderColor} ${bgSecondary} ${shadowClass} transition-shadow duration-200 ${hoverShadow} overflow-hidden cursor-pointer`}
                 onClick={() => handleFileSelect(file)}
               >
                 <div className="p-4 space-y-4">
