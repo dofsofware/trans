@@ -30,7 +30,9 @@ import {
   AlertTriangle,
   CheckCircle,
   Users,
+  Info,
   Globe,
+  Check,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import backImage from '../../utils/backGround_hearder.png';
@@ -63,6 +65,7 @@ const FileTrackingPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
   const [selectedFile, setSelectedFile] = useState<TransitFile | null>(null);
+  const [events, setEvents] = useState<TransitEvent[]>([]);
 
   const [filters, setFilters] = useState<FilterState>({
     search: '',
@@ -146,6 +149,160 @@ const FileTrackingPage = () => {
       ];
     }
   };
+
+  const handleEventChange = (eventId: string, field: 'completed', value: boolean) => {
+    setEvents(prev => prev.map(event =>
+      event.id === eventId ? { ...event, [field]: value } : event
+    ));
+  };
+
+  const handleFileSelect = (file: TransitFile) => {
+    setSelectedFile(file);
+    setEvents(getEvents(file.shipmentType));
+  };
+
+  const handleCloseModal = () => {
+    setSelectedFile(null);
+    setEvents([]);
+  };
+//       {t('departments')}:
+//     </h4>
+//     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
+//       <div className="flex items-center min-w-0">
+//         <div className="w-3 h-3 sm:w-4 sm:h-4 bg-blue-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
+//         <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('operations')}</span>
+//       </div>
+//       <div className="flex items-center min-w-0">
+//         <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
+//         <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('customs')}</span>
+//       </div>
+//       <div className="flex items-center min-w-0">
+//         <div className="w-3 h-3 sm:w-4 sm:h-4 bg-purple-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
+//         <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('transport')}</span>
+//       </div>
+//       <div className="flex items-center min-w-0">
+//         <div className="w-3 h-3 sm:w-4 sm:h-4 bg-orange-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
+//         <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('logistics')}</span>
+//       </div>
+//       <div className="flex items-center min-w-0 col-span-2 sm:col-span-1">
+//         <div className="w-3 h-3 sm:w-4 sm:h-4 bg-pink-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
+//         <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('commercial')}</span>
+//       </div>
+//     </div>
+//   </div>
+
+//   {/* Events Timeline */}
+//   <div className="relative">
+//     <div className="hidden sm:block absolute left-6 lg:left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 via-green-500 to-purple-500 opacity-30"></div>
+
+//     <div className="space-y-3 sm:space-y-4">
+//       {events.map((event, index) => {
+//         const deptInfo = getDepartmentInfo(event.name);
+//         const colorClasses = {
+//           blue: 'from-blue-500 to-blue-600',
+//           green: 'from-green-500 to-green-600',
+//           purple: 'from-purple-500 to-purple-600',
+//           orange: 'from-orange-500 to-orange-600',
+//           pink: 'from-pink-500 to-pink-600'
+//         };
+
+//         const isPreviousCompleted = index === 0 || events[index - 1].completed;
+//         const canBeCompleted = isPreviousCompleted && !event.completed;
+//         const isBlocked = !isPreviousCompleted && !event.completed;
+
+//         const hasCompletedAfter = events.slice(index + 1).some(e => e.completed);
+//         const canReactivate = event.completed && !hasCompletedAfter;
+
+//         return (
+//           <div
+//             key={event.id}
+//             className={`relative pl-4 sm:pl-12 lg:pl-16 pr-3 sm:pr-4 py-3 sm:py-4 rounded-xl border-2 transition-all duration-300 ${
+//               event.completed
+//                 ? `${deptInfo.bg} ${deptInfo.border} shadow-md transform hover:scale-[1.01] sm:hover:scale-[1.02]`
+//                 : isBlocked
+//                   ? `${bgSecondary} ${borderColor} border-dashed opacity-75 cursor-not-allowed`
+//                   : `${bgSecondary} ${borderColor} hover:${deptInfo.bg} hover:shadow-lg transform hover:scale-[1.01] sm:hover:scale-[1.02]`
+//             }`}
+//           >
+//             <div className={`hidden sm:block absolute left-4 lg:left-6 top-4 sm:top-6 w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 border-white shadow-lg bg-gradient-to-r ${colorClasses[deptInfo.color]} transition-all duration-300 ${
+//               event.completed
+//                 ? 'ring-2 ring-white ring-offset-2 scale-110'
+//                 : isBlocked
+//                   ? 'opacity-40 scale-75 grayscale'
+//                   : 'hover:scale-110'
+//             }`}></div>
+
+//             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
+//               <div className="flex-1 min-w-0">
+//                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+//                   <h4 className={`font-semibold ${textPrimary} text-base sm:text-lg ${isBlocked ? 'opacity-60' : ''} break-words`}>
+//                     {event.name}
+//                   </h4>
+//                   <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${deptInfo.bg} ${deptInfo.text} border ${deptInfo.border} ${isBlocked ? 'opacity-60' : ''} self-start sm:self-auto flex-shrink-0`}>
+//                     {deptInfo.dept}
+//                   </span>
+//                 </div>
+//                 <div className="flex items-center text-xs sm:text-sm text-gray-500">
+//                   <User size={12} className="sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+//                   <span className={`${textMuted} ${isBlocked ? 'opacity-60' : ''} truncate`}>
+//                     {t('agent')}: {event.agentName}
+//                   </span>
+//                 </div>
+//               </div>
+
+//               <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
+//                 <div className={`flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium transition-all flex-shrink-0 ${
+//                   event.completed
+//                     ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+//                     : isBlocked
+//                       ? 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+//                       : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+//                 }`}>
+//                   {event.completed ? (
+//                     <><Check size={12} className="sm:w-4 sm:h-4 mr-1" /> {t('completed')}</>
+//                   ) : isBlocked ? (
+//                     <><Clock size={12} className="sm:w-4 sm:h-4 mr-1 opacity-50" /> {t('waiting')}</>
+//                   ) : (
+//                     <><Clock size={12} className="sm:w-4 sm:h-4 mr-1" /> {t('pending')}</>
+//                   )}
+//                 </div>
+
+//                 {(canBeCompleted || canReactivate) && (
+//                   <button
+//                     onClick={() => handleEventChange(event.id, 'completed', !event.completed)}
+//                     className={`px-2 sm:px-3 py-1 rounded-lg text-xs font-medium transition-all ${
+//                       canBeCompleted
+//                         ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/40'
+//                         : 'bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-900/40'
+//                     }`}
+//                   >
+//                     {canBeCompleted ? t('complete') : t('reactivate')}
+//                   </button>
+//                 )}
+//               </div>
+//             </div>
+//           </div>
+//         );
+//       })}
+//     </div>
+//   </div>
+// </div>
+
+//   const handleEventChange = (eventId: string, field: 'completed', value: boolean) => {
+//     setEvents(prev => prev.map(event =>
+//       event.id === eventId ? { ...event, [field]: value } : event
+//     ));
+//   };
+
+//   const handleFileSelect = (file: TransitFile) => {
+//     setSelectedFile(file);
+//     setEvents(getEvents(file.shipmentType));
+//   };
+
+//   const handleCloseModal = () => {
+//     setSelectedFile(null);
+//     setEvents([]);
+//   };
 
   const getDepartmentInfo = (eventName: string) => {
     const eventKey = eventName.toLowerCase();
@@ -400,7 +557,7 @@ const FileTrackingPage = () => {
             <div
               key={file.id}
               className={`rounded-lg border ${borderColor} ${bgPrimary} ${shadowClass} transition-shadow duration-200 ${hoverShadow} overflow-hidden cursor-pointer`}
-              onClick={() => setSelectedFile(file)}
+              onClick={() => handleFileSelect(file)}
             >
               <div className="p-4 space-y-4">
                 <div className="flex items-start justify-between">
@@ -467,7 +624,7 @@ const FileTrackingPage = () => {
                   </div>
                   <button
                     className={`p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 ${textMuted}`}
-                    onClick={() => setSelectedFile(null)}
+                    onClick={handleCloseModal}
                   >
                     <X className="h-6 w-6" />
                   </button>
@@ -519,35 +676,148 @@ const FileTrackingPage = () => {
 
                 {/* Events timeline */}
                 <div className="mt-8">
-                  <h3 className={`text-lg font-medium ${textPrimary} mb-4`}>{t('tracking_events')}</h3>
-                  <div className="space-y-4">
-                    {getEvents(selectedFile.shipmentType).map((event, index) => {
-                      const deptInfo = getDepartmentInfo(event.name);
-                      return (
-                        <div
-                          key={event.id}
-                          className={`p-4 rounded-lg border ${deptInfo.border} ${deptInfo.bg}`}
-                        >
-                          <div className="flex items-start justify-between">
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-2">
-                                <span className={`font-medium ${deptInfo.text}`}>{event.name}</span>
-                                <span className={`text-sm ${textMuted}`}>({deptInfo.dept})</span>
+                  <h3 className={`text-lg sm:text-xl font-bold ${textPrimary} mb-4 sm:mb-6 flex items-center flex-wrap gap-2`}>
+                    <Clock size={20} className="sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" />
+                    <span>{t('events')}</span>
+                  </h3>
+
+                  <div className={`p-3 sm:p-4 rounded-lg ${isDark ? 'bg-blue-900/20' : 'bg-blue-50'} border ${isDark ? 'border-blue-800' : 'border-blue-200'} mb-4 sm:mb-6`}>
+                    <div className="flex items-start gap-2 sm:gap-3">
+                      <Info size={16} className={`sm:w-5 sm:h-5 mt-0.5 flex-shrink-0 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                      <div className="min-w-0 flex-1">
+                        <h4 className={`font-medium ${isDark ? 'text-blue-300' : 'text-blue-800'} mb-1 text-sm sm:text-base`}>
+                          {t('events_management')}
+                        </h4>
+                        <p className={`text-xs sm:text-sm ${isDark ? 'text-blue-200' : 'text-blue-700'} leading-relaxed`}>
+                          {t('events_management_desc')} {t('sequential_completion_required')}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Department Legend */}
+                  <div className="mb-4 sm:mb-6">
+                    <h4 className={`text-xs sm:text-sm font-semibold ${textSecondary} mb-2 sm:mb-3`}>
+                      {t('departments')}:
+                    </h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
+                      <div className="flex items-center min-w-0">
+                        <div className="w-3 h-3 sm:w-4 sm:h-4 bg-blue-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
+                        <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('operations')}</span>
+                      </div>
+                      <div className="flex items-center min-w-0">
+                        <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
+                        <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('customs')}</span>
+                      </div>
+                      <div className="flex items-center min-w-0">
+                        <div className="w-3 h-3 sm:w-4 sm:h-4 bg-purple-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
+                        <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('transport')}</span>
+                      </div>
+                      <div className="flex items-center min-w-0">
+                        <div className="w-3 h-3 sm:w-4 sm:h-4 bg-orange-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
+                        <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('logistics')}</span>
+                      </div>
+                      <div className="flex items-center min-w-0 col-span-2 sm:col-span-1">
+                        <div className="w-3 h-3 sm:w-4 sm:h-4 bg-pink-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
+                        <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('commercial')}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Events Timeline */}
+                  <div className="relative">
+                    <div className="hidden sm:block absolute left-6 lg:left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 via-green-500 to-purple-500 opacity-30"></div>
+
+                    <div className="space-y-3 sm:space-y-4">
+                      {events.map((event, index) => {
+                        const deptInfo = getDepartmentInfo(event.name);
+                        const colorClasses = {
+                          blue: 'from-blue-500 to-blue-600',
+                          green: 'from-green-500 to-green-600',
+                          purple: 'from-purple-500 to-purple-600',
+                          orange: 'from-orange-500 to-orange-600',
+                          pink: 'from-pink-500 to-pink-600'
+                        };
+
+                        const isPreviousCompleted = index === 0 || events[index - 1].completed;
+                        const canBeCompleted = isPreviousCompleted && !event.completed;
+                        const isBlocked = !isPreviousCompleted && !event.completed;
+
+                        const hasCompletedAfter = events.slice(index + 1).some(e => e.completed);
+                        const canReactivate = event.completed && !hasCompletedAfter;
+
+                        return (
+                          <div
+                            key={event.id}
+                            className={`relative pl-4 sm:pl-12 lg:pl-16 pr-3 sm:pr-4 py-3 sm:py-4 rounded-xl border-2 transition-all duration-300 ${
+                              event.completed
+                                ? `${deptInfo.bg} ${deptInfo.border} shadow-md transform hover:scale-[1.01] sm:hover:scale-[1.02]`
+                                : isBlocked
+                                  ? `${bgSecondary} ${borderColor} border-dashed opacity-75 cursor-not-allowed`
+                                  : `${bgSecondary} ${borderColor} hover:${deptInfo.bg} hover:shadow-lg transform hover:scale-[1.01] sm:hover:scale-[1.02]`
+                            }`}
+                          >
+                            <div className={`hidden sm:block absolute left-4 lg:left-6 top-4 sm:top-6 w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 border-white shadow-lg bg-gradient-to-r ${colorClasses[deptInfo.color]} transition-all duration-300 ${
+                              event.completed
+                                ? 'ring-2 ring-white ring-offset-2 scale-110'
+                                : isBlocked
+                                  ? 'opacity-40 scale-75 grayscale'
+                                  : 'hover:scale-110'
+                            }`}></div>
+
+                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                                  <h4 className={`font-semibold ${textPrimary} text-base sm:text-lg ${isBlocked ? 'opacity-60' : ''} break-words`}>
+                                    {event.name}
+                                  </h4>
+                                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${deptInfo.bg} ${deptInfo.text} border ${deptInfo.border} ${isBlocked ? 'opacity-60' : ''} self-start sm:self-auto flex-shrink-0`}>
+                                    {deptInfo.dept}
+                                  </span>
+                                </div>
+                                <div className="flex items-center text-xs sm:text-sm text-gray-500">
+                                  <User size={12} className="sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                                  <span className={`${textMuted} ${isBlocked ? 'opacity-60' : ''} truncate`}>
+                                    {t('agent')}: {event.agentName}
+                                  </span>
+                                </div>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <User className={`h-4 w-4 ${textMuted}`} />
-                                <span className={`text-sm ${textMuted}`}>{event.agentName}</span>
+
+                              <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
+                                <div className={`flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium transition-all flex-shrink-0 ${
+                                  event.completed
+                                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                                    : isBlocked
+                                      ? 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+                                      : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                                }`}>
+                                  {event.completed ? (
+                                    <><Check size={12} className="sm:w-4 sm:h-4 mr-1" /> {t('completed')}</>
+                                  ) : isBlocked ? (
+                                    <><Clock size={12} className="sm:w-4 sm:h-4 mr-1 opacity-50" /> {t('waiting')}</>
+                                  ) : (
+                                    <><Clock size={12} className="sm:w-4 sm:h-4 mr-1" /> {t('pending')}</>
+                                  )}
+                                </div>
+
+                                {(canBeCompleted || canReactivate) && (
+                                  <button
+                                    onClick={() => handleEventChange(event.id, 'completed', !event.completed)}
+                                    className={`px-2 sm:px-3 py-1 rounded-lg text-xs font-medium transition-all ${
+                                      canBeCompleted
+                                        ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/40'
+                                        : 'bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-900/40'
+                                    }`}
+                                  >
+                                    {canBeCompleted ? t('complete') : t('reactivate')}
+                                  </button>
+                                )}
                               </div>
                             </div>
-                            {event.completed ? (
-                              <CheckCircle className="h-6 w-6 text-green-500" />
-                            ) : (
-                              <Clock className={`h-6 w-6 ${textMuted}`} />
-                            )}
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
