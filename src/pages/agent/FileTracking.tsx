@@ -13,7 +13,6 @@ import {
   Filter,
   FileText,
   X,
-  Calendar,
   User,
   MapPin,
   Package,
@@ -33,10 +32,21 @@ import {
   Info,
   Globe,
   Check,
+  Edit3,
+  Calendar,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import backImage from '../../utils/backGround_hearder.png';
-import { TransitFile, TransitEvent } from '../../types/transitFile';
+import { TransitFile } from '../../types/transitFile';
+
+interface TransitEvent {
+  id: string;
+  name: string;
+  date: string;
+  agentName: string;
+  details: string;
+  completed: boolean;
+}
 import { getTransitFiles } from '../../services/transitFileService';
 
 interface FilterState {
@@ -121,36 +131,37 @@ const FileTrackingPage = () => {
   };
 
   const getEvents = (shipmentType: 'export' | 'import'): TransitEvent[] => {
+    const currentDate = format(new Date(), 'yyyy-MM-dd');
     if (shipmentType === 'export') {
       return [
-        { id: 'ep1', name: t('export_pregate'), details: '', agentName: 'John Doe', completed: true },
-        { id: 'ep2', name: t('warehouse_reception'), details: '', agentName: 'Alice Smith', completed: true },
-        { id: 'ep3', name: t('declaration'), details: '', agentName: 'Bob Johnson', completed: true },
-        { id: 'ep4', name: t('export_customs_clearance'), details: '', agentName: 'Carol White', completed: false },
-        { id: 'ep5', name: t('warehouse_loading'), details: '', agentName: 'David Brown', completed: false },
-        { id: 'ep6', name: t('effective_transport'), details: '', agentName: 'Eve Wilson', completed: false },
-        { id: 'ep7', name: t('vessel_loading'), details: '', agentName: 'Frank Miller', completed: false },
-        { id: 'ep8', name: t('departure'), details: '', agentName: 'Grace Davis', completed: false },
-        { id: 'ep9', name: t('estimated_arrival'), details: '', agentName: 'Henry Clark', completed: false },
-        { id: 'ep10', name: t('billing'), details: '', agentName: 'Ivy Anderson', completed: false }
+        { id: 'ep1', name: t('export_pregate'), details: '', date: currentDate, agentName: 'John Doe', completed: true },
+        { id: 'ep2', name: t('warehouse_reception'), details: '', date: currentDate, agentName: 'Alice Smith', completed: true },
+        { id: 'ep3', name: t('declaration'), details: '', date: currentDate, agentName: 'Bob Johnson', completed: true },
+        { id: 'ep4', name: t('export_customs_clearance'), details: '', date: currentDate, agentName: 'Carol White', completed: false },
+        { id: 'ep5', name: t('warehouse_loading'), details: '', date: currentDate, agentName: 'David Brown', completed: false },
+        { id: 'ep6', name: t('effective_transport'), details: '', date: currentDate, agentName: 'Eve Wilson', completed: false },
+        { id: 'ep7', name: t('vessel_loading'), details: '', date: currentDate, agentName: 'Frank Miller', completed: false },
+        { id: 'ep8', name: t('departure'), details: '', date: currentDate, agentName: 'Grace Davis', completed: false },
+        { id: 'ep9', name: t('estimated_arrival'), details: '', date: currentDate, agentName: 'Henry Clark', completed: false },
+        { id: 'ep10', name: t('billing'), details: '', date: currentDate, agentName: 'Ivy Anderson', completed: false }
       ];
     } else {
       return [
-        { id: 'ip1', name: t('import_prealert'), details: '', agentName: 'John Doe', completed: true },
-        { id: 'ip2', name: t('arrival'), details: '', agentName: 'Alice Smith', completed: true },
-        { id: 'ip3', name: t('declaration'), details: '', agentName: 'Bob Johnson', completed: false },
-        { id: 'ip4', name: t('import_customs_clearance'), details: '', agentName: 'Carol White', completed: false },
-        { id: 'ip5', name: t('maritime_company_slip'), details: '', agentName: 'David Brown', completed: false },
-        { id: 'ip6', name: t('import_pregate'), details: '', agentName: 'Eve Wilson', completed: false },
-        { id: 'ip7', name: t('pickup'), details: '', agentName: 'Frank Miller', completed: false },
-        { id: 'ip8', name: t('delivery'), details: '', agentName: 'Grace Davis', completed: false },
-        { id: 'ip9', name: t('warehouse_arrival'), details: '', agentName: 'Henry Clark', completed: false },
-        { id: 'ip10', name: t('billing'), details: '', agentName: 'Ivy Anderson', completed: false }
+        { id: 'ip1', name: t('import_prealert'), details: '', date: currentDate, agentName: 'John Doe', completed: true },
+        { id: 'ip2', name: t('arrival'), details: '', date: currentDate, agentName: 'Alice Smith', completed: true },
+        { id: 'ip3', name: t('declaration'), details: '', date: currentDate, agentName: 'Bob Johnson', completed: false },
+        { id: 'ip4', name: t('import_customs_clearance'), details: '', date: currentDate, agentName: 'Carol White', completed: false },
+        { id: 'ip5', name: t('maritime_company_slip'), details: '', date: currentDate, agentName: 'David Brown', completed: false },
+        { id: 'ip6', name: t('import_pregate'), details: '', date: currentDate, agentName: 'Eve Wilson', completed: false },
+        { id: 'ip7', name: t('pickup'), details: '', date: currentDate, agentName: 'Frank Miller', completed: false },
+        { id: 'ip8', name: t('delivery'), details: '', date: currentDate, agentName: 'Grace Davis', completed: false },
+        { id: 'ip9', name: t('warehouse_arrival'), details: '', date: currentDate, agentName: 'Henry Clark', completed: false },
+        { id: 'ip10', name: t('billing'), details: '', date: currentDate, agentName: 'Ivy Anderson', completed: false }
       ];
     }
   };
 
-  const handleEventChange = (eventId: string, field: 'completed', value: boolean) => {
+  const handleEventChange = (eventId: string, field: 'completed' | 'date' | 'details', value: boolean | string) => {
     setEvents(prev => prev.map(event =>
       event.id === eventId ? { ...event, [field]: value } : event
     ));
@@ -642,6 +653,29 @@ const FileTrackingPage = () => {
                                   <span className={`${textMuted} ${isBlocked ? 'opacity-60' : ''} truncate`}>
                                     {t('agent')}: {event.agentName}
                                   </span>
+                                </div>
+                                <div className="mt-2 grid grid-cols-1 lg:grid-cols-2 gap-3">
+                                  <div>
+                                    <label className={`block text-xs font-medium ${textMuted} mb-1`}>{t('date')}:</label>
+                                    <input
+                                      type="date"
+                                      value={event.date}
+                                      onChange={(e) => handleEventChange(event.id, 'date', e.target.value)}
+                                      disabled={isBlocked || event.completed}
+                                      className={`w-full px-2 py-1 text-sm rounded border ${borderColor} ${bgPrimary} ${textPrimary}`}
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className={`block text-xs font-medium ${textMuted} mb-1`}>{t('details')}:</label>
+                                    <input
+                                      type="text"
+                                      value={event.details}
+                                      onChange={(e) => handleEventChange(event.id, 'details', e.target.value)}
+                                      disabled={isBlocked || event.completed}
+                                      placeholder={t('enter_details')}
+                                      className={`w-full px-2 py-1 text-sm rounded border ${borderColor} ${bgPrimary} ${textPrimary}`}
+                                    />
+                                  </div>
                                 </div>
                               </div>
 
