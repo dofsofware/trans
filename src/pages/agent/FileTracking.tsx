@@ -351,122 +351,150 @@ const FileTrackingPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        
-        {/* Event Type Toggle - Design minimaliste */}
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+
+        {/* Event Type Toggle - Design moderne compact */}
+        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-2xl p-4 shadow-sm">
+          {/* Header moderne avec toggle glass */}
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               {t('event_types')}
             </h2>
             
-            {/* Clear Filter Button - Plus subtil */}
-            {currentEventFilter && (
-              <button 
-                onClick={clearEventFilter}
-                className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
-              >
-                <X size={16} />
-                {currentEventFilter}
-              </button>
+            <div className="flex items-center gap-3">
+              {/* Toggle moderne avec effet glass */}
+              <div className="flex bg-gray-100/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-1 border border-gray-200/30 dark:border-gray-700/30">
+                <button
+                  onClick={() => {
+                    setEventTypeFilter('all');
+                    setCurrentEventFilter('');
+                  }}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    eventTypeFilter === 'all' 
+                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm border border-gray-200/50 dark:border-gray-600/50' 
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  {t('all')}
+                </button>
+                <button
+                  onClick={() => {
+                    setEventTypeFilter('export');
+                    setCurrentEventFilter('');
+                  }}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    eventTypeFilter === 'export' 
+                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm border border-gray-200/50 dark:border-gray-600/50' 
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  {t('export')}
+                </button>
+                <button
+                  onClick={() => {
+                    setEventTypeFilter('import');
+                    setCurrentEventFilter('');
+                  }}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    eventTypeFilter === 'import' 
+                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm border border-gray-200/50 dark:border-gray-600/50' 
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  {t('import')}
+                </button>
+              </div>
+
+              {/* Clear filter moderne */}
+              {currentEventFilter && (
+                <button 
+                  onClick={clearEventFilter}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-200 border border-red-200/50 dark:border-red-800/50"
+                >
+                  <X size={14} />
+                  {currentEventFilter}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Events avec style moderne */}
+          <div className="space-y-4">
+            {/* Export Events */}
+            {(eventTypeFilter === 'all' || eventTypeFilter === 'export') && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {t('export_events')}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {exportEventOrder.map(eventName => (
+                    <button
+                      key={`export-${eventName}`}
+                      onClick={() => handleEventFilterClick(eventName, 'export')}
+                      className={`group relative overflow-hidden px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                        currentEventFilter === eventName && eventTypeFilter === 'export'
+                          ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 ring-1 ring-green-500/50 shadow-sm'
+                          : 'bg-gray-50/70 dark:bg-gray-800/70 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 backdrop-blur-sm'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="relative z-10">{eventName}</span>
+                        <span className={`relative z-10 px-2 py-0.5 rounded-full text-xs font-medium ${
+                          currentEventFilter === eventName && eventTypeFilter === 'export'
+                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                            : `${getDepartmentInfo(eventName).badgeBg} ${getDepartmentInfo(eventName).badgeText}`
+                        }`}>
+                          {eventStats.export[eventName]}
+                        </span>
+                      </div>
+                      {/* Effet hover moderne */}
+                      <div className="absolute inset-0 bg-green-500/0 group-hover:bg-green-500/5 transition-all duration-300"></div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Import Events */}
+            {(eventTypeFilter === 'all' || eventTypeFilter === 'import') && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {t('import_events')}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {importEventOrder.map(eventName => (
+                    <button
+                      key={`import-${eventName}`}
+                      onClick={() => handleEventFilterClick(eventName, 'import')}
+                      className={`group relative overflow-hidden px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                        currentEventFilter === eventName && eventTypeFilter === 'import'
+                          ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 ring-1 ring-blue-500/50 shadow-sm'
+                          : 'bg-gray-50/70 dark:bg-gray-800/70 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 backdrop-blur-sm'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="relative z-10">{eventName}</span>
+                        <span className={`relative z-10 px-2 py-0.5 rounded-full text-xs font-medium ${
+                          currentEventFilter === eventName && eventTypeFilter === 'import'
+                            ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                            : `${getDepartmentInfo(eventName).badgeBg} ${getDepartmentInfo(eventName).badgeText}`
+                        }`}>
+                          {eventStats.import[eventName]}
+                        </span>
+                      </div>
+                      {/* Effet hover moderne */}
+                      <div className="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/5 transition-all duration-300"></div>
+                    </button>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
-
-          {/* Toggle Buttons - Design plus épuré */}
-          <div className="flex bg-gray-50 dark:bg-gray-800 rounded-lg p-1 mb-8">
-            <button
-              onClick={() => {
-                setEventTypeFilter('all');
-                setCurrentEventFilter('');
-              }}
-              className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                eventTypeFilter === 'all' 
-                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' 
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              {t('all')}
-            </button>
-            <button
-              onClick={() => {
-                setEventTypeFilter('export');
-                setCurrentEventFilter('');
-              }}
-              className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                eventTypeFilter === 'export' 
-                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' 
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              {t('export')}
-            </button>
-            <button
-              onClick={() => {
-                setEventTypeFilter('import');
-                setCurrentEventFilter('');
-              }}
-              className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                eventTypeFilter === 'import' 
-                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' 
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              {t('import')}
-            </button>
-          </div>
-
-          {/* Export Events - Design minimaliste */}
-          {(eventTypeFilter === 'all' || eventTypeFilter === 'export') && (
-            <div className="mb-6">
-              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
-                {t('export_events')}
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {exportEventOrder.map(eventName => (
-                  <button
-                    key={`export-${eventName}`}
-                    onClick={() => handleEventFilterClick(eventName, 'export')}
-                    className={`group flex items-center gap-2 px-4 py-2 rounded-lg border transition-all hover:shadow-sm ${
-                      currentEventFilter === eventName && eventTypeFilter === 'export'
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-700 dark:text-gray-300'
-                    }`}
-                  >
-                    <span className="text-sm font-medium">{eventName}</span>
-                    <span className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-xs text-gray-600 dark:text-gray-400">
-                      {eventStats.export[eventName]}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Import Events - Design minimaliste */}
-          {(eventTypeFilter === 'all' || eventTypeFilter === 'import') && (
-            <div>
-              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 uppercase tracking-wide">
-                {t('import_events')}
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {importEventOrder.map(eventName => (
-                  <button
-                    key={`import-${eventName}`}
-                    onClick={() => handleEventFilterClick(eventName, 'import')}
-                    className={`group flex items-center gap-2 px-4 py-2 rounded-lg border transition-all hover:shadow-sm ${
-                      currentEventFilter === eventName && eventTypeFilter === 'import'
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-700 dark:text-gray-300'
-                    }`}
-                  >
-                    <span className="text-sm font-medium">{eventName}</span>
-                    <span className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-xs text-gray-600 dark:text-gray-400">
-                      {eventStats.import[eventName]}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Content */}
