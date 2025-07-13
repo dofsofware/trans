@@ -192,6 +192,12 @@ const FileTrackingPage = () => {
     return { dept: t('other'), color: 'blue', bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-200 dark:border-blue-700', text: 'text-blue-800 dark:text-blue-300' };
   };
 
+  const getCurrentEvent = (file: TransitFile): string => {
+    const fileEvents = getEvents(file.shipmentType);
+    const currentEvent = fileEvents.find(event => !event.completed);
+    return currentEvent ? currentEvent.name : t('completed');
+  };
+
   const handleFilterChange = (key: keyof FilterState, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
@@ -438,14 +444,8 @@ const FileTrackingPage = () => {
                     <h3 className={`font-medium ${textPrimary}`}>{file.reference}</h3>
                     <p className={textMuted}>{file.blNumber}</p>
                   </div>
-                  <div className={`px-3 py-1 rounded-full text-sm
-                    ${file.status === 'completed' ? 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300' :
-                      file.status === 'in_transit' ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300' :
-                        file.status === 'archived' ? 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300' :
-                          'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300'
-                    }`}
-                  >
-                    {t(file.status)}
+                  <div className={`px-3 py-1 rounded-full text-sm ${getDepartmentInfo(getCurrentEvent(file)).bg} ${getDepartmentInfo(getCurrentEvent(file)).text} ${getDepartmentInfo(getCurrentEvent(file)).border}`}>
+                    {getCurrentEvent(file)}
                   </div>
                 </div>
 
