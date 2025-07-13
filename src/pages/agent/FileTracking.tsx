@@ -499,53 +499,53 @@ const FileTrackingPage = () => {
       <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-6" >
 
         {/* Design alternatif - Filtres en sidebar collapsible */}
-        <div className="flex gap-4 mb-6">
+        <div className="flex gap-2 sm:gap-4 mb-4 sm:mb-6">
           {/* Sidebar des filtres */}
-          <div className={`transition-all duration-300 ${isFiltersOpen ? 'w-80' : 'w-20'} flex-shrink-0`}>
+          <div className={`transition-all duration-300 ${isFiltersOpen ? 'w-64 sm:w-80' : 'w-14 sm:w-20'} flex-shrink-0`}>
   <div className={`${bgSecondary} rounded-lg ${shadowClass} ${borderColor} border lg:h-[85vh] lg:fixed lg:top-[14.5vh] h-full`}>
     {/* Header du sidebar */}
-    <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+    <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
       <div className="flex items-center justify-between">
         {isFiltersOpen && (
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
             {t('filters')}
           </h3>
         )}
         <button
           onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-          className={`p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${isFiltersOpen ? '' : 'w-full'
+          className={`p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${isFiltersOpen ? '' : 'w-full'
             }`}
         >
-          <Filter size={20} className="text-gray-600 dark:text-gray-400" />
+          <Filter size={18} className="text-gray-600 dark:text-gray-400" />
         </button>
       </div>
     </div>
 
     {/* Contenu du sidebar */}
     {isFiltersOpen && (
-      <div className="p-4 space-y-6 overflow-y-auto h-full lg:h-[calc(85vh-80px)]">
+      <div className="p-3 sm:p-4 space-y-4 sm:space-y-6 overflow-y-auto h-full lg:h-[calc(85vh-80px)]">
         {/* Recherche */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
             {t('search')}
           </label>
           <div className="relative">
-            <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <Search size={14} className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               placeholder={t('searchPlaceholder')}
               value={filters.search}
               onChange={(e) => handleFilterChange('search', e.target.value)}
-              className={`w-full pl-10 pr-4 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+              className={`w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm`}
             />
           </div>
         </div>
 
         {/* Filtres actifs */}
         {(activeFiltersCount > 0 || currentEventFilter) && (
-          <div className="space-y-2">
+          <div className="space-y-1 sm:space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                 {t('active_filters')}
               </span>
               <button
@@ -565,26 +565,28 @@ const FileTrackingPage = () => {
                   setCurrentEventFilter('');
                   setEventTypeFilter('all');
                 }}
-                className="text-xs text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                className="text-[10px] sm:text-xs text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
               >
                 {t('clear_all')}
               </button>
             </div>
             <div className="flex flex-wrap gap-1">
               {currentEventFilter && (
-                <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-md text-xs">
+                <span className="inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-md text-[10px] sm:text-xs">
                   {currentEventFilter}
                   <button onClick={clearEventFilter}>
-                    <X size={12} />
+                    <X size={10} className="sm:hidden" />
+                    <X size={12} className="hidden sm:block" />
                   </button>
                 </span>
               )}
               {Object.entries(filters).map(([key, value]) =>
                 value && (
-                  <span key={key} className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md text-xs">
+                  <span key={key} className="inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md text-[10px] sm:text-xs">
                     {typeof value === 'string' ? value : t(value)}
                     <button onClick={() => handleFilterChange(key, '')}>
-                      <X size={12} />
+                      <X size={10} className="sm:hidden" />
+                      <X size={12} className="hidden sm:block" />
                     </button>
                   </span>
                 )
@@ -597,13 +599,13 @@ const FileTrackingPage = () => {
         <div className="space-y-4">
           {/* Status */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
               {t('status')}
             </label>
             <select
               value={filters.status}
               onChange={(e) => handleFilterChange('status', e.target.value)}
-              className={`w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+              className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm`}
             >
               <option value="">{t('all_statuses')}</option>
               {['draft', 'in_transit', 'completed', 'archived'].map(status => (
@@ -613,15 +615,15 @@ const FileTrackingPage = () => {
           </div>
 
           {/* Transport & Shipment */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
                 {t('transport')}
               </label>
               <select
                 value={filters.transportType}
                 onChange={(e) => handleFilterChange('transportType', e.target.value)}
-                className={`w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+                className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm`}
               >
                 <option value="">{t('all')}</option>
                 {['air', 'sea'].map(type => (
@@ -630,13 +632,13 @@ const FileTrackingPage = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
                 {t('shipment')}
               </label>
               <select
                 value={filters.shipmentType}
                 onChange={(e) => handleFilterChange('shipmentType', e.target.value)}
-                className={`w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+                className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm`}
               >
                 <option value="">{t('all')}</option>
                 {['import', 'export'].map(type => (
@@ -761,24 +763,24 @@ const FileTrackingPage = () => {
 
                 {/* Content */}
                 <div >
-                  <div className="flex justify-between items-center mb-4">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-4">
                     {/* Options de tri */}
-                    <div className="flex items-center space-x-4">
+                    <div className="flex flex-wrap items-center gap-2 sm:space-x-4">
                       <button
                         onClick={() => handleSortChange('creationDate')}
-                        className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${sortField === 'creationDate' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                        className={`px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-colors ${sortField === 'creationDate' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
                       >
                         {t('creation_date')} {getSortIcon('creationDate')}
                       </button>
                       <button
                         onClick={() => handleSortChange('reference')}
-                        className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${sortField === 'reference' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                        className={`px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-colors ${sortField === 'reference' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
                       >
                         {t('reference')} {getSortIcon('reference')}
                       </button>
                       <button
                         onClick={() => handleSortChange('status')}
-                        className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${sortField === 'status' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                        className={`px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-colors ${sortField === 'status' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
                       >
                         {t('status')} {getSortIcon('status')}
                       </button>
@@ -786,11 +788,11 @@ const FileTrackingPage = () => {
 
                     {/* Items per page */}
                     <div className="flex items-center space-x-2">
-                      <span className={`text-sm ${textSecondary}`}>{t('items_per_page')}:</span>
+                      <span className={`text-xs sm:text-sm ${textSecondary}`}>{t('items_per_page')}:</span>
                       <select
                         value={itemsPerPage}
                         onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-                        className={`px-2 py-1 text-sm border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                        className={`px-2 py-1 text-xs sm:text-sm border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500`}
                       >
                         {[9, 18, 27, 36].map(value => (
                           <option key={value} value={value}>{value}</option>
@@ -799,52 +801,52 @@ const FileTrackingPage = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     {paginatedFiles.map(file => (
                         <div
                           key={file.id}
                           className={`rounded-lg border ${borderColor} ${bgSecondary} ${shadowClass} transition-shadow duration-200 ${hoverShadow} overflow-hidden cursor-pointer`}
                           onClick={() => handleFileSelect(file)}
                         >
-                          <div className="p-4 space-y-4">
+                          <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
                             <div className="flex items-start justify-between">
                               <div>
-                                <h3 className={`font-medium ${textPrimary}`}>{file.reference}</h3>
-                                <p className={textMuted}>{file.blNumber}</p>
+                                <h3 className={`text-sm sm:text-base font-medium ${textPrimary}`}>{file.reference}</h3>
+                                <p className={`text-xs sm:text-sm ${textMuted}`}>{file.blNumber}</p>
                               </div>
-                              <div className={`px-3 py-1 rounded-full text-sm ${getDepartmentInfo(getCurrentEvent(file)).bg} ${getDepartmentInfo(getCurrentEvent(file)).text} ${getDepartmentInfo(getCurrentEvent(file)).border}`}>
+                              <div className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm ${getDepartmentInfo(getCurrentEvent(file)).bg} ${getDepartmentInfo(getCurrentEvent(file)).text} ${getDepartmentInfo(getCurrentEvent(file)).border}`}>
                                 {getCurrentEvent(file)}
                               </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="flex items-center gap-2">
-                                <Users className={`h-5 w-5 ${textMuted}`} />
-                                <span className={textSecondary}>{getClientNames(file.clientIds)}</span>
+                            <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                              <div className="flex items-center gap-1 sm:gap-2">
+                                <Users className={`h-4 w-4 sm:h-5 sm:w-5 ${textMuted}`} />
+                                <span className={`text-xs sm:text-sm truncate ${textSecondary}`}>{getClientNames(file.clientIds)}</span>
                               </div>
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1 sm:gap-2">
                                 {file.transportType === 'air' ? (
-                                  <Plane className={`h-5 w-5 ${textMuted}`} />
+                                  <Plane className={`h-4 w-4 sm:h-5 sm:w-5 ${textMuted}`} />
                                 ) : (
-                                  <Ship className={`h-5 w-5 ${textMuted}`} />
+                                  <Ship className={`h-4 w-4 sm:h-5 sm:w-5 ${textMuted}`} />
                                 )}
-                                <span className={textSecondary}>{t(file.transportType)}</span>
+                                <span className={`text-xs sm:text-sm truncate ${textSecondary}`}>{t(file.transportType)}</span>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <Package className={`h-5 w-5 ${textMuted}`} />
-                                <span className={textSecondary}>{t(file.shipmentType)}</span>
+                              <div className="flex items-center gap-1 sm:gap-2">
+                                <Package className={`h-4 w-4 sm:h-5 sm:w-5 ${textMuted}`} />
+                                <span className={`text-xs sm:text-sm truncate ${textSecondary}`}>{t(file.shipmentType)}</span>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <Clock className={`h-5 w-5 ${textMuted}`} />
-                                <span className={textSecondary}>
+                              <div className="flex items-center gap-1 sm:gap-2">
+                                <Clock className={`h-4 w-4 sm:h-5 sm:w-5 ${textMuted}`} />
+                                <span className={`text-xs sm:text-sm ${textSecondary}`}>
                                   {format(new Date(file.createdAt), 'dd/MM/yyyy')}
                                 </span>
                               </div>
                             </div>
 
-                            <div className="flex items-center gap-2">
-                              <MapPin className={`h-5 w-5 ${textMuted}`} />
-                              <span className={textSecondary}>
+                            <div className="flex items-center gap-1 sm:gap-2">
+                              <MapPin className={`h-4 w-4 sm:h-5 sm:w-5 ${textMuted}`} />
+                              <span className={`text-xs sm:text-sm truncate ${textSecondary}`}>
                                 {file.origin} → {file.destination}
                               </span>
                             </div>
@@ -854,8 +856,8 @@ const FileTrackingPage = () => {
                   </div>
 
                   {/* Pagination */}
-                  <div className="mt-6 flex items-center justify-between">
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                  <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center sm:text-left">
                       {t('showing')} <span className="font-medium">{Math.min(filteredFiles.length, (currentPage - 1) * itemsPerPage + 1)}</span> {t('to')} <span className="font-medium">{Math.min(filteredFiles.length, currentPage * itemsPerPage)}</span> {t('of')} <span className="font-medium">{filteredFiles.length}</span> {t('results')}.
                     </div>
                     
@@ -863,9 +865,9 @@ const FileTrackingPage = () => {
                       <button
                         onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                         disabled={currentPage === 1}
-                        className={`px-3 py-1 rounded-md text-sm font-medium ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+                        className={`px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm font-medium ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
                       >
-                        <ChevronLeft className="h-4 w-4" />
+                        <ChevronLeft className="h-3 sm:h-4 w-3 sm:w-4" />
                       </button>
                       
                       {getPaginationNumbers().map((page, index) => (
@@ -873,7 +875,7 @@ const FileTrackingPage = () => {
                           key={index}
                           onClick={() => typeof page === 'number' ? handlePageChange(page) : null}
                           disabled={page === '...'}
-                          className={`px-3 py-1 rounded-md text-sm font-medium ${typeof page === 'number' && page === currentPage
+                          className={`px-2 sm:px-3 py-1 rounded-md text-xs sm:text-sm font-medium ${typeof page === 'number' && page === currentPage
                             ? 'bg-blue-500 text-white'
                             : page === '...'
                               ? 'text-gray-400 cursor-default'
@@ -896,60 +898,60 @@ const FileTrackingPage = () => {
 
                   {/* File details modal */}
                   {selectedFile && (
-                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={handleCloseModal}>
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-2 sm:p-4 z-50" onClick={handleCloseModal}>
                       <div className={`w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg ${bgPrimary} ${shadowClass}`} onClick={e => e.stopPropagation()}>
-                        <div className="p-6 space-y-6">
+                        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                           <div className="flex items-start justify-between">
                             <div>
-                              <h2 className={`text-xl font-semibold ${textPrimary}`}>{selectedFile.reference}</h2>
-                              <p className={textMuted}>{selectedFile.blNumber}</p>
+                              <h2 className={`text-lg sm:text-xl font-semibold ${textPrimary}`}>{selectedFile.reference}</h2>
+                              <p className={`text-xs sm:text-sm ${textMuted}`}>{selectedFile.blNumber}</p>
                             </div>
                             <button
-                              className={`p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 ${textMuted}`}
+                              className={`p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 ${textMuted}`}
                               onClick={handleCloseModal}
                             >
-                              <X className="h-6 w-6" />
+                              <X className="h-5 w-5 sm:h-6 sm:w-6" />
                             </button>
                           </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-4">
-                              <div className="flex items-center gap-2">
-                                <Users className={`h-5 w-5 ${textMuted}`} />
-                                <span className={textSecondary}>{getClientNames(selectedFile.clientIds)}</span>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                            <div className="space-y-3 sm:space-y-4">
+                              <div className="flex items-center gap-1.5 sm:gap-2">
+                                <Users className={`h-4 w-4 sm:h-5 sm:w-5 ${textMuted}`} />
+                                <span className={`text-xs sm:text-sm ${textSecondary}`}>{getClientNames(selectedFile.clientIds)}</span>
                               </div>
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1.5 sm:gap-2">
                                 {selectedFile.transportType === 'air' ? (
-                                  <Plane className={`h-5 w-5 ${textMuted}`} />
+                                  <Plane className={`h-4 w-4 sm:h-5 sm:w-5 ${textMuted}`} />
                                 ) : (
-                                  <Ship className={`h-5 w-5 ${textMuted}`} />
+                                  <Ship className={`h-4 w-4 sm:h-5 sm:w-5 ${textMuted}`} />
                                 )}
-                                <span className={textSecondary}>{t(selectedFile.transportType)}</span>
+                                <span className={`text-xs sm:text-sm ${textSecondary}`}>{t(selectedFile.transportType)}</span>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <Package className={`h-5 w-5 ${textMuted}`} />
-                                <span className={textSecondary}>{t(selectedFile.shipmentType)}</span>
+                              <div className="flex items-center gap-1.5 sm:gap-2">
+                                <Package className={`h-4 w-4 sm:h-5 sm:w-5 ${textMuted}`} />
+                                <span className={`text-xs sm:text-sm ${textSecondary}`}>{t(selectedFile.shipmentType)}</span>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <MapPin className={`h-5 w-5 ${textMuted}`} />
-                                <span className={textSecondary}>
+                              <div className="flex items-center gap-1.5 sm:gap-2">
+                                <MapPin className={`h-4 w-4 sm:h-5 sm:w-5 ${textMuted}`} />
+                                <span className={`text-xs sm:text-sm ${textSecondary}`}>
                                   {selectedFile.origin} → {selectedFile.destination}
                                 </span>
                               </div>
                             </div>
 
-                            <div className="space-y-4">
-                              <div className="flex items-center gap-2">
-                                <Building className={`h-5 w-5 ${textMuted}`} />
-                                <span className={textSecondary}>{t(selectedFile.productType)}</span>
+                            <div className="space-y-3 sm:space-y-4">
+                              <div className="flex items-center gap-1.5 sm:gap-2">
+                                <Building className={`h-4 w-4 sm:h-5 sm:w-5 ${textMuted}`} />
+                                <span className={`text-xs sm:text-sm ${textSecondary}`}>{t(selectedFile.productType)}</span>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <Hash className={`h-5 w-5 ${textMuted}`} />
-                                <span className={textSecondary}>{selectedFile.capacity}</span>
+                              <div className="flex items-center gap-1.5 sm:gap-2">
+                                <Hash className={`h-4 w-4 sm:h-5 sm:w-5 ${textMuted}`} />
+                                <span className={`text-xs sm:text-sm ${textSecondary}`}>{selectedFile.capacity}</span>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <Clock className={`h-5 w-5 ${textMuted}`} />
-                                <span className={textSecondary}>
+                              <div className="flex items-center gap-1.5 sm:gap-2">
+                                <Clock className={`h-4 w-4 sm:h-5 sm:w-5 ${textMuted}`} />
+                                <span className={`text-xs sm:text-sm ${textSecondary}`}>
                                   {format(new Date(selectedFile.createdAt), 'dd/MM/yyyy HH:mm')}
                                 </span>
                               </div>
@@ -957,20 +959,20 @@ const FileTrackingPage = () => {
                           </div>
 
                           {/* Events timeline */}
-                          <div className="mt-8">
-                            <h3 className={`text-lg sm:text-xl font-bold ${textPrimary} mb-4 sm:mb-6 flex items-center flex-wrap gap-2`}>
-                              <Clock size={20} className="sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" />
+                          <div className="mt-6 sm:mt-8">
+                            <h3 className={`text-base sm:text-lg font-bold ${textPrimary} mb-3 sm:mb-4 flex items-center flex-wrap gap-1.5 sm:gap-2`}>
+                              <Clock size={18} className="sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" />
                               <span>{t('events')}</span>
                             </h3>
 
-                            <div className={`p-3 sm:p-4 rounded-lg ${isDark ? 'bg-blue-900/20' : 'bg-blue-50'} border ${isDark ? 'border-blue-800' : 'border-blue-200'} mb-4 sm:mb-6`}>
-                              <div className="flex items-start gap-2 sm:gap-3">
-                                <Info size={16} className={`sm:w-5 sm:h-5 mt-0.5 flex-shrink-0 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                            <div className={`p-3 sm:p-4 rounded-lg ${isDark ? 'bg-blue-900/20' : 'bg-blue-50'} border ${isDark ? 'border-blue-800' : 'border-blue-200'} mb-3 sm:mb-4`}>
+                              <div className="flex items-start gap-1.5 sm:gap-2">
+                                <Info size={14} className={`sm:w-4 sm:h-4 mt-0.5 flex-shrink-0 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
                                 <div className="min-w-0 flex-1">
-                                  <h4 className={`font-medium ${isDark ? 'text-blue-300' : 'text-blue-800'} mb-1 text-sm sm:text-base`}>
+                                  <h4 className={`font-medium ${isDark ? 'text-blue-300' : 'text-blue-800'} mb-0.5 sm:mb-1 text-xs sm:text-sm`}>
                                     {t('events_management')}
                                   </h4>
-                                  <p className={`text-xs sm:text-sm ${isDark ? 'text-blue-200' : 'text-blue-700'} leading-relaxed`}>
+                                  <p className={`text-[10px] sm:text-xs ${isDark ? 'text-blue-200' : 'text-blue-700'} leading-relaxed`}>
                                     {t('events_management_desc')} {t('sequential_completion_required')}
                                   </p>
                                 </div>
@@ -978,39 +980,39 @@ const FileTrackingPage = () => {
                             </div>
 
                             {/* Department Legend */}
-                            <div className="mb-4 sm:mb-6">
-                              <h4 className={`text-xs sm:text-sm font-semibold ${textSecondary} mb-2 sm:mb-3`}>
+                            <div className="mb-3 sm:mb-4">
+                              <h4 className={`text-[10px] sm:text-xs font-semibold ${textSecondary} mb-1.5 sm:mb-2`}>
                                 {t('departments')}:
                               </h4>
-                              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
+                              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5 sm:gap-2">
                                 <div className="flex items-center min-w-0">
-                                  <div className="w-3 h-3 sm:w-4 sm:h-4 bg-blue-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
-                                  <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('operations')}</span>
+                                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-blue-500 rounded-full mr-1 sm:mr-1.5 flex-shrink-0"></div>
+                                  <span className={`text-[10px] sm:text-xs ${textPrimary} truncate`}>{t('operations')}</span>
                                 </div>
                                 <div className="flex items-center min-w-0">
-                                  <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
-                                  <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('customs')}</span>
+                                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-500 rounded-full mr-1 sm:mr-1.5 flex-shrink-0"></div>
+                                  <span className={`text-[10px] sm:text-xs ${textPrimary} truncate`}>{t('customs')}</span>
                                 </div>
                                 <div className="flex items-center min-w-0">
-                                  <div className="w-3 h-3 sm:w-4 sm:h-4 bg-purple-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
-                                  <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('transport')}</span>
+                                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-purple-500 rounded-full mr-1 sm:mr-1.5 flex-shrink-0"></div>
+                                  <span className={`text-[10px] sm:text-xs ${textPrimary} truncate`}>{t('transport')}</span>
                                 </div>
                                 <div className="flex items-center min-w-0">
-                                  <div className="w-3 h-3 sm:w-4 sm:h-4 bg-orange-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
-                                  <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('logistics')}</span>
+                                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-orange-500 rounded-full mr-1 sm:mr-1.5 flex-shrink-0"></div>
+                                  <span className={`text-[10px] sm:text-xs ${textPrimary} truncate`}>{t('logistics')}</span>
                                 </div>
                                 <div className="flex items-center min-w-0 col-span-2 sm:col-span-1">
-                                  <div className="w-3 h-3 sm:w-4 sm:h-4 bg-pink-500 rounded-full mr-1.5 sm:mr-2 flex-shrink-0"></div>
-                                  <span className={`text-xs sm:text-sm ${textPrimary} truncate`}>{t('commercial')}</span>
+                                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-pink-500 rounded-full mr-1 sm:mr-1.5 flex-shrink-0"></div>
+                                  <span className={`text-[10px] sm:text-xs ${textPrimary} truncate`}>{t('commercial')}</span>
                                 </div>
                               </div>
                             </div>
 
                             {/* Events Timeline */}
                             <div className="relative">
-                              <div className="hidden sm:block absolute left-6 lg:left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 via-green-500 to-purple-500 opacity-30"></div>
+                              <div className="hidden sm:block absolute left-5 lg:left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 via-green-500 to-purple-500 opacity-30"></div>
 
-                              <div className="space-y-3 sm:space-y-4">
+                              <div className="space-y-2 sm:space-y-3">
                                 {events.map((event, index) => {
                                   const deptInfo = getDepartmentInfo(event.name);
                                   const colorClasses = {
@@ -1031,81 +1033,81 @@ const FileTrackingPage = () => {
                                   return (
                                     <div
                                       key={event.id}
-                                      className={`relative pl-4 sm:pl-12 lg:pl-16 pr-3 sm:pr-4 py-3 sm:py-4 rounded-xl border-2 transition-all duration-300 ${event.completed
+                                      className={`relative pl-3 sm:pl-10 lg:pl-14 pr-2 sm:pr-3 py-2 sm:py-3 rounded-lg sm:rounded-xl border-2 transition-all duration-300 ${event.completed
                                         ? `${deptInfo.bg} ${deptInfo.border} shadow-md transform hover:scale-[1.01] sm:hover:scale-[1.02]`
                                         : isBlocked
                                           ? `${bgSecondary} ${borderColor} border-dashed opacity-75 cursor-not-allowed`
                                           : `${bgSecondary} ${borderColor} hover:${deptInfo.bg} hover:shadow-lg transform hover:scale-[1.01] sm:hover:scale-[1.02]`
                                         }`}
                                     >
-                                      <div className={`hidden sm:block absolute left-4 lg:left-6 top-4 sm:top-6 w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 border-white shadow-lg bg-gradient-to-r ${colorClasses[deptInfo.color]} transition-all duration-300 ${event.completed
-                                        ? 'ring-2 ring-white ring-offset-2 scale-110'
+                                      <div className={`hidden sm:block absolute left-3 lg:left-5 top-3 sm:top-4 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border-2 border-white shadow-lg bg-gradient-to-r ${colorClasses[deptInfo.color]} transition-all duration-300 ${event.completed
+                                        ? 'ring-2 ring-white ring-offset-1 scale-110'
                                         : isBlocked
                                           ? 'opacity-40 scale-75 grayscale'
                                           : 'hover:scale-110'
                                         }`}></div>
 
-                                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
+                                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-3 mb-2 sm:mb-3">
                                         <div className="flex-1 min-w-0">
-                                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                                            <h4 className={`font-semibold ${textPrimary} text-base sm:text-lg ${isBlocked ? 'opacity-60' : ''} break-words`}>
+                                          <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+                                            <h4 className={`font-semibold ${textPrimary} text-sm sm:text-base ${isBlocked ? 'opacity-60' : ''} break-words`}>
                                               {event.name}
                                             </h4>
-                                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${deptInfo.bg} ${deptInfo.text} border ${deptInfo.border} ${isBlocked ? 'opacity-60' : ''} self-start sm:self-auto flex-shrink-0`}>
+                                            <span className={`inline-flex items-center px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium ${deptInfo.bg} ${deptInfo.text} border ${deptInfo.border} ${isBlocked ? 'opacity-60' : ''} self-start sm:self-auto flex-shrink-0`}>
                                               {deptInfo.dept}
                                             </span>
                                           </div>
-                                          <div className="flex items-center text-xs sm:text-sm text-gray-500">
-                                            <User size={12} className="sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                                          <div className="flex items-center text-[10px] sm:text-xs text-gray-500">
+                                            <User size={10} className="sm:w-3 sm:h-3 mr-1 flex-shrink-0" />
                                             <span className={`${textMuted} ${isBlocked ? 'opacity-60' : ''} truncate`}>
                                               {t('agent')}: {event.agentName}
                                             </span>
                                           </div>
-                                          <div className="mt-2 grid grid-cols-1 lg:grid-cols-2 gap-3">
+                                          <div className="mt-1.5 sm:mt-2 grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-3">
                                             <div>
-                                              <label className={`block text-xs font-medium ${textMuted} mb-1`}>{t('date')}:</label>
+                                              <label className={`block text-[10px] sm:text-xs font-medium ${textMuted} mb-0.5 sm:mb-1`}>{t('date')}:</label>
                                               <input
                                                 type="date"
                                                 value={event.date}
                                                 onChange={(e) => handleEventChange(event.id, 'date', e.target.value)}
                                                 disabled={isBlocked || event.completed}
-                                                className={`w-full px-2 py-1 text-sm rounded border ${borderColor} ${bgPrimary} ${textPrimary}`}
+                                                className={`w-full px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs sm:text-sm rounded border ${borderColor} ${bgPrimary} ${textPrimary}`}
                                               />
                                             </div>
                                             <div>
-                                              <label className={`block text-xs font-medium ${textMuted} mb-1`}>{t('details')}:</label>
+                                              <label className={`block text-[10px] sm:text-xs font-medium ${textMuted} mb-0.5 sm:mb-1`}>{t('details')}:</label>
                                               <input
                                                 type="text"
                                                 value={event.details}
                                                 onChange={(e) => handleEventChange(event.id, 'details', e.target.value)}
                                                 disabled={isBlocked || event.completed}
                                                 placeholder={t('enter_details')}
-                                                className={`w-full px-2 py-1 text-sm rounded border ${borderColor} ${bgPrimary} ${textPrimary}`}
+                                                className={`w-full px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs sm:text-sm rounded border ${borderColor} ${bgPrimary} ${textPrimary}`}
                                               />
                                             </div>
                                           </div>
                                         </div>
 
-                                        <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
-                                          <div className={`flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium transition-all flex-shrink-0 ${event.completed
+                                        <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2">
+                                          <div className={`flex items-center px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium transition-all flex-shrink-0 ${event.completed
                                             ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
                                             : isBlocked
                                               ? 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
                                               : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
                                             }`}>
                                             {event.completed ? (
-                                              <><Check size={12} className="sm:w-4 sm:h-4 mr-1" /> {t('completed')}</>
+                                              <><Check size={10} className="sm:w-3 sm:h-3 mr-0.5 sm:mr-1" /> {t('completed')}</>
                                             ) : isBlocked ? (
-                                              <><AlertTriangle size={12} className="sm:w-4 sm:h-4 mr-1 opacity-50" /> {t('waiting')}</>
+                                              <><AlertTriangle size={10} className="sm:w-3 sm:h-3 mr-0.5 sm:mr-1 opacity-50" /> {t('waiting')}</>
                                             ) : (
-                                              <><Clock size={12} className="sm:w-4 sm:h-4 mr-1" /> {t('pending')}</>
+                                              <><Clock size={10} className="sm:w-3 sm:h-3 mr-0.5 sm:mr-1" /> {t('pending')}</>
                                             )}
                                           </div>
 
                                           <button
                                             onClick={() => handleEventChange(event.id, 'completed', !event.completed)}
                                             disabled={!canBeCompleted && !canReactivate}
-                                            className={`px-2 sm:px-3 py-1 rounded-lg text-xs font-medium transition-all ${canBeCompleted
+                                            className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-medium transition-all ${canBeCompleted
                                               ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/40'
                                               : canReactivate
                                                 ? 'bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-900/40'
@@ -1113,7 +1115,7 @@ const FileTrackingPage = () => {
                                               }`}
                                           >
                                             <div title={canBeCompleted ? t('complete') : canReactivate ? t('reactivate') : t('waiting')}>
-                                              {canBeCompleted ? <Check size={14} className="sm:w-4 sm:h-4" /> : canReactivate ? <RefreshCw size={14} className="sm:w-4 sm:h-4" /> : <Check size={14} className="sm:w-4 sm:h-4" />}
+                                              {canBeCompleted ? <Check size={12} className="sm:w-3.5 sm:h-3.5" /> : canReactivate ? <RefreshCw size={12} className="sm:w-3.5 sm:h-3.5" /> : <Check size={12} className="sm:w-3.5 sm:h-3.5" />}
                                             </div>
                                           </button>
                                         </div>
