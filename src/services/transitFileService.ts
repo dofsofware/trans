@@ -22,8 +22,8 @@ const generateMockTransitFiles = (count = 25): TransitFile[] => {
   const productTypes: ('standard' | 'dangerous' | 'fragile')[] = ['standard', 'dangerous', 'fragile'];
   const transportTypes: ('air' | 'sea')[] = ['air', 'sea'];
   const shipmentTypes: ('import' | 'export')[] = ['import', 'export'];
-  const statuses: ('draft' | 'in_progress' | 'completed' | 'archived')[] = 
-    ['draft', 'in_progress', 'completed', 'archived'];
+  const statuses: ('draft' | 'in_transit' | 'completed' | 'archived')[] = 
+    ['draft', 'in_transit', 'completed', 'archived'];
 
   const contentDescriptions = [
     'Équipements électroniques et composants informatiques',
@@ -227,7 +227,7 @@ export const deleteTransitFile = async (id: string): Promise<void> => {
 export const getTransitFileStatusOptions = () => {
   return [
     { value: 'draft', label: 'Draft' },
-    { value: 'in_progress', label: 'In Progress' },
+    { value: 'in_transit', label: 'In Transit' },
     { value: 'completed', label: 'Completed' },
     { value: 'archived', label: 'Archived' }
   ];

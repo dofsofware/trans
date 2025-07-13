@@ -38,7 +38,7 @@ export interface TransitFile {
   containers: Container[];
   documents: TransitFileDocuments;
   events: TransitEvent[];
-  status: 'draft' | 'in_progress' | 'completed' | 'archived';
+  status: 'draft' | 'in_transit' | 'completed' | 'archived';
   createdAt: string;
   updatedAt: string;
   createdBy: string;

@@ -264,6 +264,12 @@ const TransitFilesPage = () => {
     setPaginatedFiles(paginated);
   }, [sortedFiles, currentPage, itemsPerPage]);
 
+  // Options de filtres basées sur les données réelles
+  const statusOptions = ['draft', 'in_transit', 'completed', 'archived'];
+  const transportTypeOptions = ['air', 'sea'];
+  const shipmentTypeOptions = ['import', 'export'];
+  const productTypeOptions = ['standard', 'dangerous', 'fragile'];
+
   const handleFilterChange = (key: keyof FilterState, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
@@ -379,7 +385,7 @@ const TransitFilesPage = () => {
     };
     
     // Map new status values to existing colors
-    if (status === 'in_progress') return colors.processing;
+    if (status === 'in_transit') return colors.processing;
     if (status === 'completed') return colors.delivered;
     return colors[status as keyof typeof colors] || colors.draft;
   };
@@ -737,16 +743,11 @@ const TransitFilesPage = () => {
                 className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
               >
                 <option value="">{t('all_statuses')}</option>
-                <option value="draft">{t('draft')}</option>
-                <option value="in_progress">{t('in_progress')}</option>
-                <option value="warehouse">{t('warehouse')}</option>
-                <option value="customs">{t('customs')}</option>
-                <option value="in_transit">{t('in_transit')}</option>
-                <option value="delivered">{t('delivered')}</option>
-                <option value="issue">{t('issue')}</option>
+                {statusOptions.map(status => (
+                  <option key={status} value={status}>{t(status)}</option>
+                ))}
               </select>
             </div>
-            <option value="completed">{t('completed')}</option>
 
             {/* Transport Type Filter */}
             <div>
@@ -759,8 +760,9 @@ const TransitFilesPage = () => {
                 className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
               >
                 <option value="">{t('all_types')}</option>
-                <option value="air">{t('air')}</option>
-                <option value="sea">{t('sea')}</option>
+                {transportTypeOptions.map(type => (
+                  <option key={type} value={type}>{t(type)}</option>
+                ))}
               </select>
             </div>
 
@@ -775,8 +777,9 @@ const TransitFilesPage = () => {
                 className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
               >
                 <option value="">{t('all_types')}</option>
-                <option value="import">{t('import')}</option>
-                <option value="export">{t('export')}</option>
+                {shipmentTypeOptions.map(type => (
+                  <option key={type} value={type}>{t(type)}</option>
+                ))}
               </select>
             </div>
 
@@ -791,10 +794,10 @@ const TransitFilesPage = () => {
                 className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
               >
                 <option value="">{t('all_types')}</option>
-                <option value="standard">{t('standard')}</option>
-                <option value="dangerous">{t('dangerous')}</option>
-                <option value="fragile">{t('fragile')}</option>
-              </select>
+                {productTypeOptions.map(type => (
+                  <option key={type} value={type}>{t(type)}</option>
+                ))}
+                </select>
             </div>
 
             {/* Client Filter */}
@@ -836,17 +839,36 @@ const TransitFilesPage = () => {
             </div>
 
 
-            {/* Date From Filter */}
-            <div>
-              <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-                {t('creation_date_from')}
-              </label>
-              <input
-                type="date"
-                value={filters.dateFrom}
-                onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
-                className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
-              />
+            {/* Date Range Filters */}
+            <div className="col-span-1 sm:col-span-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Date From Filter */}
+                <div>
+                  <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
+                    {t('creation_date_from')}
+                  </label>
+                  <input
+                    type="date"
+                    value={filters.dateFrom}
+                    onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
+                    max={filters.dateTo}
+                    className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+                  />
+                </div>
+                {/* Date To Filter */}
+                <div>
+                  <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
+                    {t('creation_date_to')}
+                  </label>
+                  <input
+                    type="date"
+                    value={filters.dateTo}
+                    onChange={(e) => handleFilterChange('dateTo', e.target.value)}
+                    min={filters.dateFrom}
+                    className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         )}
