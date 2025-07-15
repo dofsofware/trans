@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -71,7 +71,26 @@ const TransitFilesPage = () => {
     navigate(`/transit-files/${fileId}`);
   };
 
-  const handleExport = () => {
+  // État pour le type d'export sélectionné
+  const [exportType, setExportType] = useState<'pdf' | 'excel'>('pdf');
+  const [showExportOptions, setShowExportOptions] = useState(false);
+  const exportMenuRef = useRef<HTMLDivElement>(null);
+
+  // Fermer le menu d'export lorsque l'utilisateur clique en dehors
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(event.target as Node)) {
+        setShowExportOptions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleExport = (type: 'pdf' | 'excel' = exportType) => {
     // Préparer les données pour l'export
     const tableData = filteredFiles.map(file => ([
       file.reference,
@@ -104,32 +123,70 @@ const TransitFilesPage = () => {
       t('weight')
     ];
 
-    // Initialiser le PDF en mode paysage
-    const doc = new jsPDF({
-      orientation: 'landscape'
-    });
+    if (type === 'pdf') {
+      // Initialiser le PDF en mode paysage
+      const doc = new jsPDF({
+        orientation: 'landscape'
+      });
 
-    // Ajouter le titre
-    doc.setFontSize(16);
-    doc.text(t('transit_files_list'), 14, 15);
+      // Ajouter le titre
+      doc.setFontSize(16);
+      doc.text(t('transit_files_list'), 14, 15);
 
-    // Ajouter la date d'export
-    doc.setFontSize(10);
-    doc.text(format(new Date(), 'dd/MM/yyyy HH:mm'), 14, 22);
+      // Ajouter la date d'export
+      doc.setFontSize(10);
+      doc.text(format(new Date(), 'dd/MM/yyyy HH:mm'), 14, 22);
 
-    // Générer le tableau
-    autoTable(doc, {
-      head: [headers],
-      body: tableData,
-      startY: 30,
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [51, 51, 51] },
-      alternateRowStyles: { fillColor: [245, 245, 245] },
-      margin: { top: 30 }
-    });
+      // Générer le tableau
+      autoTable(doc, {
+        head: [headers],
+        body: tableData,
+        startY: 30,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [51, 51, 51] },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+        margin: { top: 30 }
+      });
 
-    // Sauvegarder le PDF
-    doc.save(`transit_files_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+      // Sauvegarder le PDF
+      doc.save(`transit_files_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+    } else if (type === 'excel') {
+      // Créer un fichier CSV pour Excel
+      let csvContent = headers.join(',') + '\n';
+      
+      // Ajouter les données
+      tableData.forEach(row => {
+        // Échapper les virgules dans les cellules
+        const escapedRow = row.map(cell => {
+          const cellStr = String(cell);
+          // Si la cellule contient une virgule, des guillemets ou des sauts de ligne, l'entourer de guillemets
+          if (cellStr.includes(',') || cellStr.includes('"') || cellStr.includes('\n')) {
+            // Échapper les guillemets en les doublant
+            return '"' + cellStr.replace(/"/g, '""') + '"';
+          }
+          return cellStr;
+        });
+        csvContent += escapedRow.join(',') + '\n';
+      });
+      
+      // Créer un objet Blob pour le fichier CSV
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      
+      // Créer un lien pour télécharger le fichier
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `transit_files_${format(new Date(), 'yyyy-MM-dd')}.csv`);
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+    
+    // Fermer le menu d'options d'export après l'export
+    setShowExportOptions(false);
   };
   const [transitFiles, setTransitFiles] = useState<TransitFile[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
@@ -736,13 +793,36 @@ const TransitFilesPage = () => {
               <Plus size={18} className="mr-2" />
               {t('new_transit_file')}
             </button>
-            <button 
-              onClick={handleExport}
-              className={`inline-flex items-center justify-center px-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm sm:text-base`}
-            >
-              <Download size={18} className="mr-2" />
-              {t('export')}
-            </button>
+            <div className="relative">
+              <button 
+                onClick={() => setShowExportOptions(!showExportOptions)}
+                className={`inline-flex items-center justify-center px-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm sm:text-base`}
+              >
+                <Download size={18} className="mr-2" />
+                {t('export')}
+              </button>
+              
+              {showExportOptions && (
+                <div ref={exportMenuRef} className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg ${bgPrimary} ring-1 ring-black ring-opacity-5 z-10`}>
+                  <div className="py-1" role="menu" aria-orientation="vertical">
+                    <button
+                      onClick={() => handleExport('pdf')}
+                      className={`block w-full text-left px-4 py-2 text-sm ${textPrimary} hover:bg-gray-100 dark:hover:bg-gray-700`}
+                      role="menuitem"
+                    >
+                      {t('export_pdf')}
+                    </button>
+                    <button
+                      onClick={() => handleExport('excel')}
+                      className={`block w-full text-left px-4 py-2 text-sm ${textPrimary} hover:bg-gray-100 dark:hover:bg-gray-700`}
+                      role="menuitem"
+                    >
+                      {t('export_excel')}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
