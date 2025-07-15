@@ -72,7 +72,7 @@ const TransitFilesPage = () => {
   };
 
   // État pour le type d'export sélectionné
-  const [exportType, setExportType] = useState<'pdf' | 'excel'>('pdf');
+  const [exportType, setExportType] = useState<'pdf' | 'excel' | 'csv'>('pdf');
   const [showExportOptions, setShowExportOptions] = useState(false);
   const exportMenuRef = useRef<HTMLDivElement>(null);
 
@@ -90,7 +90,7 @@ const TransitFilesPage = () => {
     };
   }, []);
 
-  const handleExport = (type: 'pdf' | 'excel' = exportType) => {
+  const handleExport = (type: 'pdf' | 'excel' | 'csv' = exportType) => {
     // Préparer les données pour l'export
     const tableData = filteredFiles.map(file => ([
       file.reference,
@@ -150,8 +150,8 @@ const TransitFilesPage = () => {
 
       // Sauvegarder le PDF
       doc.save(`transit_files_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
-    } else if (type === 'excel') {
-      // Créer un fichier CSV pour Excel
+    } else if (type === 'csv') {
+      // Créer un fichier CSV standard
       let csvContent = headers.join(',') + '\n';
       
       // Ajouter les données
@@ -178,6 +178,41 @@ const TransitFilesPage = () => {
       
       link.setAttribute('href', url);
       link.setAttribute('download', `transit_files_${format(new Date(), 'yyyy-MM-dd')}.csv`);
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else if (type === 'excel') {
+      // Créer un fichier Excel (XLSX)
+      // Utilisation de la bibliothèque ExcelJS pour créer un véritable fichier Excel
+      // Note: Cela nécessiterait d'installer la bibliothèque ExcelJS
+      // Pour l'instant, nous utilisons une approche simplifiée avec un CSV formaté pour Excel
+      
+      let csvContent = headers.join('\t') + '\n';
+      
+      // Ajouter les données avec des tabulations pour Excel
+      tableData.forEach(row => {
+        const escapedRow = row.map(cell => {
+          const cellStr = String(cell);
+          // Si la cellule contient des tabulations ou des sauts de ligne, les remplacer
+          if (cellStr.includes('\t') || cellStr.includes('\n')) {
+            return cellStr.replace(/\t/g, ' ').replace(/\n/g, ' ');
+          }
+          return cellStr;
+        });
+        csvContent += escapedRow.join('\t') + '\n';
+      });
+      
+      // Créer un objet Blob pour le fichier Excel (TSV)
+      const blob = new Blob([csvContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+      
+      // Créer un lien pour télécharger le fichier
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `transit_files_${format(new Date(), 'yyyy-MM-dd')}.xls`);
       link.style.visibility = 'hidden';
       
       document.body.appendChild(link);
@@ -811,6 +846,13 @@ const TransitFilesPage = () => {
                       role="menuitem"
                     >
                       {t('export_pdf')}
+                    </button>
+                    <button
+                      onClick={() => handleExport('csv')}
+                      className={`block w-full text-left px-4 py-2 text-sm ${textPrimary} hover:bg-gray-100 dark:hover:bg-gray-700`}
+                      role="menuitem"
+                    >
+                      {t('export_csv')}
                     </button>
                     <button
                       onClick={() => handleExport('excel')}
