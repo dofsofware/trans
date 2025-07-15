@@ -476,15 +476,46 @@ const FileTrackingPage = () => {
     };
 
     // Compter les événements pour chaque fichier
-    filteredFiles.forEach(file => {
-      const currentEventName = getCurrentEvent(file);
-      if (file.shipmentType === 'export') {
-        if (stats.export.hasOwnProperty(currentEventName)) {
-          stats.export[currentEventName] += 1;
+    transitFiles.forEach(file => {
+      // Vérifier si le fichier correspond aux filtres actuels (sauf le filtre d'événement lui-même)
+      let matchesFilters = true;
+      
+      // Appliquer les filtres de recherche
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        if (!(
+          file.reference.toLowerCase().includes(searchLower) ||
+          file.blNumber.toLowerCase().includes(searchLower) ||
+          getClientNames(file.clientIds).toLowerCase().includes(searchLower)
+        )) {
+          matchesFilters = false;
         }
-      } else {
-        if (stats.import.hasOwnProperty(currentEventName)) {
-          stats.import[currentEventName] += 1;
+      }
+      
+      // Appliquer les filtres de date
+      if (filters.dateFrom && matchesFilters) {
+        if (new Date(file.createdAt) < new Date(filters.dateFrom)) {
+          matchesFilters = false;
+        }
+      }
+      
+      if (filters.dateTo && matchesFilters) {
+        if (new Date(file.createdAt) > new Date(filters.dateTo)) {
+          matchesFilters = false;
+        }
+      }
+      
+      // Si le fichier correspond aux filtres, compter son événement actuel
+      if (matchesFilters) {
+        const currentEventName = getCurrentEvent(file);
+        if (file.shipmentType === 'export') {
+          if (stats.export.hasOwnProperty(currentEventName)) {
+            stats.export[currentEventName] += 1;
+          }
+        } else if (file.shipmentType === 'import') {
+          if (stats.import.hasOwnProperty(currentEventName)) {
+            stats.import[currentEventName] += 1;
+          }
         }
       }
     });
@@ -500,7 +531,7 @@ const FileTrackingPage = () => {
 
         {/* Filtres avec onglets */}
         <div className="mb-4 sm:mb-6">
-          {/* Conteneur des filtres */}
+          {/* Contenu des filtres */}
           <div className={`${bgSecondary} rounded-lg ${shadowClass} ${borderColor} border overflow-hidden`}>
             {/* Onglets */}
             <div className="flex border-b ${borderColor}">
@@ -662,79 +693,33 @@ const FileTrackingPage = () => {
                     </div>
                   </div>
 
-                  {/* Status */}
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
-                      {t('status')}
-                    </label>
-                    <select
-                      value={filters.status}
-                      onChange={(e) => handleFilterChange('status', e.target.value)}
-                      className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm`}
-                    >
-                      <option value="">{t('all_statuses')}</option>
-                      {['draft', 'in_transit', 'completed', 'archived'].map(status => (
-                        <option key={status} value={status}>{t(status)}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Transport & Shipment */}
+                  {/* Date Range */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
-                        {t('transport')}
-                      </label>
-                      <select
-                        value={filters.transportType}
-                        onChange={(e) => handleFilterChange('transportType', e.target.value)}
-                        className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm`}
-                      >
-                        <option value="">{t('all')}</option>
-                        {['air', 'sea'].map(type => (
-                          <option key={type} value={type}>{t(type)}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
-                        {t('shipment')}
-                      </label>
-                      <select
-                        value={filters.shipmentType}
-                        onChange={(e) => handleFilterChange('shipmentType', e.target.value)}
-                        className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm`}
-                      >
-                        <option value="">{t('all')}</option>
-                        {['import', 'export'].map(type => (
-                          <option key={type} value={type}>{t(type)}</option>
-                        ))}
-                      </select>
+                      <div>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
+                          {t('date_from')}
+                        </label>
+                        <input
+                          type="date"
+                          value={filters.dateFrom}
+                          onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
+                          className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm`}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
+                          {t('date_to')}
+                        </label>
+                        <input
+                          type="date"
+                          value={filters.dateTo}
+                          onChange={(e) => handleFilterChange('dateTo', e.target.value)}
+                          className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm`}
+                        />
+                      </div>
                     </div>
                   </div>
-
-                  {/* Dates */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      {t('date_range')}
-                    </label>
-                    <div className="space-y-2">
-                      <input
-                        type="date"
-                        value={filters.dateFrom}
-                        onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
-                        className={`w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
-                      />
-                      <input
-                        type="date"
-                        value={filters.dateTo}
-                        onChange={(e) => handleFilterChange('dateTo', e.target.value)}
-                        className={`w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
+                )}
             </div>
           </div>
 
