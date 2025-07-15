@@ -169,8 +169,10 @@ const TransitFilesPage = () => {
         csvContent += escapedRow.join(',') + '\n';
       });
       
-      // Créer un objet Blob pour le fichier CSV
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      // Créer un objet Blob pour le fichier CSV avec BOM pour UTF-8
+      // Le BOM (Byte Order Mark) permet à Excel de reconnaître correctement l'encodage UTF-8
+      const BOM = new Uint8Array([0xEF, 0xBB, 0xBF]);
+      const blob = new Blob([BOM, csvContent], { type: 'text/csv;charset=utf-8;' });
       
       // Créer un lien pour télécharger le fichier
       const link = document.createElement('a');
@@ -184,28 +186,86 @@ const TransitFilesPage = () => {
       link.click();
       document.body.removeChild(link);
     } else if (type === 'excel') {
-      // Créer un fichier Excel (XLSX)
-      // Utilisation de la bibliothèque ExcelJS pour créer un véritable fichier Excel
-      // Note: Cela nécessiterait d'installer la bibliothèque ExcelJS
-      // Pour l'instant, nous utilisons une approche simplifiée avec un CSV formaté pour Excel
+      // Créer un fichier Excel (HTML) qui sera correctement interprété par Excel
+      // Cette approche crée un tableau HTML que Excel peut ouvrir avec les cellules correctement séparées
       
-      let csvContent = headers.join('\t') + '\n';
+      // Créer le début du document HTML avec les styles
+      let htmlContent = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+          <meta charset="UTF-8">
+          <!--[if gte mso 9]>
+          <xml>
+            <x:ExcelWorkbook>
+              <x:ExcelWorksheets>
+                <x:ExcelWorksheet>
+                  <x:Name>Feuille 1</x:Name>
+                  <x:WorksheetOptions>
+                    <x:DisplayGridlines/>
+                  </x:WorksheetOptions>
+                </x:ExcelWorksheet>
+              </x:ExcelWorksheets>
+            </x:ExcelWorkbook>
+          </xml>
+          <![endif]-->
+          <style>
+            table, th, td {
+              border-collapse: collapse;
+              font-family: Arial, sans-serif;
+              font-size: 10pt;
+            }
+            th {
+              background-color: #f2f2f2;
+              font-weight: bold;
+              text-align: center;
+            }
+          </style>
+        </head>
+        <body>
+          <table>
+            <thead>
+              <tr>
+      `;
       
-      // Ajouter les données avec des tabulations pour Excel
-      tableData.forEach(row => {
-        const escapedRow = row.map(cell => {
-          const cellStr = String(cell);
-          // Si la cellule contient des tabulations ou des sauts de ligne, les remplacer
-          if (cellStr.includes('\t') || cellStr.includes('\n')) {
-            return cellStr.replace(/\t/g, ' ').replace(/\n/g, ' ');
-          }
-          return cellStr;
-        });
-        csvContent += escapedRow.join('\t') + '\n';
+      // Ajouter les en-têtes
+      headers.forEach(header => {
+        htmlContent += `<th>${header}</th>`;
       });
       
-      // Créer un objet Blob pour le fichier Excel (TSV)
-      const blob = new Blob([csvContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+      htmlContent += `
+              </tr>
+            </thead>
+            <tbody>
+      `;
+      
+      // Ajouter les données
+      tableData.forEach(row => {
+        htmlContent += '<tr>';
+        row.forEach(cell => {
+          // Échapper les caractères HTML spéciaux
+          const cellStr = String(cell)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;')
+            .replace(/\n/g, '<br>');
+          
+          htmlContent += `<td>${cellStr}</td>`;
+        });
+        htmlContent += '</tr>';
+      });
+      
+      // Fermer le document HTML
+      htmlContent += `
+            </tbody>
+          </table>
+        </body>
+        </html>
+      `;
+      
+      // Créer un objet Blob pour le fichier HTML
+      const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
       
       // Créer un lien pour télécharger le fichier
       const link = document.createElement('a');
@@ -838,7 +898,7 @@ const TransitFilesPage = () => {
               </button>
               
               {showExportOptions && (
-                <div ref={exportMenuRef} className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg ${bgPrimary} ring-1 ring-black ring-opacity-5 z-10`}>
+                <div ref={exportMenuRef} className={`absolute top-full right-0 mt-2 w-48 rounded-md shadow-lg ${bgPrimary} ring-1 ring-black ring-opacity-5 z-50`}>
                   <div className="py-1" role="menu" aria-orientation="vertical">
                     <button
                       onClick={() => handleExport('pdf')}
