@@ -908,18 +908,18 @@ const TransitFilesPage = () => {
                       {t('export_pdf')}
                     </button>
                     <button
-                      onClick={() => handleExport('csv')}
-                      className={`block w-full text-left px-4 py-2 text-sm ${textPrimary} hover:bg-gray-100 dark:hover:bg-gray-700`}
-                      role="menuitem"
-                    >
-                      {t('export_csv')}
-                    </button>
-                    <button
                       onClick={() => handleExport('excel')}
                       className={`block w-full text-left px-4 py-2 text-sm ${textPrimary} hover:bg-gray-100 dark:hover:bg-gray-700`}
                       role="menuitem"
                     >
                       {t('export_excel')}
+                    </button>
+                    <button
+                      onClick={() => handleExport('csv')}
+                      className={`block w-full text-left px-4 py-2 text-sm ${textPrimary} hover:bg-gray-100 dark:hover:bg-gray-700`}
+                      role="menuitem"
+                    >
+                      {t('export_csv')}
                     </button>
                   </div>
                 </div>
