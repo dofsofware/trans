@@ -62,6 +62,8 @@ const translations = {
     reset: 'Reset',
     refresh: 'Refresh',
     export: 'Export',
+    export_pdf: 'Export PDF',
+    export_excel: 'Export Excel (CSV)',
     import: 'Import',
     download: 'Download',
     upload: 'Upload',
@@ -189,6 +191,9 @@ const translations = {
     creation_date_to: 'Creation Date To',
     creationDateFrom: 'From Date',
     creationDateTo: 'To Date',
+    date_from: 'From Date',
+    date_to: 'To Date',
+    enter_details: 'Enter details...',
     estimated_delivery: 'Estimated Delivery',
     tracking_number: 'Tracking Number',
     city_country: 'City, Country',
@@ -255,8 +260,6 @@ const translations = {
     allAgents: 'All Agents',
 
     // Documents
-    invoice: 'Invoice',
-    packing_list: 'Packing List',
     other_documents: 'Other Documents',
     uploaded_files: 'Uploaded Files',
     client_visible: 'Client Visible',
@@ -614,6 +617,8 @@ const translations = {
     reset: 'Réinitialiser',
     refresh: 'Actualiser',
     export: 'Exporter',
+    export_pdf: 'Exporter en PDF',
+    export_excel: 'Exporter en Excel (CSV)',
     import: 'Importer',
     download: 'Télécharger',
     upload: 'Téléverser',
@@ -737,10 +742,13 @@ const translations = {
     product_type: 'Type de produit',
     creation_date: 'Date de création',
     creationDate: 'Date de création',
-    creation_date_from: 'Date de création depuis',
-    creation_date_to: 'Date de création jusqu\'à',
+    creation_date_from: 'Date de création (début)',
+    creation_date_to: 'Date de création (fin)',
     creationDateFrom: 'Date de début',
     creationDateTo: 'Date de fin',
+    date_from: 'Date de début',
+    date_to: 'Date de fin',
+    enter_details: 'Entrez les détails...',
     estimated_delivery: 'Livraison estimée',
     tracking_number: 'Numéro de suivi',
     city_country: 'Ville, Pays',
@@ -780,8 +788,6 @@ const translations = {
     allAgents: 'Tous les agents',
 
     // Documents
-    invoice: 'Facture',
-    packing_list: 'Liste de colisage',
     other_documents: 'Autres documents',
     uploaded_files: 'Fichiers téléversés',
     client_visible: 'Visible par le client',
@@ -977,7 +983,6 @@ const translations = {
     // Export Events
     event_types: 'Types D\'événements',
     all: 'Tout',
-    export_events: 'Événements d\'export',
     export_pregate_event: 'Prégate export',
     export_pregate_description: 'Réception des documents et traitement initial',
     warehouse_reception_event: 'Réception entrepôt',
@@ -1000,7 +1005,6 @@ const translations = {
     billing_description: 'Génération de facture et facturation',
 
     // Import Events
-    import_events: 'Événements d\'import',
     import_prealert_event: 'Préalerte import',
     import_prealert_description: 'Réception des documents et préalerte',
     arrival_event: 'Arrivée',
