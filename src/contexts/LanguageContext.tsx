@@ -528,8 +528,12 @@ const translations = {
   shipment: 'Shipment',
   date_range: 'Date Range',
   enter_détails: 'Enter details',
+  advanced_filters: 'Advanced filters',
+  clear_all: 'Clear all',
   },
   fr: {
+      clear_all: 'Effacer tout',
+      advanced_filters: 'Filtres avancés',
       // Navigation & General
       file_tracking: 'Suivi dossier',
       tracking_events: 'Événements de suivi',

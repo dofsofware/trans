@@ -498,264 +498,248 @@ const FileTrackingPage = () => {
     <div>
       <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-6" >
 
-        {/* Design alternatif - Filtres en sidebar collapsible */}
-        <div className="flex gap-2 sm:gap-4 mb-4 sm:mb-6">
-          {/* Sidebar des filtres */}
-          <div className={`transition-all duration-300 ${isFiltersOpen ? 'w-64 sm:w-80' : 'w-14 sm:w-20'} flex-shrink-0`}>
-  <div className={`${bgSecondary} rounded-lg ${shadowClass} ${borderColor} border lg:h-[85vh] lg:fixed lg:top-[14.5vh] h-full`}>
-    {/* Header du sidebar */}
-    <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-      <div className="flex items-center justify-between">
-        {isFiltersOpen && (
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
-            {t('filters')}
-          </h3>
-        )}
-        <button
-          onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-          className={`p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${isFiltersOpen ? '' : 'w-full'
-            }`}
-        >
-          <Filter size={18} className="text-gray-600 dark:text-gray-400" />
-        </button>
-      </div>
-    </div>
-
-    {/* Contenu du sidebar */}
-    {isFiltersOpen && (
-      <div className="p-3 sm:p-4 space-y-4 sm:space-y-6 overflow-y-auto h-full lg:h-[calc(85vh-80px)]">
-        {/* Recherche */}
-        <div>
-          <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
-            {t('search')}
-          </label>
-          <div className="relative">
-            <Search size={14} className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder={t('searchPlaceholder')}
-              value={filters.search}
-              onChange={(e) => handleFilterChange('search', e.target.value)}
-              className={`w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm`}
-            />
-          </div>
-        </div>
-
-        {/* Filtres actifs */}
-        {(activeFiltersCount > 0 || currentEventFilter) && (
-          <div className="space-y-1 sm:space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('active_filters')}
-              </span>
+        {/* Filtres avec onglets */}
+        <div className="mb-4 sm:mb-6">
+          {/* Conteneur des filtres */}
+          <div className={`${bgSecondary} rounded-lg ${shadowClass} ${borderColor} border overflow-hidden`}>
+            {/* Onglets */}
+            <div className="flex border-b ${borderColor}">
               <button
-                onClick={() => {
-                  setFilters({
-                    search: '',
-                    status: '',
-                    transportType: '',
-                    shipmentType: '',
-                    productType: '',
-                    client: '',
-                    origin: '',
-                    destination: '',
-                    dateFrom: '',
-                    dateTo: '',
-                  });
-                  setCurrentEventFilter('');
-                  setEventTypeFilter('all');
-                }}
-                className="text-[10px] sm:text-xs text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                onClick={() => setIsFiltersOpen(false)}
+                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${!isFiltersOpen 
+                  ? `bg-blue-500 text-white`
+                  : `hover:bg-gray-100 dark:hover:bg-gray-700 ${textPrimary}`}`}
               >
-                {t('clear_all')}
+                {t('event_filters')}
+              </button>
+              <button
+                onClick={() => setIsFiltersOpen(true)}
+                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${isFiltersOpen 
+                  ? `bg-blue-500 text-white`
+                  : `hover:bg-gray-100 dark:hover:bg-gray-700 ${textPrimary}`}`}
+              >
+                {t('advanced_filters')}
               </button>
             </div>
-            <div className="flex flex-wrap gap-1">
-              {currentEventFilter && (
-                <span className="inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-md text-[10px] sm:text-xs">
-                  {currentEventFilter}
-                  <button onClick={clearEventFilter}>
-                    <X size={10} className="sm:hidden" />
-                    <X size={12} className="hidden sm:block" />
-                  </button>
-                </span>
-              )}
-              {Object.entries(filters).map(([key, value]) =>
-                value && (
-                  <span key={key} className="inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md text-[10px] sm:text-xs">
-                    {typeof value === 'string' ? value : t(value)}
-                    <button onClick={() => handleFilterChange(key, '')}>
-                      <X size={10} className="sm:hidden" />
-                      <X size={12} className="hidden sm:block" />
+
+            {/* Contenu des onglets */}
+            <div className="p-4">
+              {/* Filtres actifs - toujours visibles */}
+              {(activeFiltersCount > 0 || currentEventFilter) && (
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {t('active_filters')}
+                    </span>
+                    <button
+                      onClick={clearAllFilters}
+                      className="text-[10px] sm:text-xs text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                    >
+                      {t('clear_all')}
                     </button>
-                  </span>
-                )
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {currentEventFilter && (
+                      <span className="inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-md text-[10px] sm:text-xs">
+                        {currentEventFilter}
+                        <button onClick={clearEventFilter}>
+                          <X size={10} className="sm:hidden" />
+                          <X size={12} className="hidden sm:block" />
+                        </button>
+                      </span>
+                    )}
+                    {Object.entries(filters).map(([key, value]) =>
+                      value && (
+                        <span key={key} className="inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md text-[10px] sm:text-xs">
+                          {typeof value === 'string' ? value : t(value)}
+                          <button onClick={() => handleFilterChange(key, '')}>
+                            <X size={10} className="sm:hidden" />
+                            <X size={12} className="hidden sm:block" />
+                          </button>
+                        </span>
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Onglet Filtres d'événements */}
+              {!isFiltersOpen && (
+                <div>
+                  {/* Toggle export/import */}
+                  <div className="flex justify-center mb-4">
+                    <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+                      {['all', 'export', 'import'].map(type => (
+                        <button
+                          key={type}
+                          onClick={() => {
+                            setEventTypeFilter(type);
+                            setCurrentEventFilter('');
+                          }}
+                          className={`px-3 py-1 text-sm font-medium rounded-md transition-all duration-200 ${eventTypeFilter === type
+                              ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                            }`}
+                        >
+                          {t(type)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Events sous forme de chips horizontaux */}
+                  <div className="flex flex-wrap gap-2">
+                    {/* Export Events */}
+                    {(eventTypeFilter === 'all' || eventTypeFilter === 'export') &&
+                      exportEventOrder.map(eventName => (
+                        <button
+                          key={`export-${eventName}`}
+                          onClick={() => handleEventFilterClick(eventName, 'export')}
+                          className={`group relative px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${currentEventFilter === eventName && eventTypeFilter === 'export'
+                              ? 'bg-green-500 text-white shadow-md'
+                              : 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/30'
+                            }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-current rounded-full opacity-60"></div>
+                            <span>{eventName}</span>
+                            <span className={`px-1.5 py-0.5 rounded-full text-xs ${currentEventFilter === eventName && eventTypeFilter === 'export'
+                                ? 'bg-white/20 text-white'
+                                : 'bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200'
+                              }`}>
+                              {eventStats.export[eventName]}
+                            </span>
+                          </div>
+                        </button>
+                      ))
+                    }
+
+                    {/* Import Events */}
+                    {(eventTypeFilter === 'all' || eventTypeFilter === 'import') &&
+                      importEventOrder.map(eventName => (
+                        <button
+                          key={`import-${eventName}`}
+                          onClick={() => handleEventFilterClick(eventName, 'import')}
+                          className={`group relative px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${currentEventFilter === eventName && eventTypeFilter === 'import'
+                              ? 'bg-blue-500 text-white shadow-md'
+                              : 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30'
+                            }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-current rounded-full opacity-60"></div>
+                            <span>{eventName}</span>
+                            <span className={`px-1.5 py-0.5 rounded-full text-xs ${currentEventFilter === eventName && eventTypeFilter === 'import'
+                                ? 'bg-white/20 text-white'
+                                : 'bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200'
+                              }`}>
+                              {eventStats.import[eventName]}
+                            </span>
+                          </div>
+                        </button>
+                      ))
+                    }
+                  </div>
+                </div>
+              )}
+
+              {/* Onglet Filtres avancés */}
+              {isFiltersOpen && (
+                <div className="space-y-4">
+                  {/* Recherche */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
+                      {t('search')}
+                    </label>
+                    <div className="relative">
+                      <Search size={14} className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <input
+                        type="text"
+                        placeholder={t('searchPlaceholder')}
+                        value={filters.search}
+                        onChange={(e) => handleFilterChange('search', e.target.value)}
+                        className={`w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm`}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Status */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
+                      {t('status')}
+                    </label>
+                    <select
+                      value={filters.status}
+                      onChange={(e) => handleFilterChange('status', e.target.value)}
+                      className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm`}
+                    >
+                      <option value="">{t('all_statuses')}</option>
+                      {['draft', 'in_transit', 'completed', 'archived'].map(status => (
+                        <option key={status} value={status}>{t(status)}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Transport & Shipment */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
+                        {t('transport')}
+                      </label>
+                      <select
+                        value={filters.transportType}
+                        onChange={(e) => handleFilterChange('transportType', e.target.value)}
+                        className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm`}
+                      >
+                        <option value="">{t('all')}</option>
+                        {['air', 'sea'].map(type => (
+                          <option key={type} value={type}>{t(type)}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
+                        {t('shipment')}
+                      </label>
+                      <select
+                        value={filters.shipmentType}
+                        onChange={(e) => handleFilterChange('shipmentType', e.target.value)}
+                        className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm`}
+                      >
+                        <option value="">{t('all')}</option>
+                        {['import', 'export'].map(type => (
+                          <option key={type} value={type}>{t(type)}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Dates */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      {t('date_range')}
+                    </label>
+                    <div className="space-y-2">
+                      <input
+                        type="date"
+                        value={filters.dateFrom}
+                        onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
+                        className={`w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+                      />
+                      <input
+                        type="date"
+                        value={filters.dateTo}
+                        onChange={(e) => handleFilterChange('dateTo', e.target.value)}
+                        className={`w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+                      />
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           </div>
-        )}
-
-        {/* Sections de filtres */}
-        <div className="space-y-4">
-          {/* Status */}
-          <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
-              {t('status')}
-            </label>
-            <select
-              value={filters.status}
-              onChange={(e) => handleFilterChange('status', e.target.value)}
-              className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm`}
-            >
-              <option value="">{t('all_statuses')}</option>
-              {['draft', 'in_transit', 'completed', 'archived'].map(status => (
-                <option key={status} value={status}>{t(status)}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Transport & Shipment */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
-                {t('transport')}
-              </label>
-              <select
-                value={filters.transportType}
-                onChange={(e) => handleFilterChange('transportType', e.target.value)}
-                className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm`}
-              >
-                <option value="">{t('all')}</option>
-                {['air', 'sea'].map(type => (
-                  <option key={type} value={type}>{t(type)}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
-                {t('shipment')}
-              </label>
-              <select
-                value={filters.shipmentType}
-                onChange={(e) => handleFilterChange('shipmentType', e.target.value)}
-                className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm`}
-              >
-                <option value="">{t('all')}</option>
-                {['import', 'export'].map(type => (
-                  <option key={type} value={type}>{t(type)}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Dates */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {t('date_range')}
-            </label>
-            <div className="space-y-2">
-              <input
-                type="date"
-                value={filters.dateFrom}
-                onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
-                className={`w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
-              />
-              <input
-                type="date"
-                value={filters.dateTo}
-                onChange={(e) => handleFilterChange('dateTo', e.target.value)}
-                className={`w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    )}
-  </div>
-</div>
 
           {/* Contenu principal */}
-          <div className="flex-1 min-w-0">
-            {/* Barre d'événements horizontale */}
-            <div className={`${bgSecondary} rounded-lg ${shadowClass} p-4 mb-4 ${borderColor} border`}>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                  {t('event_filters')}
-                </h3>
-
-                {/* Toggle compact */}
-                <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
-                  {['all', 'export', 'import'].map(type => (
-                    <button
-                      key={type}
-                      onClick={() => {
-                        setEventTypeFilter(type);
-                        setCurrentEventFilter('');
-                      }}
-                      className={`px-3 py-1 text-sm font-medium rounded-md transition-all duration-200 ${eventTypeFilter === type
-                          ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-                          : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                        }`}
-                    >
-                      {t(type)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Events sous forme de chips horizontaux */}
-              <div className="flex flex-wrap gap-2">
-                {/* Export Events */}
-                {(eventTypeFilter === 'all' || eventTypeFilter === 'export') &&
-                  exportEventOrder.map(eventName => (
-                    <button
-                      key={`export-${eventName}`}
-                      onClick={() => handleEventFilterClick(eventName, 'export')}
-                      className={`group relative px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${currentEventFilter === eventName && eventTypeFilter === 'export'
-                          ? 'bg-green-500 text-white shadow-md'
-                          : 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/30'
-                        }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-current rounded-full opacity-60"></div>
-                        <span>{eventName}</span>
-                        <span className={`px-1.5 py-0.5 rounded-full text-xs ${currentEventFilter === eventName && eventTypeFilter === 'export'
-                            ? 'bg-white/20 text-white'
-                            : 'bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200'
-                          }`}>
-                          {eventStats.export[eventName]}
-                        </span>
-                      </div>
-                    </button>
-                  ))
-                }
-
-                {/* Import Events */}
-                {(eventTypeFilter === 'all' || eventTypeFilter === 'import') &&
-                  importEventOrder.map(eventName => (
-                    <button
-                      key={`import-${eventName}`}
-                      onClick={() => handleEventFilterClick(eventName, 'import')}
-                      className={`group relative px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${currentEventFilter === eventName && eventTypeFilter === 'import'
-                          ? 'bg-blue-500 text-white shadow-md'
-                          : 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30'
-                        }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-current rounded-full opacity-60"></div>
-                        <span>{eventName}</span>
-                        <span className={`px-1.5 py-0.5 rounded-full text-xs ${currentEventFilter === eventName && eventTypeFilter === 'import'
-                            ? 'bg-white/20 text-white'
-                            : 'bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200'
-                          }`}>
-                          {eventStats.import[eventName]}
-                        </span>
-                      </div>
-                    </button>
-                  ))
-                }
-              </div>
-            </div>
+          <div className="mt-4">
 
             {/* Espace pour le contenu principal */}
             <div className={`${bgSecondary} rounded-lg ${shadowClass} p-4 ${borderColor} border`}>
