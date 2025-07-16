@@ -7,6 +7,7 @@ import { getMockClients } from '../../services/clientService';
 import { Client } from '../../types/client';
 import { Container } from '../../types/container';
 import LoadingScreen from '../../components/common/LoadingScreen';
+import TransitEventsManager from '../../components/common/TransitEventsManager';
 import { useMediaQuery } from 'react-responsive';
 import {
   Search,
@@ -51,7 +52,7 @@ import { getTransitFiles } from '../../services/transitFileService';
 
 interface FilterState {
   search: string;
-  status: string;
+  currentEvent: string;
   transportType: string;
   shipmentType: string;
   productType: string;
@@ -75,7 +76,7 @@ const FileTrackingPage = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(9);
   const [totalPages, setTotalPages] = useState<number>(1);
-  const [sortField, setSortField] = useState<'creationDate' | 'reference' | 'status'>('creationDate');
+  const [sortField, setSortField] = useState<'creationDate' | 'reference' | 'currentEvent'>('creationDate');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [isLoading, setIsLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
@@ -87,7 +88,7 @@ const FileTrackingPage = () => {
 
   const [filters, setFilters] = useState<FilterState>({
     search: '',
-    status: '',
+    currentEvent: '',
     transportType: '',
     shipmentType: '',
     productType: '',
@@ -238,7 +239,7 @@ const FileTrackingPage = () => {
   const clearAllFilters = () => {
     setFilters({
       search: '',
-      status: '',
+      currentEvent: '',
       transportType: '',
       shipmentType: '',
       productType: '',
@@ -261,7 +262,7 @@ const FileTrackingPage = () => {
     setCurrentPage(1); // Reset to first page when changing items per page
   };
 
-  const handleSortChange = (field: 'creationDate' | 'reference' | 'status') => {
+  const handleSortChange = (field: 'creationDate' | 'reference' | 'currentEvent') => {
     if (sortField === field) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
@@ -270,7 +271,7 @@ const FileTrackingPage = () => {
     }
   };
 
-  const getSortIcon = (field: 'creationDate' | 'reference' | 'status') => {
+  const getSortIcon = (field: 'creationDate' | 'reference' | 'currentEvent') => {
     if (sortField !== field) return null;
     return sortDirection === 'asc' ? '↑' : '↓';
   };
@@ -336,8 +337,8 @@ const FileTrackingPage = () => {
       );
     }
 
-    if (filters.status) {
-      filtered = filtered.filter(file => file.status === filters.status);
+    if (filters.currentEvent) {
+      filtered = filtered.filter(file => file.currentEvent === filters.currentEvent);
     }
 
     if (filters.transportType) {
@@ -411,12 +412,13 @@ const FileTrackingPage = () => {
           return sortDirection === 'asc'
             ? a.reference.localeCompare(b.reference)
             : b.reference.localeCompare(a.reference);
-        } else if (sortField === 'status') {
-          const statusA = getCurrentEvent(a);
-          const statusB = getCurrentEvent(b);
+        } else if (sortField === 'currentEvent') {
+
+          const currentEventA = getCurrentEvent(a);
+          const currentEventB = getCurrentEvent(b);
           return sortDirection === 'asc'
-            ? statusA.localeCompare(statusB)
-            : statusB.localeCompare(statusA);
+            ? currentEventA.localeCompare(currentEventB)
+            : currentEventB.localeCompare(currentEventA);
         }
         return 0;
       });
@@ -748,10 +750,10 @@ const FileTrackingPage = () => {
                         {t('reference')} {getSortIcon('reference')}
                       </button>
                       <button
-                        onClick={() => handleSortChange('status')}
-                        className={`px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-colors ${sortField === 'status' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                        onClick={() => handleSortChange('currentEvent')}
+                        className={`px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-colors ${sortField === 'currentEvent' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
                       >
-                        {t('status')} {getSortIcon('status')}
+                        {t('current_event')} {getSortIcon('currentEvent')}
                       </button>
                     </div>
 
@@ -929,171 +931,17 @@ const FileTrackingPage = () => {
 
                           {/* Events timeline */}
                           <div className="mt-6 sm:mt-8">
-                            <h3 className={`text-base sm:text-lg font-bold ${textPrimary} mb-3 sm:mb-4 flex items-center flex-wrap gap-1.5 sm:gap-2`}>
-                              <Clock size={18} className="sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" />
-                              <span>{t('events')}</span>
-                            </h3>
-
-                            <div className={`p-3 sm:p-4 rounded-lg ${isDark ? 'bg-blue-900/20' : 'bg-blue-50'} border ${isDark ? 'border-blue-800' : 'border-blue-200'} mb-3 sm:mb-4`}>
-                              <div className="flex items-start gap-1.5 sm:gap-2">
-                                <Info size={14} className={`sm:w-4 sm:h-4 mt-0.5 flex-shrink-0 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
-                                <div className="min-w-0 flex-1">
-                                  <h4 className={`font-medium ${isDark ? 'text-blue-300' : 'text-blue-800'} mb-0.5 sm:mb-1 text-xs sm:text-sm`}>
-                                    {t('events_management')}
-                                  </h4>
-                                  <p className={`text-[10px] sm:text-xs ${isDark ? 'text-blue-200' : 'text-blue-700'} leading-relaxed`}>
-                                    {t('events_management_desc')} {t('sequential_completion_required')}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Department Legend */}
-                            <div className="mb-3 sm:mb-4">
-                              <h4 className={`text-[10px] sm:text-xs font-semibold ${textSecondary} mb-1.5 sm:mb-2`}>
-                                {t('departments')}:
-                              </h4>
-                              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5 sm:gap-2">
-                                <div className="flex items-center min-w-0">
-                                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-blue-500 rounded-full mr-1 sm:mr-1.5 flex-shrink-0"></div>
-                                  <span className={`text-[10px] sm:text-xs ${textPrimary} truncate`}>{t('operations')}</span>
-                                </div>
-                                <div className="flex items-center min-w-0">
-                                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-500 rounded-full mr-1 sm:mr-1.5 flex-shrink-0"></div>
-                                  <span className={`text-[10px] sm:text-xs ${textPrimary} truncate`}>{t('customs')}</span>
-                                </div>
-                                <div className="flex items-center min-w-0">
-                                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-purple-500 rounded-full mr-1 sm:mr-1.5 flex-shrink-0"></div>
-                                  <span className={`text-[10px] sm:text-xs ${textPrimary} truncate`}>{t('transport')}</span>
-                                </div>
-                                <div className="flex items-center min-w-0">
-                                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-orange-500 rounded-full mr-1 sm:mr-1.5 flex-shrink-0"></div>
-                                  <span className={`text-[10px] sm:text-xs ${textPrimary} truncate`}>{t('logistics')}</span>
-                                </div>
-                                <div className="flex items-center min-w-0 col-span-2 sm:col-span-1">
-                                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-pink-500 rounded-full mr-1 sm:mr-1.5 flex-shrink-0"></div>
-                                  <span className={`text-[10px] sm:text-xs ${textPrimary} truncate`}>{t('commercial')}</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Events Timeline */}
-                            <div className="relative">
-                              <div className="hidden sm:block absolute left-5 lg:left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 via-green-500 to-purple-500 opacity-30"></div>
-
-                              <div className="space-y-2 sm:space-y-3">
-                                {events.map((event, index) => {
-                                  const deptInfo = getDepartmentInfo(event.name);
-                                  const colorClasses = {
-                                    blue: 'from-blue-500 to-blue-600',
-                                    green: 'from-green-500 to-green-600',
-                                    purple: 'from-purple-500 to-purple-600',
-                                    orange: 'from-orange-500 to-orange-600',
-                                    pink: 'from-pink-500 to-pink-600'
-                                  };
-
-                                  const isPreviousCompleted = index === 0 || events[index - 1].completed;
-                                  const canBeCompleted = isPreviousCompleted && !event.completed;
-                                  const isBlocked = !isPreviousCompleted && !event.completed;
-
-                                  const hasCompletedAfter = events.slice(index + 1).some(e => e.completed);
-                                  const canReactivate = event.completed && !hasCompletedAfter;
-
-                                  return (
-                                    <div
-                                      key={event.id}
-                                      className={`relative pl-3 sm:pl-10 lg:pl-14 pr-2 sm:pr-3 py-2 sm:py-3 rounded-lg sm:rounded-xl border-2 transition-all duration-300 ${event.completed
-                                        ? `${deptInfo.bg} ${deptInfo.border} shadow-md transform hover:scale-[1.01] sm:hover:scale-[1.02]`
-                                        : isBlocked
-                                          ? `${bgSecondary} ${borderColor} border-dashed opacity-75 cursor-not-allowed`
-                                          : `${bgSecondary} ${borderColor} hover:${deptInfo.bg} hover:shadow-lg transform hover:scale-[1.01] sm:hover:scale-[1.02]`
-                                        }`}
-                                    >
-                                      <div className={`hidden sm:block absolute left-3 lg:left-5 top-3 sm:top-4 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border-2 border-white shadow-lg bg-gradient-to-r ${colorClasses[deptInfo.color]} transition-all duration-300 ${event.completed
-                                        ? 'ring-2 ring-white ring-offset-1 scale-110'
-                                        : isBlocked
-                                          ? 'opacity-40 scale-75 grayscale'
-                                          : 'hover:scale-110'
-                                        }`}></div>
-
-                                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-3 mb-2 sm:mb-3">
-                                        <div className="flex-1 min-w-0">
-                                          <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
-                                            <h4 className={`font-semibold ${textPrimary} text-sm sm:text-base ${isBlocked ? 'opacity-60' : ''} break-words`}>
-                                              {event.name}
-                                            </h4>
-                                            <span className={`inline-flex items-center px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium ${deptInfo.bg} ${deptInfo.text} border ${deptInfo.border} ${isBlocked ? 'opacity-60' : ''} self-start sm:self-auto flex-shrink-0`}>
-                                              {deptInfo.dept}
-                                            </span>
-                                          </div>
-                                          <div className="flex items-center text-[10px] sm:text-xs text-gray-500">
-                                            <User size={10} className="sm:w-3 sm:h-3 mr-1 flex-shrink-0" />
-                                            <span className={`${textMuted} ${isBlocked ? 'opacity-60' : ''} truncate`}>
-                                              {t('agent')}: {event.agentName}
-                                            </span>
-                                          </div>
-                                          <div className="mt-1.5 sm:mt-2 grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-3">
-                                            <div>
-                                              <label className={`block text-[10px] sm:text-xs font-medium ${textMuted} mb-0.5 sm:mb-1`}>{t('date')}:</label>
-                                              <input
-                                                type="date"
-                                                value={event.date}
-                                                onChange={(e) => handleEventChange(event.id, 'date', e.target.value)}
-                                                disabled={isBlocked || event.completed}
-                                                className={`w-full px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs sm:text-sm rounded border ${borderColor} ${bgPrimary} ${textPrimary}`}
-                                              />
-                                            </div>
-                                            <div>
-                                              <label className={`block text-[10px] sm:text-xs font-medium ${textMuted} mb-0.5 sm:mb-1`}>{t('details')}:</label>
-                                              <input
-                                                type="text"
-                                                value={event.details}
-                                                onChange={(e) => handleEventChange(event.id, 'details', e.target.value)}
-                                                disabled={isBlocked || event.completed}
-                                                placeholder={t('enter_details')}
-                                                className={`w-full px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs sm:text-sm rounded border ${borderColor} ${bgPrimary} ${textPrimary}`}
-                                              />
-                                            </div>
-                                          </div>
-                                        </div>
-
-                                        <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2">
-                                          <div className={`flex items-center px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium transition-all flex-shrink-0 ${event.completed
-                                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                                            : isBlocked
-                                              ? 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
-                                              : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                                            }`}>
-                                            {event.completed ? (
-                                              <><Check size={10} className="sm:w-3 sm:h-3 mr-0.5 sm:mr-1" /> {t('completed')}</>
-                                            ) : isBlocked ? (
-                                              <><AlertTriangle size={10} className="sm:w-3 sm:h-3 mr-0.5 sm:mr-1 opacity-50" /> {t('waiting')}</>
-                                            ) : (
-                                              <><Clock size={10} className="sm:w-3 sm:h-3 mr-0.5 sm:mr-1" /> {t('pending')}</>
-                                            )}
-                                          </div>
-
-                                          <button
-                                            onClick={() => handleEventChange(event.id, 'completed', !event.completed)}
-                                            disabled={!canBeCompleted && !canReactivate}
-                                            className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-medium transition-all ${canBeCompleted
-                                              ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/40'
-                                              : canReactivate
-                                                ? 'bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-900/40'
-                                                : 'bg-gray-100 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400'
-                                              }`}
-                                          >
-                                            <div title={canBeCompleted ? t('complete') : canReactivate ? t('reactivate') : t('waiting')}>
-                                              {canBeCompleted ? <Check size={12} className="sm:w-3.5 sm:h-3.5" /> : canReactivate ? <RefreshCw size={12} className="sm:w-3.5 sm:h-3.5" /> : <Check size={12} className="sm:w-3.5 sm:h-3.5" />}
-                                            </div>
-                                          </button>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
+                            {/* Utilisation du composant TransitEventsManager */}
+                            <TransitEventsManager 
+                              events={events.map(event => ({
+                                ...event,
+                                agentId: event.agentName // Ajout d'un agentId temporaire basé sur le nom
+                              }))} 
+                              onEventChange={handleEventChange}
+                              isDark={isDark}
+                              t={t}
+                              readOnly={false}
+                            />
                           </div>
                         </div>
                       </div>
