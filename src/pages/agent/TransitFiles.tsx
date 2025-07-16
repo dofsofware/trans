@@ -971,9 +971,6 @@ const TransitFilesPage = () => {
               </button>
             )}
 
-            <button className={`p-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textMuted} hover:${textPrimary} transition-colors`}>
-              <RefreshCw size={18} />
-            </button>
           </div>
         </div>
 
