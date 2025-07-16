@@ -48,7 +48,8 @@ interface FormData {
   transportType: 'air' | 'sea';
   shipmentType: 'import' | 'export';
   productType: 'standard' | 'dangerous' | 'fragile';
-  capacity: string;
+  totalWeight: string;
+  totalVolume: string;
   contentDescription: string;
   containers: Container[];
   documents: {
@@ -74,7 +75,8 @@ interface FormErrors {
   clientIds?: string;
   origin?: string;
   destination?: string;
-  capacity?: string;
+  totalWeight?: string;
+  totalVolume?: string;
   contentDescription?: string;
 }
 
@@ -106,7 +108,8 @@ const NewTransitFilePage = () => {
     transportType: 'sea',
     shipmentType: 'import',
     productType: 'standard',
-    capacity: '',
+    totalWeight: '',
+    totalVolume: '',
     contentDescription: '',
     containers: [],
     documents: {},
@@ -327,8 +330,11 @@ const NewTransitFilePage = () => {
         if (!formData.destination.trim()) {
           newErrors.destination = t('required');
         }
-        if (!formData.capacity.trim()) {
-          newErrors.capacity = t('required');
+        if (!formData.totalWeight.trim()) {
+          newErrors.totalWeight = t('required');
+        }
+        if (!formData.totalVolume.trim()) {
+          newErrors.totalVolume = t('required');
         }
         break;
     }
@@ -689,21 +695,39 @@ const NewTransitFilePage = () => {
                   )}
                 </div>
 
-                {/* Capacity */}
-                <div className="md:col-span-2">
+                {/* Total Weight */}
+                <div>
                   <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
-                    {t('capacity')} *
+                    {t('weight')} *
                   </label>
                   <input
                     type="text"
-                    value={formData.capacity}
-                    onChange={(e) => handleInputChange('capacity', e.target.value)}
-                    placeholder={t('capacity_example')}
-                    className={`block w-full px-3 py-2.5 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${errors.capacity ? 'border-red-500' : borderColor
+                    value={formData.totalWeight}
+                    onChange={(e) => handleInputChange('totalWeight', e.target.value)}
+                    placeholder={t('weight_example')}
+                    className={`block w-full px-3 py-2.5 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${errors.totalWeight ? 'border-red-500' : borderColor
                       }`}
                   />
-                  {errors.capacity && (
-                    <p className="mt-1 text-sm text-red-500">{errors.capacity}</p>
+                  {errors.totalWeight && (
+                    <p className="mt-1 text-sm text-red-500">{errors.totalWeight}</p>
+                  )}
+                </div>
+
+                {/* Total Volume */}
+                <div>
+                  <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                    {t('volume')} *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.totalVolume}
+                    onChange={(e) => handleInputChange('totalVolume', e.target.value)}
+                    placeholder={t('volume_example')}
+                    className={`block w-full px-3 py-2.5 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${errors.totalVolume ? 'border-red-500' : borderColor
+                      }`}
+                  />
+                  {errors.totalVolume && (
+                    <p className="mt-1 text-sm text-red-500">{errors.totalVolume}</p>
                   )}
                 </div>
               </div>
