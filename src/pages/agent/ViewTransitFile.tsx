@@ -155,7 +155,7 @@ const ViewTransitFilePage = () => {
               date: '2024-01-15',
               agentId: 'agent1',
               agentName: 'John Doe',
-              details: 'Completed on time',
+              details: '',
               completed: true
             },
             {
@@ -164,8 +164,80 @@ const ViewTransitFilePage = () => {
               date: '2024-01-16',
               agentId: 'agent2',
               agentName: 'Jane Smith',
-              details: 'All items received',
+              details: '',
               completed: true
+            },
+            {
+              id: 'event3',
+              name: t('declaration'),
+              date: '2024-01-17',
+              agentId: 'agent3',
+              agentName: 'Robert Johnson',
+              details: '',
+              completed: true
+            },
+            {
+              id: 'event4',
+              name: t('export_customs_clearance'),
+              date: '',
+              agentId: '',
+              agentName: '',
+              details: '',
+              completed: false
+            },
+            {
+              id: 'event5',
+              name: t('warehouse_loading'),
+              date: '',
+              agentId: '',
+              agentName: '',
+              details: '',
+              completed: false
+            },
+            {
+              id: 'event6',
+              name: t('effective_transport'),
+              date: '',
+              agentId: '',
+              agentName: '',
+              details: '',
+              completed: false
+            },
+            {
+              id: 'event7',
+              name: t('vessel_loading'),
+              date: '',
+              agentId: '',
+              agentName: '',
+              details: '',
+              completed: false
+            },
+            {
+              id: 'event8',
+              name: t('departure'),
+              date: '',
+              agentId: '',
+              agentName: '',
+              details: '',
+              completed: false
+            },
+            {
+              id: 'event9',
+              name: t('estimated_arrival'),
+              date: '',
+              agentId: '',
+              agentName: '',
+              details: '',
+              completed: false
+            },
+            {
+              id: 'event10',
+              name: t('billing'),
+              date: '',
+              agentId: '',
+              agentName: '',
+              details: '',
+              completed: false
             }
           ]
         };

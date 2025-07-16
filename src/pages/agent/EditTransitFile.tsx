@@ -1114,7 +1114,7 @@ const EditTransitFilePage = () => {
                             <div className="flex items-center text-xs sm:text-sm text-green-600 dark:text-green-400">
                               <CheckCircle size={14} className="sm:w-4 sm:h-4 mr-2 flex-shrink-0" />
                               <span className="font-medium">
-                                {t('completed')} {t('on')} {format(new Date(event.date), 'dd/MM/yyyy')}
+                                {t('completed')} {t('on')} {event.date ? format(new Date(event.date), 'dd/MM/yyyy') : '-'}
                               </span>
                             </div>
                             {canReactivate && (

@@ -268,7 +268,7 @@ const TransitEventsManager: React.FC<TransitEventsManagerProps> = ({
                       </label>
                       {readOnly ? (
                         <div className={`px-3 py-2 text-sm ${textPrimary} ${(isBlocked) ? 'opacity-60' : ''}`}>
-                          {format(new Date(event.date), 'dd/MM/yyyy')}
+                          {event.date ? format(new Date(event.date), 'dd/MM/yyyy') : '-'}
                         </div>
                       ) : (
                         <input
