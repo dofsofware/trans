@@ -22,16 +22,18 @@ interface TransitEvent {
 
 interface TransitEventsManagerProps {
   events: TransitEvent[];
-  onEventChange: (eventId: string, field: 'date' | 'details' | 'completed', value: string | boolean) => void;
+  onEventChange?: (eventId: string, field: 'date' | 'details' | 'completed', value: string | boolean) => void;
   isDark: boolean;
   t: (key: string) => string; // Translation function
+  readOnly?: boolean; // New prop for read-only mode
 }
 
 const TransitEventsManager: React.FC<TransitEventsManagerProps> = ({
   events,
   onEventChange,
   isDark,
-  t
+  t,
+  readOnly = false
 }) => {
   // Theme-based styling
   const textPrimary = isDark ? 'text-white' : 'text-gray-900';
@@ -189,69 +191,71 @@ const TransitEventsManager: React.FC<TransitEventsManagerProps> = ({
                         )}
                       </div>
 
-                      {/* Action Button */}
-                      <div className="relative group">
-                        {event.completed && canReactivate ? (
-                          // Edit Button for completed events that can be reactivated
-                          <button
-                            type="button"
-                            onClick={() => onEventChange(event.id, 'completed', false)}
-                            className="p-1.5 sm:p-2 rounded-full bg-yellow-500 text-white shadow-lg hover:bg-yellow-600 hover:scale-110 transition-all duration-200 flex-shrink-0"
-                            title={t('reactivate_to_modify')}
-                          >
-                            <Edit3 size={14} className="sm:w-4 sm:h-4" />
-                          </button>
-                        ) : (
-                          // Complete/Pending Button for all other states
-                          <button
-                            type="button"
-                            onClick={() => canBeCompleted && onEventChange(event.id, 'completed', !event.completed)}
-                            disabled={!canBeCompleted}
-                            className={`p-1.5 sm:p-2 rounded-full transition-all duration-200 flex-shrink-0 ${event.completed
-                                ? 'bg-green-500 text-white shadow-lg hover:bg-green-600 hover:scale-110'
-                                : canBeCompleted
-                                  ? 'bg-blue-500 text-white shadow-lg hover:bg-blue-600 hover:scale-110'
-                                  : 'bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed'
-                              }`}
-                          >
-                            {event.completed ? (
-                              <Check size={14} className="sm:w-4 sm:h-4" />
-                            ) : isBlocked ? (
-                              <div className="relative">
-                                <CheckCircle size={14} className="sm:w-4 sm:h-4 opacity-30" />
-                                <div className="absolute inset-0 flex items-center justify-center">
+                      {/* Action Button - Only show if not in readOnly mode */}
+                      {!readOnly && onEventChange && (
+                        <div className="relative group">
+                          {event.completed && canReactivate ? (
+                            // Edit Button for completed events that can be reactivated
+                            <button
+                              type="button"
+                              onClick={() => onEventChange(event.id, 'completed', false)}
+                              className="p-1.5 sm:p-2 rounded-full bg-yellow-500 text-white shadow-lg hover:bg-yellow-600 hover:scale-110 transition-all duration-200 flex-shrink-0"
+                              title={t('reactivate_to_modify')}
+                            >
+                              <Edit3 size={14} className="sm:w-4 sm:h-4" />
+                            </button>
+                          ) : (
+                            // Complete/Pending Button for all other states
+                            <button
+                              type="button"
+                              onClick={() => canBeCompleted && onEventChange(event.id, 'completed', !event.completed)}
+                              disabled={!canBeCompleted}
+                              className={`p-1.5 sm:p-2 rounded-full transition-all duration-200 flex-shrink-0 ${event.completed
+                                  ? 'bg-green-500 text-white shadow-lg hover:bg-green-600 hover:scale-110'
+                                  : canBeCompleted
+                                    ? 'bg-blue-500 text-white shadow-lg hover:bg-blue-600 hover:scale-110'
+                                    : 'bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed'
+                                }`}
+                            >
+                              {event.completed ? (
+                                <Check size={14} className="sm:w-4 sm:h-4" />
+                              ) : isBlocked ? (
+                                <div className="relative">
+                                  <CheckCircle size={14} className="sm:w-4 sm:h-4 opacity-30" />
+                                  <div className="absolute inset-0 flex items-center justify-center">
+                                  </div>
                                 </div>
-                              </div>
-                            ) : (
-                              <CheckCircle size={14} className="sm:w-4 sm:h-4" />
-                            )}
-                          </button>
-                        )}
+                              ) : (
+                                <CheckCircle size={14} className="sm:w-4 sm:h-4" />
+                              )}
+                            </button>
+                          )}
 
-                        {/* Tooltip for edit button */}
-                        {event.completed && canReactivate && (
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 hidden sm:block">
-                            {t('reactivate_to_modify')}
-                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-2 border-transparent border-t-black"></div>
-                          </div>
-                        )}
+                          {/* Tooltip for edit button */}
+                          {event.completed && canReactivate && (
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 hidden sm:block">
+                              {t('reactivate_to_modify')}
+                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-2 border-transparent border-t-black"></div>
+                            </div>
+                          )}
 
-                        {/* Tooltip for blocked events */}
-                        {isBlocked && (
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 hidden sm:block">
-                            {t('complete_previous_step_first')}
-                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-2 border-transparent border-t-black"></div>
-                          </div>
-                        )}
+                          {/* Tooltip for blocked events */}
+                          {isBlocked && (
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 hidden sm:block">
+                              {t('complete_previous_step_first')}
+                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-2 border-transparent border-t-black"></div>
+                            </div>
+                          )}
 
-                        {/* Tooltip for completed events that can't be reactivated */}
-                        {event.completed && hasCompletedAfter && (
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 hidden sm:block">
-                            {t('cannot_reactivate_following_completed')}
-                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-2 border-transparent border-t-black"></div>
-                          </div>
-                        )}
-                      </div>
+                          {/* Tooltip for completed events that can't be reactivated */}
+                          {event.completed && hasCompletedAfter && (
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 hidden sm:block">
+                              {t('cannot_reactivate_following_completed')}
+                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-2 border-transparent border-t-black"></div>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -260,18 +264,24 @@ const TransitEventsManager: React.FC<TransitEventsManagerProps> = ({
                     <div>
                       <label className={`block text-xs font-semibold ${textMuted} mb-1 sm:mb-2 uppercase tracking-wide ${(isBlocked || event.completed) ? 'opacity-60' : ''}`}>
                         <Calendar size={10} className="sm:w-3 sm:h-3 inline mr-1" />
-                        {t('date')} *
+                        {t('date')} {!readOnly && '*'}
                       </label>
-                      <input
-                        type="date"
-                        value={event.date}
-                        onChange={(e) => onEventChange(event.id, 'date', e.target.value)}
-                        disabled={isBlocked || event.completed}
-                        className={`block w-full px-3 py-2 text-sm border rounded-lg ${bgPrimary} ${textPrimary} transition-all ${(isBlocked || event.completed)
-                            ? `${borderColor} opacity-60 cursor-not-allowed bg-gray-50 dark:bg-gray-800`
-                            : `${borderColor} focus:outline-none focus:ring-2 focus:ring-${deptInfo.color}-500 focus:border-${deptInfo.color}-500`
-                          }`}
-                      />
+                      {readOnly ? (
+                        <div className={`px-3 py-2 text-sm ${textPrimary} ${(isBlocked) ? 'opacity-60' : ''}`}>
+                          {format(new Date(event.date), 'dd/MM/yyyy')}
+                        </div>
+                      ) : (
+                        <input
+                          type="date"
+                          value={event.date}
+                          onChange={(e) => onEventChange && onEventChange(event.id, 'date', e.target.value)}
+                          disabled={isBlocked || event.completed}
+                          className={`block w-full px-3 py-2 text-sm border rounded-lg ${bgPrimary} ${textPrimary} transition-all ${(isBlocked || event.completed)
+                              ? `${borderColor} opacity-60 cursor-not-allowed bg-gray-50 dark:bg-gray-800`
+                              : `${borderColor} focus:outline-none focus:ring-2 focus:ring-${deptInfo.color}-500 focus:border-${deptInfo.color}-500`
+                            }`}
+                        />
+                      )}
                     </div>
 
                     <div>
@@ -279,23 +289,29 @@ const TransitEventsManager: React.FC<TransitEventsManagerProps> = ({
                         <Edit3 size={10} className="sm:w-3 sm:h-3 inline mr-1" />
                         {t('details')}
                       </label>
-                      <input
-                        type="text"
-                        value={event.details || ''}
-                        onChange={(e) => onEventChange(event.id, 'details', e.target.value)}
-                        placeholder={
-                          isBlocked
-                            ? t('complete_previous_step_placeholder')
-                            : event.completed
-                              ? t('click_edit_to_modify')
-                              : t('optional_details')
-                        }
-                        disabled={isBlocked || event.completed}
-                        className={`block w-full px-3 py-2 text-sm border rounded-lg ${bgPrimary} ${textPrimary} transition-all ${(isBlocked || event.completed)
-                            ? `${borderColor} opacity-60 cursor-not-allowed bg-gray-50 dark:bg-gray-800`
-                            : `${borderColor} focus:outline-none focus:ring-2 focus:ring-${deptInfo.color}-500 focus:border-${deptInfo.color}-500`
-                          }`}
-                      />
+                      {readOnly ? (
+                        <div className={`px-3 py-2 text-sm ${textPrimary} ${(isBlocked) ? 'opacity-60' : ''}`}>
+                          {event.details || '-'}
+                        </div>
+                      ) : (
+                        <input
+                          type="text"
+                          value={event.details || ''}
+                          onChange={(e) => onEventChange && onEventChange(event.id, 'details', e.target.value)}
+                          placeholder={
+                            isBlocked
+                              ? t('complete_previous_step_placeholder')
+                              : event.completed
+                                ? t('click_edit_to_modify')
+                                : t('optional_details')
+                          }
+                          disabled={isBlocked || event.completed}
+                          className={`block w-full px-3 py-2 text-sm border rounded-lg ${bgPrimary} ${textPrimary} transition-all ${(isBlocked || event.completed)
+                              ? `${borderColor} opacity-60 cursor-not-allowed bg-gray-50 dark:bg-gray-800`
+                              : `${borderColor} focus:outline-none focus:ring-2 focus:ring-${deptInfo.color}-500 focus:border-${deptInfo.color}-500`
+                            }`}
+                        />
+                      )}
                     </div>
                   </div>
 

@@ -7,6 +7,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { Client } from '../../types/client';
 import { Container } from '../../types/container';
 import LoadingScreen from '../../components/common/LoadingScreen';
+import TransitEventsManager from '../../components/common/TransitEventsManager';
 import {
   ArrowLeft,
   FileText,
@@ -531,75 +532,14 @@ const ViewTransitFilePage = () => {
           <Clock size={20} className="mr-2 text-blue-600" />
           {t('events')}
         </h2>
-
-        <div className="space-y-4">
-          {transitFile.events.map((event, index) => (
-            <div
-              key={event.id}
-              className={`p-4 rounded-lg border ${borderColor} ${event.completed ? 'bg-green-50 dark:bg-green-900/20' : bgPrimary}`}
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <h3 className={`font-medium ${textPrimary} text-lg mb-1`}>{event.name}</h3>
-                  <div className="flex items-center text-sm text-gray-500">
-                    <User size={14} className="mr-1" />
-                    {event.agentName}
-                  </div>
-                </div>
-                <div className={`flex items-center ${event.completed ? 'text-green-600 dark:text-green-400' : textMuted}`}>
-                  {event.completed ? <CheckCircle size={20} /> : <Clock size={20} />}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className={`block text-xs font-medium ${textMuted} mb-1`}>
-                    <Calendar size={12} className="inline mr-1" />
-                    {t('date')}
-                  </label>
-                  <div className={`text-sm ${textPrimary}`}>
-                    {format(new Date(event.date), 'dd/MM/yyyy')}
-                  </div>
-                </div>
-
-                {event.details && (
-                  <div>
-                    <label className={`block text-xs font-medium ${textMuted} mb-1`}>
-                      <Edit3 size={12} className="inline mr-1" />
-                      {t('details')}
-                    </label>
-                    <div className={`text-sm ${textPrimary}`}>{event.details}</div>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Progress Summary */}
-        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border border-blue-200 dark:border-blue-700">
-          <div className="flex items-center justify-between mb-3">
-            <h4 className={`font-semibold ${textPrimary} text-sm`}>
-              {t('eventProgression')}
-            </h4>
-            <span className={`text-sm ${textMuted}`}>
-              {transitFile.events.filter(e => e.completed).length} / {transitFile.events.length} {t('completed')}
-            </span>
-          </div>
-
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
-            <div
-              className="bg-gradient-to-r from-blue-500 via-green-500 to-purple-500 h-2 rounded-full transition-all duration-700 ease-out"
-              style={{
-                width: `${(transitFile.events.filter(e => e.completed).length / transitFile.events.length) * 100}%`
-              }}
-            />
-          </div>
-
-          <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
-            {Math.round((transitFile.events.filter(e => e.completed).length / transitFile.events.length) * 100)}% {t('completedEvents')}
-          </div>
-        </div>
+        
+        {/* Using TransitEventsManager in read-only mode */}
+        <TransitEventsManager 
+          events={transitFile.events} 
+          isDark={isDark} 
+          t={t} 
+          readOnly={true} 
+        />
       </div>
     </div>
   );
