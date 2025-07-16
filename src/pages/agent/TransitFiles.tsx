@@ -103,8 +103,8 @@ const TransitFilesPage = () => {
       file.destination,
       getClientNames(file.clientIds),
       format(new Date(file.createdAt), 'dd/MM/yyyy'),
-      file.volume ? `${file.volume} m³` : '-',
-      file.weight ? `${file.weight} kg` : '-'
+      file.totalVolume ? `${file.totalVolume}` : '-',
+      file.totalWeight ? `${file.totalWeight}` : '-'
     ]));
 
     // Créer l'en-tête
@@ -755,9 +755,16 @@ const TransitFilesPage = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <Weight size={12} className={`mr-1 flex-shrink-0 ${textMuted}`} />
-                <span className={textMuted}>{t('capacity')}:</span>
+                <span className={textMuted}>{t('weight')}:</span>
               </div>
-              <span className={`${textSecondary} font-medium truncate ml-2 text-right`}>{file.capacity}</span>
+              <span className={`${textSecondary} font-medium truncate ml-2 text-right`}>{file.totalWeight}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Box size={12} className={`mr-1 flex-shrink-0 ${textMuted}`} />
+                <span className={textMuted}>{t('volume')}:</span>
+              </div>
+              <span className={`${textSecondary} font-medium truncate ml-2 text-right`}>{file.totalVolume}</span>
             </div>
           </div>
           

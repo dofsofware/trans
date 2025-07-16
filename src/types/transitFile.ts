@@ -33,7 +33,8 @@ export interface TransitFile {
   transportType: 'air' | 'sea';
   shipmentType: 'import' | 'export';
   productType: 'standard' | 'dangerous' | 'fragile';
-  capacity: string;
+  totalWeight: string;
+  totalVolume: string;
   contentDescription: string;
   containers: Container[];
   documents: TransitFileDocuments;

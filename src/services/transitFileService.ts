@@ -38,15 +38,26 @@ const generateMockTransitFiles = (count = 25): TransitFile[] => {
     'Jouets et articles de sport'
   ];
 
-  const capacities = [
-    '20 pieds, 15 tonnes',
-    '40 pieds, 25 tonnes',
-    '40 pieds HC, 28 tonnes',
-    '500 kg, 2 m³',
-    '1000 kg, 5 m³',
-    '2000 kg, 10 m³',
-    '5000 kg, 25 m³',
-    '10 tonnes, 50 m³'
+  const weights = [
+    '15 tonnes',
+    '25 tonnes',
+    '28 tonnes',
+    '500 kg',
+    '1000 kg',
+    '2000 kg',
+    '5000 kg',
+    '10 tonnes'
+  ];
+
+  const volumes = [
+    '20 pieds',
+    '40 pieds',
+    '40 pieds HC',
+    '2 m³',
+    '5 m³',
+    '10 m³',
+    '25 m³',
+    '50 m³'
   ];
 
   // Generate mock containers for sea transport
@@ -115,7 +126,8 @@ const generateMockTransitFiles = (count = 25): TransitFile[] => {
       transportType,
       shipmentType: shipmentTypes[Math.floor(Math.random() * shipmentTypes.length)],
       productType: productTypes[Math.floor(Math.random() * productTypes.length)],
-      capacity: capacities[Math.floor(Math.random() * capacities.length)],
+      totalWeight: weights[Math.floor(Math.random() * weights.length)],
+      totalVolume: volumes[Math.floor(Math.random() * volumes.length)],
       contentDescription: contentDescriptions[Math.floor(Math.random() * contentDescriptions.length)],
       containers: generateMockContainers(transportType, i),
       documents: {
