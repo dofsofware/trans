@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { format } from 'date-fns';
 import {
   Clock,
@@ -35,6 +35,8 @@ const TransitEventsManager: React.FC<TransitEventsManagerProps> = ({
   t,
   readOnly = false
 }) => {
+  // État pour suivre les événements pour lesquels l'utilisateur a tenté de compléter sans date
+  const [attemptedCompletionWithoutDate, setAttemptedCompletionWithoutDate] = useState<string[]>([]);
   // Theme-based styling
   const textPrimary = isDark ? 'text-white' : 'text-gray-900';
   const textSecondary = isDark ? 'text-gray-300' : 'text-gray-600';
@@ -129,7 +131,9 @@ const TransitEventsManager: React.FC<TransitEventsManagerProps> = ({
 
               // Check if previous event is completed (sequential validation)
               const isPreviousCompleted = index === 0 || events[index - 1].completed;
-              const canBeCompleted = isPreviousCompleted && !event.completed;
+              // Check if date is valid (required field validation)
+              const hasValidDate = !!event.date && event.date.trim() !== '';
+              const canBeCompleted = isPreviousCompleted && !event.completed && hasValidDate;
               const isBlocked = !isPreviousCompleted && !event.completed;
 
               // Check if this event can be reactivated (if there are no completed events after it)
@@ -208,7 +212,16 @@ const TransitEventsManager: React.FC<TransitEventsManagerProps> = ({
                             // Complete/Pending Button for all other states
                             <button
                               type="button"
-                              onClick={() => canBeCompleted && onEventChange(event.id, 'completed', !event.completed)}
+                              onClick={() => {
+                                if (canBeCompleted) {
+                                  onEventChange(event.id, 'completed', !event.completed);
+                                } else if (isPreviousCompleted && !hasValidDate) {
+                                  // Si l'utilisateur tente de compléter sans date, ajouter l'ID à la liste
+                                  setAttemptedCompletionWithoutDate(prev => 
+                                    prev.includes(event.id) ? prev : [...prev, event.id]
+                                  );
+                                }
+                              }}
                               disabled={!canBeCompleted}
                               className={`p-1.5 sm:p-2 rounded-full transition-all duration-200 flex-shrink-0 ${event.completed
                                   ? 'bg-green-500 text-white shadow-lg hover:bg-green-600 hover:scale-110'
@@ -246,6 +259,14 @@ const TransitEventsManager: React.FC<TransitEventsManagerProps> = ({
                               <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-2 border-transparent border-t-black"></div>
                             </div>
                           )}
+                          
+                          {/* Tooltip for missing date */}
+                          {!isBlocked && !event.completed && isPreviousCompleted && !hasValidDate && (
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 hidden sm:block">
+                              {t('date_required_to_complete')}
+                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-2 border-transparent border-t-black"></div>
+                            </div>
+                          )}
 
                           {/* Tooltip for completed events that can't be reactivated */}
                           {event.completed && hasCompletedAfter && (
@@ -271,16 +292,26 @@ const TransitEventsManager: React.FC<TransitEventsManagerProps> = ({
                           {event.date ? format(new Date(event.date), 'dd/MM/yyyy') : '-'}
                         </div>
                       ) : (
-                        <input
-                          type="date"
-                          value={event.date}
-                          onChange={(e) => onEventChange && onEventChange(event.id, 'date', e.target.value)}
-                          disabled={isBlocked || event.completed}
-                          className={`block w-full px-3 py-2 text-sm border rounded-lg ${bgPrimary} ${textPrimary} transition-all ${(isBlocked || event.completed)
-                              ? `${borderColor} opacity-60 cursor-not-allowed bg-gray-50 dark:bg-gray-800`
-                              : `${borderColor} focus:outline-none focus:ring-2 focus:ring-${deptInfo.color}-500 focus:border-${deptInfo.color}-500`
-                            }`}
-                        />
+                        <div className="relative">
+                          <input
+                            type="date"
+                            value={event.date}
+                            onChange={(e) => onEventChange && onEventChange(event.id, 'date', e.target.value)}
+                            disabled={isBlocked || event.completed}
+                            required
+                            className={`block w-full px-3 py-2 text-sm border rounded-lg ${bgPrimary} ${textPrimary} transition-all ${(isBlocked || event.completed)
+                                ? `${borderColor} opacity-60 cursor-not-allowed bg-gray-50 dark:bg-gray-800`
+                                : event.date
+                                  ? `${borderColor} focus:outline-none focus:ring-2 focus:ring-${deptInfo.color}-500 focus:border-${deptInfo.color}-500`
+                                  : `border-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500`
+                              }`}
+                          />
+                          {!event.date && !isBlocked && !event.completed && attemptedCompletionWithoutDate.includes(event.id) && (
+                            <div className="text-red-500 text-xs mt-1">
+                              {t('date_required')}
+                            </div>
+                          )}
+                    </div>
                       )}
                     </div>
 
@@ -349,6 +380,16 @@ const TransitEventsManager: React.FC<TransitEventsManagerProps> = ({
                       <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse flex-shrink-0"></div>
                       <span className="font-medium">
                         {t('next_step_available')}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {/* Date required warning */}
+                  {!event.completed && isPreviousCompleted && !hasValidDate && attemptedCompletionWithoutDate.includes(event.id) && (
+                    <div className="mt-3 sm:mt-4 flex items-center text-xs sm:text-sm text-red-600 dark:text-red-400">
+                      <Info size={14} className="sm:w-4 sm:h-4 mr-2 flex-shrink-0" />
+                      <span className="font-medium">
+                        {t('date_required_to_complete')}
                       </span>
                     </div>
                   )}
