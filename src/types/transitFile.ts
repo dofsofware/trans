@@ -39,7 +39,7 @@ export interface TransitFile {
   containers: Container[];
   documents: TransitFileDocuments;
   events: TransitEvent[];
-  status: 'draft' | 'in_transit' | 'completed' | 'archived';
+  currentEvent: 'export_pregate' | 'warehouse_reception' | 'declaration' | 'export_customs_clearance' | 'warehouse_loading' | 'effective_transport' | 'vessel_loading' | 'departure' | 'estimated_arrival' | 'billing';
   createdAt: string;
   updatedAt: string;
   createdBy: string;

@@ -1,6 +1,6 @@
 import { TransitFile } from '../types/transitFile';
 import { Container } from '../types/container';
-import { format, subDays } from 'date-fns';
+import { format, subDays, addDays } from 'date-fns';
 
 // Simulate API delay
 const simulateDelay = () => new Promise(resolve => setTimeout(resolve, 500));
@@ -22,8 +22,8 @@ const generateMockTransitFiles = (count = 25): TransitFile[] => {
   const productTypes: ('standard' | 'dangerous' | 'fragile')[] = ['standard', 'dangerous', 'fragile'];
   const transportTypes: ('air' | 'sea')[] = ['air', 'sea'];
   const shipmentTypes: ('import' | 'export')[] = ['import', 'export'];
-  const statuses: ('draft' | 'in_transit' | 'completed' | 'archived')[] = 
-    ['draft', 'in_transit', 'completed', 'archived'];
+  const currentEvent: ('export_pregate' | 'warehouse_reception' | 'declaration' | 'export_customs_clearance' | 'warehouse_loading' | 'effective_transport' | 'vessel_loading' | 'departure' | 'estimated_arrival' | 'billing')[] = 
+    ['export_pregate', 'warehouse_reception', 'declaration', 'export_customs_clearance', 'warehouse_loading', 'effective_transport', 'vessel_loading', 'departure', 'estimated_arrival', 'billing'];
 
   const contentDescriptions = [
     'Équipements électroniques et composants informatiques',
@@ -139,34 +139,98 @@ const generateMockTransitFiles = (count = 25): TransitFile[] => {
         ] : undefined
       },
       events: [
-        {
-          id: `event-${i}-1`,
-          name: 'Import Prealert',
-          date: format(subDays(new Date(), Math.floor(Math.random() * 30) + 10), "yyyy-MM-dd"),
-          agentId: `agent-${Math.floor(Math.random() * 4) + 1}`,
-          agentName: 'Agent Name',
-          details: 'Prealert sent to all parties',
-          completed: true
-        },
-        {
-          id: `event-${i}-2`,
-          name: 'Arrival',
-          date: format(subDays(new Date(), Math.floor(Math.random() * 20) + 5), "yyyy-MM-dd"),
-          agentId: `agent-${Math.floor(Math.random() * 4) + 1}`,
-          agentName: 'Agent Name',
-          details: 'Vessel arrived at port',
-          completed: Math.random() > 0.3
-        },
-        {
-          id: `event-${i}-3`,
-          name: 'Declaration',
-          date: format(subDays(new Date(), Math.floor(Math.random() * 15)), "yyyy-MM-dd"),
-          agentId: `agent-${Math.floor(Math.random() * 4) + 1}`,
-          agentName: 'Agent Name',
-          completed: Math.random() > 0.5
-        }
-      ],
-      status: statuses[Math.floor(Math.random() * statuses.length)],
+  {
+    id: `event-${i}-1`,
+    name: 'export_pregate',
+    date: format(subDays(new Date(), Math.floor(Math.random() * 30) + 10), "yyyy-MM-dd"),
+    agentId: `agent-${Math.floor(Math.random() * 4) + 1}`,
+    agentName: 'John Doe',
+    details: 'Prealert sent to all parties',
+    completed: true
+  },
+  {
+    id: `event-${i}-2`,
+    name: 'warehouse_reception',
+    date: format(subDays(new Date(), Math.floor(Math.random() * 20) + 5), "yyyy-MM-dd"),
+    agentId: `agent-${Math.floor(Math.random() * 4) + 1}`,
+    agentName: 'Alice Smith',
+    details: 'Goods received at warehouse',
+    completed: Math.random() > 0.2
+  },
+  {
+    id: `event-${i}-3`,
+    name: 'declaration',
+    date: format(subDays(new Date(), Math.floor(Math.random() * 15)), "yyyy-MM-dd"),
+    agentId: `agent-${Math.floor(Math.random() * 4) + 1}`,
+    agentName: 'Bob Johnson',
+    details: 'Export declaration submitted',
+    completed: Math.random() > 0.3
+  },
+  {
+    id: `event-${i}-4`,
+    name: 'export_customs_clearance',
+    date: format(subDays(new Date(), Math.floor(Math.random() * 12)), "yyyy-MM-dd"),
+    agentId: `agent-${Math.floor(Math.random() * 4) + 1}`,
+    agentName: 'Carol White',
+    details: 'Customs clearance in progress',
+    completed: Math.random() > 0.4
+  },
+  {
+    id: `event-${i}-5`,
+    name: 'warehouse_loading',
+    date: format(subDays(new Date(), Math.floor(Math.random() * 10)), "yyyy-MM-dd"),
+    agentId: `agent-${Math.floor(Math.random() * 4) + 1}`,
+    agentName: 'David Brown',
+    details: 'Loading goods at warehouse',
+    completed: Math.random() > 0.5
+  },
+  {
+    id: `event-${i}-6`,
+    name: 'effective_transport',
+    date: format(subDays(new Date(), Math.floor(Math.random() * 8)), "yyyy-MM-dd"),
+    agentId: `agent-${Math.floor(Math.random() * 4) + 1}`,
+    agentName: 'Eve Wilson',
+    details: 'Transport to port initiated',
+    completed: Math.random() > 0.6
+  },
+  {
+    id: `event-${i}-7`,
+    name: 'vessel_loading',
+    date: format(subDays(new Date(), Math.floor(Math.random() * 6)), "yyyy-MM-dd"),
+    agentId: `agent-${Math.floor(Math.random() * 4) + 1}`,
+    agentName: 'Frank Miller',
+    details: 'Loading cargo onto vessel',
+    completed: Math.random() > 0.7
+  },
+  {
+    id: `event-${i}-8`,
+    name: 'departure',
+    date: format(subDays(new Date(), Math.floor(Math.random() * 4)), "yyyy-MM-dd"),
+    agentId: `agent-${Math.floor(Math.random() * 4) + 1}`,
+    agentName: 'Grace Davis',
+    details: 'Vessel departed from port',
+    completed: Math.random() > 0.8
+  },
+  {
+    id: `event-${i}-9`,
+    name: 'estimated_arrival',
+    date: format(addDays(new Date(), Math.floor(Math.random() * 10) + 1), "yyyy-MM-dd"),
+    agentId: `agent-${Math.floor(Math.random() * 4) + 1}`,
+    agentName: 'Henry Clark',
+    details: 'Estimated arrival at destination',
+    completed: false
+  },
+  {
+    id: `event-${i}-10`,
+    name: 'billing',
+    date: format(addDays(new Date(), Math.floor(Math.random() * 15) + 5), "yyyy-MM-dd"),
+    agentId: `agent-${Math.floor(Math.random() * 4) + 1}`,
+    agentName: 'Ivy Anderson',
+    details: 'Invoice processing',
+    completed: false
+  }
+],
+      currentEvent: currentEvent[Math.floor(Math.random() * currentEvent.length)],
       createdAt,
       updatedAt,
       createdBy: '2', // Agent actuel
