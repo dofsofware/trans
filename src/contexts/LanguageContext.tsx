@@ -265,7 +265,7 @@ const translations = {
     uploaded_files: 'Uploaded Files',
     client_visible: 'Client Visible',
     file_visibility_settings: 'File Visibility Settings',
-
+    active_filters: 'Active filters',
     // Containers
     containers: 'Containers',
     add_container: 'Add Container',
@@ -617,11 +617,11 @@ const translations = {
     apply: 'Appliquer',
     reset: 'Réinitialiser',
     refresh: 'Actualiser',
-    export: 'Exporter',
+    export: 'Export',
     export_pdf: 'Exporter en PDF',
     export_csv: 'Exporter en CSV',
     export_excel: 'Exporter en Excel',
-    import: 'Importer',
+    import: 'Import',
     download: 'Télécharger',
     upload: 'Téléverser',
     sending: 'Envoi en cours...',
@@ -981,7 +981,7 @@ const translations = {
     select_at_least_one_event: 'Veuillez sélectionner au moins un événement pour continuer',
     events_configuration: 'Configuration des événements',
     configure_selected_events: 'Configurez les événements sélectionnés avec les dates et détails',
-
+    active_filters: 'Filtres actifs',
     // Export Events
     event_types: 'Types D\'événements',
     all: 'Tout',
