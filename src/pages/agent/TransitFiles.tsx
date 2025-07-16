@@ -95,7 +95,7 @@ const TransitFilesPage = () => {
     const tableData = filteredFiles.map(file => ([
       file.reference,
       file.blNumber,
-      t(file.status),
+      getCurrentEvent(file),
       t(file.transportType),
       t(file.shipmentType),
       t(file.productType),
@@ -111,7 +111,7 @@ const TransitFilesPage = () => {
     const headers = [
       t('reference'),
       t('bl_number'),
-      t('status'),
+      t('current_event'),
       t('transport_type'),
       t('shipment_type'),
       t('product_type'),
@@ -375,9 +375,12 @@ const TransitFilesPage = () => {
       );
     }
 
-    // Status filter
+    // Current event filter (remplace le filtre de statut)
     if (filters.status) {
-      filtered = filtered.filter(f => f.status === filters.status);
+      filtered = filtered.filter(f => {
+        const currentEvent = getCurrentEvent(f);
+        return currentEvent === t(filters.status);
+      });
     }
 
     // Transport type filter
@@ -453,7 +456,10 @@ const TransitFilesPage = () => {
           comparison = a.reference.localeCompare(b.reference);
           break;
         case 'status':
-          comparison = a.status.localeCompare(b.status);
+          // Trier par événement en cours au lieu du statut
+          const eventA = getCurrentEvent(a);
+          const eventB = getCurrentEvent(b);
+          comparison = eventA.localeCompare(eventB);
           break;
       }
       
@@ -480,7 +486,15 @@ const TransitFilesPage = () => {
   }, [sortedFiles, currentPage, itemsPerPage]);
 
   // Options de filtres basées sur les données réelles
-  const statusOptions = ['draft', 'in_transit', 'completed', 'archived'];
+  const statusOptions = [
+    // Événements d'export
+    'export_pregate', 'warehouse_reception', 'declaration', 'export_customs_clearance',
+    'warehouse_loading', 'effective_transport', 'vessel_loading', 'departure',
+    'estimated_arrival', 'billing',
+    // Événements d'import
+    'import_prealert', 'arrival', 'import_customs_clearance', 'maritime_company_slip',
+    'import_pregate', 'pickup', 'delivery', 'warehouse_arrival'
+  ];
   const transportTypeOptions = ['air', 'sea'];
   const shipmentTypeOptions = ['import', 'export'];
   const productTypeOptions = ['standard', 'dangerous', 'fragile'];
@@ -520,6 +534,20 @@ const TransitFilesPage = () => {
   const getAgentName = (agentId: string) => {
     const agent = agents.find(a => a.id === agentId);
     return agent ? agent.name : t('unknown_client');
+  };
+  
+  // Fonction pour obtenir l'événement en cours d'un fichier de transit
+  const getCurrentEvent = (file: TransitFile): string => {
+    // Si le fichier n'a pas d'événements ou est complété, retourner le statut
+    if (!file.events || file.events.length === 0) {
+      return t(file.status);
+    }
+    
+    // Trouver le premier événement non complété
+    const currentEvent = file.events.find(event => !event.completed);
+    
+    // Si tous les événements sont complétés, retourner 'completed'
+    return currentEvent ? t(currentEvent.name) : t('completed');
   };
 
   // Pagination handlers
@@ -599,6 +627,17 @@ const TransitFilesPage = () => {
       issue: isDark ? 'bg-red-800 text-red-300' : 'bg-red-100 text-red-800'
     };
     
+    // Pour les événements, utiliser des couleurs basées sur le nom de l'événement
+    if (status.includes('pregate') || status.includes('declaration') || status.includes('customs') || status.includes('clearance')) {
+      return isDark ? 'bg-purple-800 text-purple-300' : 'bg-purple-100 text-purple-800';
+    } else if (status.includes('transport') || status.includes('loading') || status.includes('departure') || status.includes('arrival')) {
+      return isDark ? 'bg-blue-800 text-blue-300' : 'bg-blue-100 text-blue-800';
+    } else if (status.includes('warehouse')) {
+      return isDark ? 'bg-amber-800 text-amber-300' : 'bg-amber-100 text-amber-800';
+    } else if (status.includes('billing') || status.includes('payment')) {
+      return isDark ? 'bg-green-800 text-green-300' : 'bg-green-100 text-green-800';
+    }
+    
     // Map new status values to existing colors
     if (status === 'in_transit') return colors.processing;
     if (status === 'completed') return colors.delivered;
@@ -652,8 +691,8 @@ const TransitFilesPage = () => {
               {file.transportType === 'air' ? <Plane size={12} className="mr-1" /> : <Ship size={12} className="mr-1" />}
               {t(file.transportType)}
             </span>
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(file.status)}`}>
-              {t(file.status)}
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(getCurrentEvent(file))}`}>
+              {getCurrentEvent(file)}
             </span>
           </div>
         </div>
@@ -774,7 +813,7 @@ const TransitFilesPage = () => {
                 {t('transport_type')}
               </th>
               <th className={`px-4 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
-                {t('status')}
+                {t('current_event')}
               </th>
               <th className={`px-4 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${textMuted}`}>
                 {t('creation_date')}
@@ -816,8 +855,8 @@ const TransitFilesPage = () => {
                   </div>
                 </td>
                 <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(file.status)}`}>
-                    {t(file.status)}
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(getCurrentEvent(file))}`}>
+                    {getCurrentEvent(file)}
                   </span>
                 </td>
                 <td className={`px-4 sm:px-6 py-4 whitespace-nowrap text-sm ${textMuted}`}>
@@ -977,17 +1016,17 @@ const TransitFilesPage = () => {
         {/* Advanced Filters */}
         {showFilters && (
           <div className={`mt-6 pt-6 border-t ${borderColor} grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4`}>
-            {/* Status Filter */}
+            {/* Current Event Filter */}
             <div>
               <label className={`block text-sm font-medium ${textSecondary} mb-1`}>
-                {t('status')}
+                {t('current_event')}
               </label>
               <select
                 value={filters.status}
                 onChange={(e) => handleFilterChange('status', e.target.value)}
                 className={`block w-full px-3 py-2 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
               >
-                <option value="">{t('all_statuses')}</option>
+                <option value="">{t('all_events')}</option>
                 {statusOptions.map(status => (
                   <option key={status} value={status}>{t(status)}</option>
                 ))}
@@ -1243,7 +1282,7 @@ const TransitFilesPage = () => {
                   sortField === 'status' ? 'ring-2 ring-blue-500 border-blue-500' : ''
                 }`}
               >
-                {t('status')}
+                {t('current_event')}
                 {getSortIcon('status')}
               </button>
             </div>
