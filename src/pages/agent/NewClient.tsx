@@ -32,6 +32,9 @@ interface ClientFormData {
   isCompany: boolean;
   ninea?: string;
   raisonSociale?: string;
+  companyAddress?: string;
+  companyPhone?: string;
+  companyEmail?: string;
   address: string;
   city: string;
   country: string;
@@ -45,6 +48,9 @@ interface FormErrors {
   phone?: string;
   ninea?: string;
   raisonSociale?: string;
+  companyAddress?: string;
+  companyPhone?: string;
+  companyEmail?: string;
   address?: string;
   city?: string;
   country?: string;
@@ -55,7 +61,7 @@ const NewClientPage = () => {
   const { theme } = useTheme();
   const { t, language } = useLanguage();
   const navigate = useNavigate();
-  
+
   const [formData, setFormData] = useState<ClientFormData>({
     firstName: '',
     lastName: '',
@@ -64,12 +70,15 @@ const NewClientPage = () => {
     isCompany: false,
     ninea: '',
     raisonSociale: '',
+    companyAddress: '',
+    companyPhone: '',
+    companyEmail: '',
     address: '',
     city: '',
     country: '',
     avatar: undefined
   });
-  
+
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -94,7 +103,7 @@ const NewClientPage = () => {
       const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
       return `DKR${timestamp.slice(-8)}${random}`;
     };
-    
+
     setGeneratedIdentifiant(generateClientId());
     setTimeout(() => setPageLoaded(true), 100);
   }, []);
@@ -114,15 +123,30 @@ const NewClientPage = () => {
     if (!formData.email.trim()) {
       newErrors.email = t('required');
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = t('invalidEmail')}
-    
+      newErrors.email = t('invalidEmail')
+    }
+
     if (formData.isCompany) {
       if (!formData.ninea?.trim()) {
         newErrors.ninea = t('required');
       }
-      
+
       if (!formData.raisonSociale?.trim()) {
         newErrors.raisonSociale = t('required');
+      }
+
+      if (!formData.companyAddress?.trim()) {
+        newErrors.companyAddress = t('required');
+      }
+
+      if (!formData.companyPhone?.trim()) {
+        newErrors.companyPhone = t('required');
+      }
+
+      if (!formData.companyEmail?.trim()) {
+        newErrors.companyEmail = t('required');
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.companyEmail)) {
+        newErrors.companyEmail = t('invalidEmail');
       }
     }
 
@@ -140,7 +164,7 @@ const NewClientPage = () => {
 
   const handleInputChange = (field: keyof ClientFormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
@@ -153,7 +177,7 @@ const NewClientPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -168,6 +192,9 @@ const NewClientPage = () => {
         isCompany: formData.isCompany,
         ...(formData.isCompany && { ninea: formData.ninea }),
         ...(formData.isCompany && { raisonSociale: formData.raisonSociale }),
+        ...(formData.isCompany && formData.companyAddress && { companyAddress: formData.companyAddress }),
+        ...(formData.isCompany && formData.companyPhone && { companyPhone: formData.companyPhone }),
+        ...(formData.isCompany && formData.companyEmail && { companyEmail: formData.companyEmail }),
         address: formData.address,
         city: formData.city,
         country: formData.country,
@@ -206,15 +233,15 @@ const NewClientPage = () => {
               <CheckCircle size={32} className="text-green-600 dark:text-green-400" />
             </div>
           </div>
-          
+
           <h2 className={`text-2xl font-bold ${textPrimary} mb-2`}>
             {t('clientCreated')}
           </h2>
-          
+
           <p className={`${textSecondary} mb-8`}>
             {t('clientCreatedDesc')}
           </p>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={handleBack}
@@ -223,7 +250,7 @@ const NewClientPage = () => {
               <ArrowLeft size={18} className="mr-2" />
               {t('backToClients')}
             </button>
-            
+
             <button
               onClick={handleViewClient}
               className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -240,10 +267,10 @@ const NewClientPage = () => {
   return (
     <div className={`max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 transition-all duration-700 ${pageLoaded ? 'opacity-100' : 'opacity-0'}`}>
       {/* Header Section */}
-      <div 
+      <div
         className={`mb-8 rounded-xl p-6 ${shadowClass} transform transition-all duration-500 ${hoverShadow} hover:scale-[1.01] animate-fadeIn`}
         style={{
-          backgroundImage: isDark 
+          backgroundImage: isDark
             ? `linear-gradient(to right, rgba(17, 24, 39, 0.85), rgba(31, 41, 55, 0.85)), url(${backImage})`
             : `linear-gradient(to right, rgba(239, 246, 255, 0.85), rgba(224, 231, 255, 0.85)), url(${backImage})`,
           backgroundSize: 'cover',
@@ -274,175 +301,173 @@ const NewClientPage = () => {
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Informations personnelles */}
-<div className={`${bgSecondary} rounded-xl ${shadowClass} p-4 sm:p-6 lg:p-8 ${borderColor} border transition-all duration-300 hover:shadow-lg`}>
-  <div className="flex items-center mb-6 sm:mb-8">
-    <div className={`p-2 rounded-lg ${bgPrimary} mr-3 sm:mr-4`}>
-      <User size={20} className={`${textPrimary}`} />
-    </div>
-    <h2 className={`text-xl sm:text-2xl font-semibold ${textPrimary}`}>
-      {t('personalInfo')}
-    </h2>
-  </div>
+        <div className={`${bgSecondary} rounded-xl ${shadowClass} p-4 sm:p-6 lg:p-8 ${borderColor} border transition-all duration-300 hover:shadow-lg`}>
+          <div className="flex items-center mb-6 sm:mb-8">
+            <div className={`p-2 rounded-lg ${bgPrimary} mr-3 sm:mr-4`}>
+              <User size={20} className={`${textPrimary}`} />
+            </div>
+            <h2 className={`text-xl sm:text-2xl font-semibold ${textPrimary}`}>
+              {t('personalInfo')}
+            </h2>
+          </div>
 
-  <div className="space-y-6 sm:space-y-8">
-    {/* Champs prénom et nom */}
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-      {/* Prénom */}
-      <div className="space-y-2">
-        <label className={`block text-sm sm:text-base font-medium ${textSecondary}`}>
-          {t('firstName')} <span className="text-red-500">*</span>
-        </label>
-        <div className="relative">
-          <input
-            type="text"
-            value={formData.firstName}
-            onChange={(e) => handleInputChange('firstName', e.target.value)}
-            placeholder={t('firstNamePlaceholder')}
-            className={`block w-full px-3 py-3 sm:px-4 sm:py-4 border rounded-lg sm:rounded-xl ${bgPrimary} ${textPrimary} 
+          <div className="space-y-6 sm:space-y-8">
+            {/* Champs prénom et nom */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+              {/* Prénom */}
+              <div className="space-y-2">
+                <label className={`block text-sm sm:text-base font-medium ${textSecondary}`}>
+                  {t('firstName')} <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={formData.firstName}
+                    onChange={(e) => handleInputChange('firstName', e.target.value)}
+                    placeholder={t('firstNamePlaceholder')}
+                    className={`block w-full px-3 py-3 sm:px-4 sm:py-4 border rounded-lg sm:rounded-xl ${bgPrimary} ${textPrimary} 
               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
               transition-all duration-200 text-sm sm:text-base
               ${errors.firstName ? 'border-red-500 bg-red-50 dark:bg-red-900/10' : `${borderColor} hover:border-blue-300 dark:hover:border-blue-600`}`}
-          />
-          {errors.firstName && (
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <AlertCircle size={16} className="text-red-500" />
-            </div>
-          )}
-        </div>
-        {errors.firstName && (
-          <div className="flex items-start space-x-2 mt-2">
-            <AlertCircle size={14} className="text-red-500 mt-0.5 flex-shrink-0" />
-            <p className="text-sm text-red-500 leading-relaxed">
-              {errors.firstName}
-            </p>
-          </div>
-        )}
-      </div>
+                  />
+                  {errors.firstName && (
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                      <AlertCircle size={16} className="text-red-500" />
+                    </div>
+                  )}
+                </div>
+                {errors.firstName && (
+                  <div className="flex items-start space-x-2 mt-2">
+                    <AlertCircle size={14} className="text-red-500 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm text-red-500 leading-relaxed">
+                      {errors.firstName}
+                    </p>
+                  </div>
+                )}
+              </div>
 
-      {/* Nom */}
-      <div className="space-y-2">
-        <label className={`block text-sm sm:text-base font-medium ${textSecondary}`}>
-          {t('lastName')} <span className="text-red-500">*</span>
-        </label>
-        <div className="relative">
-          <input
-            type="text"
-            value={formData.lastName}
-            onChange={(e) => handleInputChange('lastName', e.target.value)}
-            placeholder={t('lastNamePlaceholder')}
-            className={`block w-full px-3 py-3 sm:px-4 sm:py-4 border rounded-lg sm:rounded-xl ${bgPrimary} ${textPrimary} 
+              {/* Nom */}
+              <div className="space-y-2">
+                <label className={`block text-sm sm:text-base font-medium ${textSecondary}`}>
+                  {t('lastName')} <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={formData.lastName}
+                    onChange={(e) => handleInputChange('lastName', e.target.value)}
+                    placeholder={t('lastNamePlaceholder')}
+                    className={`block w-full px-3 py-3 sm:px-4 sm:py-4 border rounded-lg sm:rounded-xl ${bgPrimary} ${textPrimary} 
               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
               transition-all duration-200 text-sm sm:text-base
               ${errors.lastName ? 'border-red-500 bg-red-50 dark:bg-red-900/10' : `${borderColor} hover:border-blue-300 dark:hover:border-blue-600`}`}
-          />
-          {errors.lastName && (
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <AlertCircle size={16} className="text-red-500" />
-            </div>
-          )}
-        </div>
-        {errors.lastName && (
-          <div className="flex items-start space-x-2 mt-2">
-            <AlertCircle size={14} className="text-red-500 mt-0.5 flex-shrink-0" />
-            <p className="text-sm text-red-500 leading-relaxed">
-              {errors.lastName}
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
-
-    {/* Section Avatar améliorée */}
-    <div className="space-y-4">
-      <label className={`block text-sm sm:text-base font-medium ${textSecondary}`}>
-        {t('avatar')}
-      </label>
-      
-      <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6 lg:gap-8">
-        {/* Avatar Preview amélioré */}
-        <div className="flex-shrink-0 w-full sm:w-auto flex justify-center sm:justify-start">
-          <div className="relative group">
-            <div className={`w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-full overflow-hidden border-3 ${
-              formData.avatar ? 'border-blue-200 dark:border-blue-800' : borderColor
-            } ${formData.avatar ? '' : 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800'} 
-            flex items-center justify-center transition-all duration-300 group-hover:scale-105`}>
-              {formData.avatar ? (
-                <img
-                  src={formData.avatar}
-                  alt="Avatar preview"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="text-center">
-                  {formData.firstName || formData.lastName ? (
-                    <span className={`text-lg sm:text-xl lg:text-2xl font-bold ${textMuted} uppercase`}>
-                      {getInitials(formData.firstName, formData.lastName)}
-                    </span>
-                  ) : (
-                    <User size={28} className={`${textMuted} sm:w-8 sm:h-8 lg:w-10 lg:h-10`} />
+                  />
+                  {errors.lastName && (
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                      <AlertCircle size={16} className="text-red-500" />
+                    </div>
                   )}
                 </div>
-              )}
+                {errors.lastName && (
+                  <div className="flex items-start space-x-2 mt-2">
+                    <AlertCircle size={14} className="text-red-500 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm text-red-500 leading-relaxed">
+                      {errors.lastName}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
-            
-            {/* Badge de statut */}
-            <div className={`absolute -bottom-1 -right-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 ${bgSecondary} flex items-center justify-center ${
-              formData.avatar ? 'bg-green-500 border-green-400' : 'bg-gray-400 border-gray-300'
-            } transition-all duration-300`}>
-              {formData.avatar ? (
-                <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              ) : (
-                <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-              )}
-            </div>
-          </div>
-          
-          {/* Description sous l'avatar */}
-          {formData.avatar && (
-            <div className="mt-3 text-center sm:text-left">
-              <p className={`text-xs sm:text-sm ${textMuted} font-medium`}>
-                {language === 'fr' ? 'Photo de profil' : 'Profile picture'}
-              </p>
-            </div>
-          )}
-        </div>
-        
-        {/* Avatar Uploader avec meilleure disposition */}
-        <div className="flex-1 w-full min-w-0">
-          <div className="space-y-3">
-            <AvatarUploader
-              currentAvatar={formData.avatar}
-              onSave={handleAvatarSave}
-            />
-            
-            {/* Conseils pour l'avatar */}
-            <div className={`p-3 sm:p-4 rounded-lg ${bgPrimary} border ${borderColor}`}>
-              <div className="flex items-start space-x-2">
-                <svg className={`w-4 h-4 sm:w-5 sm:h-5 ${textMuted} mt-0.5 flex-shrink-0`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div className="space-y-1">
-                  <p className={`text-xs sm:text-sm ${textMuted} font-medium`}>
-                    {language === 'fr' ? 'Conseils pour votre photo' : 'Photo tips'}
-                  </p>
-                  <ul className={`text-xs ${textMuted} space-y-1`}>
-                    <li>{language === 'fr' ? '• Format carré recommandé' : '• Square format recommended'}</li>
-                    <li>{language === 'fr' ? '• Taille minimale: 200x200px' : '• Minimum size: 200x200px'}</li>
-                    <li>{language === 'fr' ? '• Formats acceptés: JPG, PNG, WebP' : '• Accepted formats: JPG, PNG, WebP'}</li>
-                  </ul>
+
+            {/* Section Avatar améliorée */}
+            <div className="space-y-4">
+              <label className={`block text-sm sm:text-base font-medium ${textSecondary}`}>
+                {t('avatar')}
+              </label>
+
+              <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6 lg:gap-8">
+                {/* Avatar Preview amélioré */}
+                <div className="flex-shrink-0 w-full sm:w-auto flex justify-center sm:justify-start">
+                  <div className="relative group">
+                    <div className={`w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-full overflow-hidden border-3 ${formData.avatar ? 'border-blue-200 dark:border-blue-800' : borderColor
+                      } ${formData.avatar ? '' : 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800'} 
+            flex items-center justify-center transition-all duration-300 group-hover:scale-105`}>
+                      {formData.avatar ? (
+                        <img
+                          src={formData.avatar}
+                          alt="Avatar preview"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="text-center">
+                          {formData.firstName || formData.lastName ? (
+                            <span className={`text-lg sm:text-xl lg:text-2xl font-bold ${textMuted} uppercase`}>
+                              {getInitials(formData.firstName, formData.lastName)}
+                            </span>
+                          ) : (
+                            <User size={28} className={`${textMuted} sm:w-8 sm:h-8 lg:w-10 lg:h-10`} />
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Badge de statut */}
+                    <div className={`absolute -bottom-1 -right-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 ${bgSecondary} flex items-center justify-center ${formData.avatar ? 'bg-green-500 border-green-400' : 'bg-gray-400 border-gray-300'
+                      } transition-all duration-300`}>
+                      {formData.avatar ? (
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Description sous l'avatar */}
+                  {formData.avatar && (
+                    <div className="mt-3 text-center sm:text-left">
+                      <p className={`text-xs sm:text-sm ${textMuted} font-medium`}>
+                        {language === 'fr' ? 'Photo de profil' : 'Profile picture'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Avatar Uploader avec meilleure disposition */}
+                <div className="flex-1 w-full min-w-0">
+                  <div className="space-y-3">
+                    <AvatarUploader
+                      currentAvatar={formData.avatar}
+                      onSave={handleAvatarSave}
+                    />
+
+                    {/* Conseils pour l'avatar */}
+                    <div className={`p-3 sm:p-4 rounded-lg ${bgPrimary} border ${borderColor}`}>
+                      <div className="flex items-start space-x-2">
+                        <svg className={`w-4 h-4 sm:w-5 sm:h-5 ${textMuted} mt-0.5 flex-shrink-0`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div className="space-y-1">
+                          <p className={`text-xs sm:text-sm ${textMuted} font-medium`}>
+                            {language === 'fr' ? 'Conseils pour votre photo' : 'Photo tips'}
+                          </p>
+                          <ul className={`text-xs ${textMuted} space-y-1`}>
+                            <li>{language === 'fr' ? '• Format carré recommandé' : '• Square format recommended'}</li>
+                            <li>{language === 'fr' ? '• Taille minimale: 200x200px' : '• Minimum size: 200x200px'}</li>
+                            <li>{language === 'fr' ? '• Formats acceptés: JPG, PNG, WebP' : '• Accepted formats: JPG, PNG, WebP'}</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
 
         {/* Informations de contact */}
         <div className={`${bgSecondary} rounded-lg ${shadowClass} p-6 ${borderColor} border`}>
@@ -464,9 +489,8 @@ const NewClientPage = () => {
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
                 placeholder={t('emailPlaceholder')}
-                className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
-                  errors.email ? 'border-red-500' : borderColor
-                }`}
+                className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${errors.email ? 'border-red-500' : borderColor
+                  }`}
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-500 flex items-center">
@@ -494,89 +518,148 @@ const NewClientPage = () => {
 
         {/* Informations de l'entreprise */}
         <div className={`${bgSecondary} rounded-lg ${shadowClass} p-6 ${borderColor} border`}>
-  <div className="flex items-center mb-6">
-    <Building size={20} className={`${textPrimary} mr-3`} />
-    <h2 className={`text-xl font-semibold ${textPrimary}`}>
-      {t('companyInfo')}
-    </h2>
-  </div>
+          <div className="flex items-center mb-6">
+            <Building size={20} className={`${textPrimary} mr-3`} />
+            <h2 className={`text-xl font-semibold ${textPrimary}`}>
+              {t('companyInfo')}
+            </h2>
+          </div>
 
-  <div className="space-y-6">
-    {/* Toggle button épuré pour indiquer si c'est une entreprise */}
-    <div className="flex items-center justify-between">
-      <label htmlFor="isCompany" className={`text-sm font-medium ${textSecondary}`}>
-        {t('isCompany')}
-      </label>
-      <button
-        type="button"
-        id="isCompany"
-        onClick={() => handleInputChange('isCompany', !formData.isCompany)}
-        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-          formData.isCompany 
-            ? 'bg-blue-600' 
-            : 'bg-gray-200 dark:bg-gray-700'
-        }`}
-        role="switch"
-        aria-checked={formData.isCompany}
-      >
-        <span
-          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform duration-200 ease-in-out ${
-            formData.isCompany ? 'translate-x-6' : 'translate-x-1'
-          }`}
-        />
-      </button>
-    </div>
+          <div className="space-y-6">
+            {/* Toggle button épuré pour indiquer si c'est une entreprise */}
+            <div className="flex items-center justify-between">
+              <label htmlFor="isCompany" className={`text-sm font-medium ${textSecondary}`}>
+                {t('isCompany')}
+              </label>
+              <button
+                type="button"
+                id="isCompany"
+                onClick={() => handleInputChange('isCompany', !formData.isCompany)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${formData.isCompany
+                    ? 'bg-blue-600'
+                    : 'bg-gray-200 dark:bg-gray-700'
+                  }`}
+                role="switch"
+                aria-checked={formData.isCompany}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform duration-200 ease-in-out ${formData.isCompany ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                />
+              </button>
+            </div>
 
-    {/* Informations de l'entreprise */}
-    {formData.isCompany && (
-      <div className="space-y-6 pt-2 border-t border-gray-200 dark:border-gray-700">
-        {/* NINEA */}
-        <div>
-          <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
-            {t('ninea')} <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={formData.ninea}
-            onChange={(e) => handleInputChange('ninea', e.target.value)}
-            placeholder={t('ninea_placeholder')}
-            className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
-              errors.ninea ? 'border-red-500' : borderColor
-            }`}
-          />
-          {errors.ninea && (
-            <p className="mt-1 text-sm text-red-500 flex items-center">
-              <AlertCircle size={14} className="mr-1" />
-              {errors.ninea}
-            </p>
-          )}
+            {/* Informations de l'entreprise */}
+            {formData.isCompany && (
+              <div className="space-y-6 pt-2 border-t border-gray-200 dark:border-gray-700">
+                {/* NINEA */}
+                <div>
+                  <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                    {t('ninea')} <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.ninea}
+                    onChange={(e) => handleInputChange('ninea', e.target.value)}
+                    placeholder={t('ninea_placeholder')}
+                    className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${errors.ninea ? 'border-red-500' : borderColor
+                      }`}
+                  />
+                  {errors.ninea && (
+                    <p className="mt-1 text-sm text-red-500 flex items-center">
+                      <AlertCircle size={14} className="mr-1" />
+                      {errors.ninea}
+                    </p>
+                  )}
+                </div>
+
+                {/* Raison Sociale */}
+                <div>
+                  <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                    {t('raisonSociale')} <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.raisonSociale}
+                    onChange={(e) => handleInputChange('raisonSociale', e.target.value)}
+                    placeholder={t('raisonSociale_placeholder')}
+                    className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${errors.raisonSociale ? 'border-red-500' : borderColor
+                      }`}
+                  />
+                  {errors.raisonSociale && (
+                    <p className="mt-1 text-sm text-red-500 flex items-center">
+                      <AlertCircle size={14} className="mr-1" />
+                      {errors.raisonSociale}
+                    </p>
+                  )}
+                </div>
+
+                {/* Adresse de l'entreprise */}
+                <div>
+                  <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                    {t('companyAddress')}
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.companyAddress}
+                    onChange={(e) => handleInputChange('companyAddress', e.target.value)}
+                    placeholder={t('companyAddress_placeholder')}
+                    className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${errors.companyAddress ? 'border-red-500' : borderColor
+                      }`}
+                  />
+                  {errors.companyAddress && (
+                    <p className="mt-1 text-sm text-red-500 flex items-center">
+                      <AlertCircle size={14} className="mr-1" />
+                      {errors.companyAddress}
+                    </p>
+                  )}
+                </div>
+
+                {/* Téléphone de l'entreprise */}
+                <div>
+                  <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                    {t('companyPhone')}
+                  </label>
+                  <input
+                    type="tel"
+                    value={formData.companyPhone}
+                    onChange={(e) => handleInputChange('companyPhone', e.target.value)}
+                    placeholder={t('companyPhone_placeholder')}
+                    className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${errors.companyPhone ? 'border-red-500' : borderColor
+                      }`}
+                  />
+                  {errors.companyPhone && (
+                    <p className="mt-1 text-sm text-red-500 flex items-center">
+                      <AlertCircle size={14} className="mr-1" />
+                      {errors.companyPhone}
+                    </p>
+                  )}
+                </div>
+
+                {/* Email de l'entreprise */}
+                <div>
+                  <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                    {t('companyEmail')}
+                  </label>
+                  <input
+                    type="email"
+                    value={formData.companyEmail}
+                    onChange={(e) => handleInputChange('companyEmail', e.target.value)}
+                    placeholder={t('companyEmail_placeholder')}
+                    className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${errors.companyEmail ? 'border-red-500' : borderColor
+                      }`}
+                  />
+                  {errors.companyEmail && (
+                    <p className="mt-1 text-sm text-red-500 flex items-center">
+                      <AlertCircle size={14} className="mr-1" />
+                      {errors.companyEmail}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-
-        {/* Raison Sociale */}
-        <div>
-          <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
-            {t('raisonSociale')} <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={formData.raisonSociale}
-            onChange={(e) => handleInputChange('raisonSociale', e.target.value)}
-            placeholder={t('raisonSociale_placeholder')}
-            className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
-              errors.raisonSociale ? 'border-red-500' : borderColor
-            }`}
-          />
-          {errors.raisonSociale && (
-            <p className="mt-1 text-sm text-red-500 flex items-center">
-              <AlertCircle size={14} className="mr-1" />
-              {errors.raisonSociale}
-            </p>
-          )}
-        </div>
-      </div>
-    )}
-  </div>
-</div>
 
         {/* Informations d'adresse */}
         <div className={`${bgSecondary} rounded-lg ${shadowClass} p-6 ${borderColor} border`}>
@@ -613,9 +696,8 @@ const NewClientPage = () => {
                   value={formData.city}
                   onChange={(e) => handleInputChange('city', e.target.value)}
                   placeholder={t('cityPlaceholder')}
-                  className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
-                    errors.city ? 'border-red-500' : borderColor
-                  }`}
+                  className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${errors.city ? 'border-red-500' : borderColor
+                    }`}
                 />
                 {errors.city && (
                   <p className="mt-1 text-sm text-red-500 flex items-center">
@@ -635,9 +717,8 @@ const NewClientPage = () => {
                   value={formData.country}
                   onChange={(e) => handleInputChange('country', e.target.value)}
                   placeholder={t('countryPlaceholder')}
-                  className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
-                    errors.country ? 'border-red-500' : borderColor
-                  }`}
+                  className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${errors.country ? 'border-red-500' : borderColor
+                    }`}
                 />
                 {errors.country && (
                   <p className="mt-1 text-sm text-red-500 flex items-center">
@@ -715,7 +796,7 @@ const NewClientPage = () => {
           >
             {t('cancel')}
           </button>
-          
+
           <button
             type="submit"
             disabled={isSubmitting}
