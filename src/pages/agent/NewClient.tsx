@@ -597,7 +597,7 @@ const NewClientPage = () => {
                 {/* Adresse de l'entreprise */}
                 <div>
                   <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
-                    {t('companyAddress')}
+                    {t('companyAddress')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -615,46 +615,49 @@ const NewClientPage = () => {
                   )}
                 </div>
 
-                {/* Téléphone de l'entreprise */}
-                <div>
-                  <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
-                    {t('companyPhone')}
-                  </label>
-                  <input
-                    type="tel"
-                    value={formData.companyPhone}
-                    onChange={(e) => handleInputChange('companyPhone', e.target.value)}
-                    placeholder={t('companyPhone_placeholder')}
-                    className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${errors.companyPhone ? 'border-red-500' : borderColor
-                      }`}
-                  />
-                  {errors.companyPhone && (
-                    <p className="mt-1 text-sm text-red-500 flex items-center">
-                      <AlertCircle size={14} className="mr-1" />
-                      {errors.companyPhone}
-                    </p>
-                  )}
-                </div>
+                {/* Téléphone et Email de l'entreprise sur la même ligne */}
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Téléphone de l'entreprise */}
+                  <div>
+                    <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                      {t('companyPhone')} <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      value={formData.companyPhone}
+                      onChange={(e) => handleInputChange('companyPhone', e.target.value)}
+                      placeholder={t('companyPhone_placeholder')}
+                      className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${errors.companyPhone ? 'border-red-500' : borderColor
+                        }`}
+                    />
+                    {errors.companyPhone && (
+                      <p className="mt-1 text-sm text-red-500 flex items-center">
+                        <AlertCircle size={14} className="mr-1" />
+                        {errors.companyPhone}
+                      </p>
+                    )}
+                  </div>
 
-                {/* Email de l'entreprise */}
-                <div>
-                  <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
-                    {t('companyEmail')}
-                  </label>
-                  <input
-                    type="email"
-                    value={formData.companyEmail}
-                    onChange={(e) => handleInputChange('companyEmail', e.target.value)}
-                    placeholder={t('companyEmail_placeholder')}
-                    className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${errors.companyEmail ? 'border-red-500' : borderColor
-                      }`}
-                  />
-                  {errors.companyEmail && (
-                    <p className="mt-1 text-sm text-red-500 flex items-center">
-                      <AlertCircle size={14} className="mr-1" />
-                      {errors.companyEmail}
-                    </p>
-                  )}
+                  {/* Email de l'entreprise */}
+                  <div>
+                    <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                      {t('companyEmail')} <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      value={formData.companyEmail}
+                      onChange={(e) => handleInputChange('companyEmail', e.target.value)}
+                      placeholder={t('companyEmail_placeholder')}
+                      className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${errors.companyEmail ? 'border-red-500' : borderColor
+                        }`}
+                    />
+                    {errors.companyEmail && (
+                      <p className="mt-1 text-sm text-red-500 flex items-center">
+                        <AlertCircle size={14} className="mr-1" />
+                        {errors.companyEmail}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
