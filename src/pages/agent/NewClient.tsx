@@ -29,7 +29,9 @@ interface ClientFormData {
   lastName: string;
   email: string;
   phone: string;
-  company: string;
+  isCompany: boolean;
+  ninea?: string;
+  raisonSociale?: string;
   address: string;
   city: string;
   country: string;
@@ -41,7 +43,8 @@ interface FormErrors {
   lastName?: string;
   email?: string;
   phone?: string;
-  company?: string;
+  ninea?: string;
+  raisonSociale?: string;
   address?: string;
   city?: string;
   country?: string;
@@ -58,7 +61,9 @@ const NewClientPage = () => {
     lastName: '',
     email: '',
     phone: '',
-    company: '',
+    isCompany: false,
+    ninea: '',
+    raisonSociale: '',
     address: '',
     city: '',
     country: '',
@@ -111,9 +116,14 @@ const NewClientPage = () => {
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = t('invalidEmail')}
     
-
-    if (!formData.company.trim()) {
-      newErrors.company = t('required');
+    if (formData.isCompany) {
+      if (!formData.ninea?.trim()) {
+        newErrors.ninea = t('required');
+      }
+      
+      if (!formData.raisonSociale?.trim()) {
+        newErrors.raisonSociale = t('required');
+      }
     }
 
     if (!formData.city.trim()) {
@@ -128,7 +138,7 @@ const NewClientPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleInputChange = (field: keyof ClientFormData, value: string) => {
+  const handleInputChange = (field: keyof ClientFormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
     // Clear error when user starts typing
@@ -155,7 +165,9 @@ const NewClientPage = () => {
         name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
         phone: formData.phone,
-        company: formData.company,
+        isCompany: formData.isCompany,
+        ...(formData.isCompany && { ninea: formData.ninea }),
+        ...(formData.isCompany && { raisonSociale: formData.raisonSociale }),
         address: formData.address,
         city: formData.city,
         country: formData.country,
@@ -482,34 +494,89 @@ const NewClientPage = () => {
 
         {/* Informations de l'entreprise */}
         <div className={`${bgSecondary} rounded-lg ${shadowClass} p-6 ${borderColor} border`}>
-          <div className="flex items-center mb-6">
-            <Building size={20} className={`${textPrimary} mr-3`} />
-            <h2 className={`text-xl font-semibold ${textPrimary}`}>
-              {t('companyInfo')}
-            </h2>
-          </div>
+  <div className="flex items-center mb-6">
+    <Building size={20} className={`${textPrimary} mr-3`} />
+    <h2 className={`text-xl font-semibold ${textPrimary}`}>
+      {t('companyInfo')}
+    </h2>
+  </div>
 
-          <div>
-            <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
-              {t('company')} <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={formData.company}
-              onChange={(e) => handleInputChange('company', e.target.value)}
-              placeholder={t('companyPlaceholder')}
-              className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
-                errors.company ? 'border-red-500' : borderColor
-              }`}
-            />
-            {errors.company && (
-              <p className="mt-1 text-sm text-red-500 flex items-center">
-                <AlertCircle size={14} className="mr-1" />
-                {errors.company}
-              </p>
-            )}
-          </div>
+  <div className="space-y-6">
+    {/* Toggle button épuré pour indiquer si c'est une entreprise */}
+    <div className="flex items-center justify-between">
+      <label htmlFor="isCompany" className={`text-sm font-medium ${textSecondary}`}>
+        {t('isCompany')}
+      </label>
+      <button
+        type="button"
+        id="isCompany"
+        onClick={() => handleInputChange('isCompany', !formData.isCompany)}
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+          formData.isCompany 
+            ? 'bg-blue-600' 
+            : 'bg-gray-200 dark:bg-gray-700'
+        }`}
+        role="switch"
+        aria-checked={formData.isCompany}
+      >
+        <span
+          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform duration-200 ease-in-out ${
+            formData.isCompany ? 'translate-x-6' : 'translate-x-1'
+          }`}
+        />
+      </button>
+    </div>
+
+    {/* Informations de l'entreprise */}
+    {formData.isCompany && (
+      <div className="space-y-6 pt-2 border-t border-gray-200 dark:border-gray-700">
+        {/* NINEA */}
+        <div>
+          <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+            {t('ninea')} <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            value={formData.ninea}
+            onChange={(e) => handleInputChange('ninea', e.target.value)}
+            placeholder={t('ninea_placeholder')}
+            className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+              errors.ninea ? 'border-red-500' : borderColor
+            }`}
+          />
+          {errors.ninea && (
+            <p className="mt-1 text-sm text-red-500 flex items-center">
+              <AlertCircle size={14} className="mr-1" />
+              {errors.ninea}
+            </p>
+          )}
         </div>
+
+        {/* Raison Sociale */}
+        <div>
+          <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+            {t('raisonSociale')} <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            value={formData.raisonSociale}
+            onChange={(e) => handleInputChange('raisonSociale', e.target.value)}
+            placeholder={t('raisonSociale_placeholder')}
+            className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+              errors.raisonSociale ? 'border-red-500' : borderColor
+            }`}
+          />
+          {errors.raisonSociale && (
+            <p className="mt-1 text-sm text-red-500 flex items-center">
+              <AlertCircle size={14} className="mr-1" />
+              {errors.raisonSociale}
+            </p>
+          )}
+        </div>
+      </div>
+    )}
+  </div>
+</div>
 
         {/* Informations d'adresse */}
         <div className={`${bgSecondary} rounded-lg ${shadowClass} p-6 ${borderColor} border`}>
