@@ -5,7 +5,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { getMockClients } from '../../services/clientService';
 import { Client } from '../../types/client';
 import LoadingScreen from '../../components/common/LoadingScreen';
-import ClientExport from '../../components/common/ClientExport';
+import GenericExport from '../../components/common/GenericExport';
 import {
   Search,
   Filter,
@@ -131,8 +131,6 @@ const ClientsPage = () => {
     setFilteredClients(filtered);
     setCurrentPage(1); // Reset to first page when filters change
   }, [searchQuery, statusFilter, clients]);
-  
-  // Les fonctions d'exportation sont maintenant gérées par le composant ClientExport
 
   // Pagination handlers
   const handlePageChange = (page: number) => {
@@ -509,11 +507,41 @@ const ClientsPage = () => {
               <Plus size={18} className="mr-2" />
               Nouveau client
             </button>
-            <ClientExport 
-              clients={filteredClients} 
-              buttonClassName="inline-flex items-center px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm"
+            <GenericExport 
+              data={filteredClients} 
+              getHeaders={() => [
+                'ID',
+                t('name'),
+                t('company'),
+                t('email'),
+                t('phone'),
+                t('address'),
+                t('city'),
+                t('country'),
+                t('status'),
+                t('creation_date')
+              ]}
+              formatData={(data) => data.map(client => [
+                client.id,
+                client.name || '',
+                client.company || '',
+                client.email || '',
+                client.phone || '',
+                client.address || '',
+                client.city || '',
+                client.country || '',
+                client.status || '',
+                client.createdAt ? format(new Date(client.createdAt), 'dd/MM/yyyy') : ''
+              ])}
+              filenamePrefix="clients"
+              title={t('clients_list')}
+              orientation="landscape"
+              buttonClassName={`inline-flex items-center justify-center px-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm sm:text-base`}
               menuClassName="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-50"
               menuItemClassName="block w-full text-left px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+              customPdfConfig={{
+                headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+              }}
             />
           </div>
         </div>

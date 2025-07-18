@@ -7,7 +7,7 @@ import { getMockClients } from '../../services/clientService';
 import { Client } from '../../types/client';
 import { Container } from '../../types/container';
 import LoadingScreen from '../../components/common/LoadingScreen';
-import TransitFileExport from '../../components/common/TransitFileExport';
+import GenericExport from '../../components/common/GenericExport';
 import { useMediaQuery } from 'react-responsive';
 import {
   Search,
@@ -72,9 +72,7 @@ const TransitFilesPage = () => {
     navigate(`/transit-files/${fileId}`);
   };
 
-  // Aucun état nécessaire pour l'exportation, tout est géré par le composant TransitFileExport
-
-    // La fonction d'exportation est maintenant gérée par le composant TransitFileExport
+  
   const [transitFiles, setTransitFiles] = useState<TransitFile[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [filteredFiles, setFilteredFiles] = useState<TransitFile[]>([]);
@@ -727,14 +725,45 @@ const TransitFilesPage = () => {
               <Plus size={18} className="mr-2" />
               {t('new_transit_file')}
             </button>
-            <TransitFileExport 
-              files={filteredFiles}
-              getClientNames={getClientNames}
-              getCurrentEvent={getCurrentEvent}
+            <GenericExport 
+              data={filteredFiles}
+              getHeaders={() => [
+                t('reference'),
+                t('bl_number'),
+                t('current_event'),
+                t('transport_type'),
+                t('shipment_type'),
+                t('product_type'),
+                t('origin'),
+                t('destination'),
+                t('clients'),
+                t('creation_date'),
+                t('volume'),
+                t('weight')
+              ]}
+              formatData={(data) => data.map(file => [
+                file.reference,
+                file.blNumber,
+                getCurrentEvent(file),
+                t(file.transportType),
+                t(file.shipmentType),
+                t(file.productType),
+                file.origin,
+                file.destination,
+                getClientNames(file.clientIds),
+                format(new Date(file.createdAt), 'dd/MM/yyyy'),
+                file.totalVolume ? `${file.totalVolume}` : '-',
+                file.totalWeight ? `${file.totalWeight}` : '-'
+              ])}
+              filenamePrefix="transit_files"
+              title={t('transit_files_list')}
+              orientation="landscape"
               buttonClassName={`inline-flex items-center justify-center px-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm sm:text-base`}
               menuClassName={`absolute top-full right-0 mt-2 w-48 rounded-md shadow-lg ${bgPrimary} ring-1 ring-black ring-opacity-5 z-50`}
               menuItemClassName={`block w-full text-left px-4 py-2 text-sm ${textPrimary} hover:bg-gray-100 dark:hover:bg-gray-700`}
-            />
+              customPdfConfig={{
+                headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+              }}/>
           </div>
         </div>
       </div>
