@@ -71,7 +71,6 @@ const TransitFilesPage = () => {
   const handleViewFile = (fileId: string) => {
     navigate(`/transit-files/${fileId}`);
   };
-
   
   const [transitFiles, setTransitFiles] = useState<TransitFile[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
