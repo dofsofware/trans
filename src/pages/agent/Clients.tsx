@@ -5,6 +5,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { getMockClients } from '../../services/clientService';
 import { Client } from '../../types/client';
 import LoadingScreen from '../../components/common/LoadingScreen';
+import ClientExport from '../../components/common/ClientExport';
 import {
   Search,
   Filter,
@@ -25,13 +26,10 @@ import {
   Grid,
   Table,
   ChevronLeft,
-  ChevronRight,
-  Download
+  ChevronRight
 } from 'lucide-react';
 import { format } from 'date-fns';
 import backImage from '../../utils/backGround_hearder.png';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
 
 const ClientsPage = () => {
   const { theme } = useTheme();
@@ -52,11 +50,6 @@ const ClientsPage = () => {
   
   // View mode state
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
-  
-  // Export states
-  const [exportType, setExportType] = useState<'pdf' | 'excel' | 'csv'>('pdf');
-  const [showExportOptions, setShowExportOptions] = useState(false);
-  const exportMenuRef = useRef<HTMLDivElement>(null);
 
   // Check if mobile on mount and resize
   useEffect(() => {
@@ -72,19 +65,7 @@ const ClientsPage = () => {
     };
   }, []);
   
-  // Close export options when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (exportMenuRef.current && !exportMenuRef.current.contains(event.target as Node)) {
-        setShowExportOptions(false);
-      }
-    };
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+
 
   // Force cards view on mobile
   useEffect(() => {
@@ -151,148 +132,7 @@ const ClientsPage = () => {
     setCurrentPage(1); // Reset to first page when filters change
   }, [searchQuery, statusFilter, clients]);
   
-  const handleExport = () => {
-    // Prepare data for export
-    const data = filteredClients.map(client => ({
-      id: client.id,
-      name: client.name || '',
-      company: client.company || '',
-      email: client.email || '',
-      phone: client.phone || '',
-      address: client.address || '',
-      city: client.city || '',
-      country: client.country || '',
-      status: client.status || '',
-      createdAt: client.createdAt ? format(new Date(client.createdAt), 'dd/MM/yyyy') : ''
-    }));
-
-    // Export based on selected type
-    switch (exportType) {
-      case 'pdf':
-        exportToPDF(data);
-        break;
-      case 'excel':
-        exportToExcel(data);
-        break;
-      case 'csv':
-        exportToCSV(data);
-        break;
-    }
-
-    // Close export options menu
-    setShowExportOptions(false);
-  };
-
-  const exportToPDF = (data: any[]) => {
-    const doc = new jsPDF();
-    
-    // Add title
-    doc.setFontSize(18);
-    doc.text('Liste des Clients', 14, 22);
-    doc.setFontSize(11);
-    doc.text(`Exporté le ${format(new Date(), 'dd/MM/yyyy')}`, 14, 30);
-    
-    // Create the table
-    autoTable(doc, {
-      head: [['ID', 'Nom', 'Entreprise', 'Email', 'Téléphone', 'Adresse', 'Statut', 'Date de création']],
-      body: data.map(client => [
-        client.id,
-        client.name,
-        client.company,
-        client.email,
-        client.phone,
-        `${client.address}, ${client.city}, ${client.country}`,
-        client.status,
-        client.createdAt
-      ]),
-      startY: 35,
-      styles: { fontSize: 8, cellPadding: 2 },
-      headStyles: { fillColor: [41, 128, 185], textColor: 255 },
-      alternateRowStyles: { fillColor: [240, 240, 240] }
-    });
-    
-    // Save the PDF
-    doc.save('clients.pdf');
-  };
-
-  const exportToExcel = (data: any[]) => {
-    // Create HTML table for Excel
-    let html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
-    html += '<head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Clients</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->';
-    html += '<style>table, th, td { border: 1px solid black; border-collapse: collapse; }</style>';
-    html += '</head><body>';
-    
-    // Create table
-    html += '<table>';
-    
-    // Add header row
-    html += '<tr style="font-weight: bold;">';
-    html += '<th>ID</th><th>Nom</th><th>Entreprise</th><th>Email</th><th>Téléphone</th><th>Adresse</th><th>Ville</th><th>Pays</th><th>Statut</th><th>Date de création</th>';
-    html += '</tr>';
-    
-    // Add data rows
-    data.forEach((client, index) => {
-      const bgColor = index % 2 === 0 ? '#f0f0f0' : '#ffffff';
-      html += `<tr style="background-color: ${bgColor}">`;
-      html += `<td>${client.id}</td>`;
-      html += `<td>${client.name}</td>`;
-      html += `<td>${client.company}</td>`;
-      html += `<td>${client.email}</td>`;
-      html += `<td>${client.phone}</td>`;
-      html += `<td>${client.address}</td>`;
-      html += `<td>${client.city}</td>`;
-      html += `<td>${client.country}</td>`;
-      html += `<td>${client.status}</td>`;
-      html += `<td>${client.createdAt}</td>`;
-      html += '</tr>';
-    });
-    
-    html += '</table></body></html>';
-    
-    // Create Blob and download
-    const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'clients.xls';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const exportToCSV = (data: any[]) => {
-    // Add BOM for UTF-8 encoding
-    let csv = '\uFEFF';
-    
-    // Add headers
-    csv += 'ID,Nom,Entreprise,Email,Téléphone,Adresse,Ville,Pays,Statut,Date de création\n';
-    
-    // Add data rows
-    data.forEach(client => {
-      csv += `"${client.id}",`;
-      csv += `"${client.name}",`;
-      csv += `"${client.company}",`;
-      csv += `"${client.email}",`;
-      csv += `"${client.phone}",`;
-      csv += `"${client.address}",`;
-      csv += `"${client.city}",`;
-      csv += `"${client.country}",`;
-      csv += `"${client.status}",`;
-      csv += `"${client.createdAt}"\n`;
-    });
-    
-    // Create Blob and download
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'clients.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
+  // Les fonctions d'exportation sont maintenant gérées par le composant ClientExport
 
   // Pagination handlers
   const handlePageChange = (page: number) => {
@@ -662,48 +502,6 @@ const ClientsPage = () => {
           </div>
           
           <div className="p-4 flex gap-3">
-            <div className="relative" ref={exportMenuRef}>
-              <button
-                onClick={() => setShowExportOptions(!showExportOptions)}
-                className="inline-flex items-center px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm"
-              >
-                <Download size={18} className="mr-2" />
-                Exporter
-              </button>
-              {showExportOptions && (
-                <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-50">
-                  <div className="py-1">
-                    <button
-                      onClick={() => {
-                        setExportType('pdf');
-                        handleExport();
-                      }}
-                      className="block w-full text-left px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      Exporter en PDF
-                    </button>
-                    <button
-                      onClick={() => {
-                        setExportType('excel');
-                        handleExport();
-                      }}
-                      className="block w-full text-left px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      Exporter en Excel
-                    </button>
-                    <button
-                      onClick={() => {
-                        setExportType('csv');
-                        handleExport();
-                      }}
-                      className="block w-full text-left px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      Exporter en CSV
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
             <button 
               onClick={handleNewClient}
               className="inline-flex items-center px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
@@ -711,6 +509,12 @@ const ClientsPage = () => {
               <Plus size={18} className="mr-2" />
               Nouveau client
             </button>
+            <ClientExport 
+              clients={filteredClients} 
+              buttonClassName="inline-flex items-center px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm"
+              menuClassName="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-50"
+              menuItemClassName="block w-full text-left px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+            />
           </div>
         </div>
       </div>

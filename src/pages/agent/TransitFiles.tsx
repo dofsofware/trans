@@ -7,6 +7,7 @@ import { getMockClients } from '../../services/clientService';
 import { Client } from '../../types/client';
 import { Container } from '../../types/container';
 import LoadingScreen from '../../components/common/LoadingScreen';
+import TransitFileExport from '../../components/common/TransitFileExport';
 import { useMediaQuery } from 'react-responsive';
 import {
   Search,
@@ -71,218 +72,9 @@ const TransitFilesPage = () => {
     navigate(`/transit-files/${fileId}`);
   };
 
-  // État pour le type d'export sélectionné
-  const [exportType, setExportType] = useState<'pdf' | 'excel' | 'csv'>('pdf');
-  const [showExportOptions, setShowExportOptions] = useState(false);
-  const exportMenuRef = useRef<HTMLDivElement>(null);
+  // Aucun état nécessaire pour l'exportation, tout est géré par le composant TransitFileExport
 
-  // Fermer le menu d'export lorsque l'utilisateur clique en dehors
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (exportMenuRef.current && !exportMenuRef.current.contains(event.target as Node)) {
-        setShowExportOptions(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  const handleExport = (type: 'pdf' | 'excel' | 'csv' = exportType) => {
-    // Préparer les données pour l'export
-    const tableData = filteredFiles.map(file => ([
-      file.reference,
-      file.blNumber,
-      getCurrentEvent(file),
-      t(file.transportType),
-      t(file.shipmentType),
-      t(file.productType),
-      file.origin,
-      file.destination,
-      getClientNames(file.clientIds),
-      format(new Date(file.createdAt), 'dd/MM/yyyy'),
-      file.totalVolume ? `${file.totalVolume}` : '-',
-      file.totalWeight ? `${file.totalWeight}` : '-'
-    ]));
-
-    // Créer l'en-tête
-    const headers = [
-      t('reference'),
-      t('bl_number'),
-      t('current_event'),
-      t('transport_type'),
-      t('shipment_type'),
-      t('product_type'),
-      t('origin'),
-      t('destination'),
-      t('clients'),
-      t('creation_date'),
-      t('volume'),
-      t('weight')
-    ];
-
-    if (type === 'pdf') {
-      // Initialiser le PDF en mode paysage
-      const doc = new jsPDF({
-        orientation: 'landscape'
-      });
-
-      // Ajouter le titre
-      doc.setFontSize(16);
-      doc.text(t('transit_files_list'), 14, 15);
-
-      // Ajouter la date d'export
-      doc.setFontSize(10);
-      doc.text(format(new Date(), 'dd/MM/yyyy HH:mm'), 14, 22);
-
-      // Générer le tableau
-      autoTable(doc, {
-        head: [headers],
-        body: tableData,
-        startY: 30,
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [51, 51, 51] },
-        alternateRowStyles: { fillColor: [245, 245, 245] },
-        margin: { top: 30 }
-      });
-
-      // Sauvegarder le PDF
-      doc.save(`transit_files_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
-    } else if (type === 'csv') {
-      // Créer un fichier CSV standard
-      let csvContent = headers.join(',') + '\n';
-      
-      // Ajouter les données
-      tableData.forEach(row => {
-        // Échapper les virgules dans les cellules
-        const escapedRow = row.map(cell => {
-          const cellStr = String(cell);
-          // Si la cellule contient une virgule, des guillemets ou des sauts de ligne, l'entourer de guillemets
-          if (cellStr.includes(',') || cellStr.includes('"') || cellStr.includes('\n')) {
-            // Échapper les guillemets en les doublant
-            return '"' + cellStr.replace(/"/g, '""') + '"';
-          }
-          return cellStr;
-        });
-        csvContent += escapedRow.join(',') + '\n';
-      });
-      
-      // Créer un objet Blob pour le fichier CSV avec BOM pour UTF-8
-      // Le BOM (Byte Order Mark) permet à Excel de reconnaître correctement l'encodage UTF-8
-      const BOM = new Uint8Array([0xEF, 0xBB, 0xBF]);
-      const blob = new Blob([BOM, csvContent], { type: 'text/csv;charset=utf-8;' });
-      
-      // Créer un lien pour télécharger le fichier
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      
-      link.setAttribute('href', url);
-      link.setAttribute('download', `transit_files_${format(new Date(), 'yyyy-MM-dd')}.csv`);
-      link.style.visibility = 'hidden';
-      
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } else if (type === 'excel') {
-      // Créer un fichier Excel (HTML) qui sera correctement interprété par Excel
-      // Cette approche crée un tableau HTML que Excel peut ouvrir avec les cellules correctement séparées
-      
-      // Créer le début du document HTML avec les styles
-      let htmlContent = `
-        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-        <head>
-          <meta charset="UTF-8">
-          <!--[if gte mso 9]>
-          <xml>
-            <x:ExcelWorkbook>
-              <x:ExcelWorksheets>
-                <x:ExcelWorksheet>
-                  <x:Name>Feuille 1</x:Name>
-                  <x:WorksheetOptions>
-                    <x:DisplayGridlines/>
-                  </x:WorksheetOptions>
-                </x:ExcelWorksheet>
-              </x:ExcelWorksheets>
-            </x:ExcelWorkbook>
-          </xml>
-          <![endif]-->
-          <style>
-            table, th, td {
-              border-collapse: collapse;
-              font-family: Arial, sans-serif;
-              font-size: 10pt;
-            }
-            th {
-              background-color: #f2f2f2;
-              font-weight: bold;
-              text-align: center;
-            }
-          </style>
-        </head>
-        <body>
-          <table>
-            <thead>
-              <tr>
-      `;
-      
-      // Ajouter les en-têtes
-      headers.forEach(header => {
-        htmlContent += `<th>${header}</th>`;
-      });
-      
-      htmlContent += `
-              </tr>
-            </thead>
-            <tbody>
-      `;
-      
-      // Ajouter les données
-      tableData.forEach(row => {
-        htmlContent += '<tr>';
-        row.forEach(cell => {
-          // Échapper les caractères HTML spéciaux
-          const cellStr = String(cell)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;')
-            .replace(/\n/g, '<br>');
-          
-          htmlContent += `<td>${cellStr}</td>`;
-        });
-        htmlContent += '</tr>';
-      });
-      
-      // Fermer le document HTML
-      htmlContent += `
-            </tbody>
-          </table>
-        </body>
-        </html>
-      `;
-      
-      // Créer un objet Blob pour le fichier HTML
-      const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
-      
-      // Créer un lien pour télécharger le fichier
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      
-      link.setAttribute('href', url);
-      link.setAttribute('download', `transit_files_${format(new Date(), 'yyyy-MM-dd')}.xls`);
-      link.style.visibility = 'hidden';
-      
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-    
-    // Fermer le menu d'options d'export après l'export
-    setShowExportOptions(false);
-  };
+    // La fonction d'exportation est maintenant gérée par le composant TransitFileExport
   const [transitFiles, setTransitFiles] = useState<TransitFile[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [filteredFiles, setFilteredFiles] = useState<TransitFile[]>([]);
@@ -935,43 +727,14 @@ const TransitFilesPage = () => {
               <Plus size={18} className="mr-2" />
               {t('new_transit_file')}
             </button>
-            <div className="relative">
-              <button 
-                onClick={() => setShowExportOptions(!showExportOptions)}
-                className={`inline-flex items-center justify-center px-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm sm:text-base`}
-              >
-                <Download size={18} className="mr-2" />
-                {t('export')}
-              </button>
-              
-              {showExportOptions && (
-                <div ref={exportMenuRef} className={`absolute top-full right-0 mt-2 w-48 rounded-md shadow-lg ${bgPrimary} ring-1 ring-black ring-opacity-5 z-50`}>
-                  <div className="py-1" role="menu" aria-orientation="vertical">
-                    <button
-                      onClick={() => handleExport('pdf')}
-                      className={`block w-full text-left px-4 py-2 text-sm ${textPrimary} hover:bg-gray-100 dark:hover:bg-gray-700`}
-                      role="menuitem"
-                    >
-                      {t('export_pdf')}
-                    </button>
-                    <button
-                      onClick={() => handleExport('excel')}
-                      className={`block w-full text-left px-4 py-2 text-sm ${textPrimary} hover:bg-gray-100 dark:hover:bg-gray-700`}
-                      role="menuitem"
-                    >
-                      {t('export_excel')}
-                    </button>
-                    <button
-                      onClick={() => handleExport('csv')}
-                      className={`block w-full text-left px-4 py-2 text-sm ${textPrimary} hover:bg-gray-100 dark:hover:bg-gray-700`}
-                      role="menuitem"
-                    >
-                      {t('export_csv')}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+            <TransitFileExport 
+              files={filteredFiles}
+              getClientNames={getClientNames}
+              getCurrentEvent={getCurrentEvent}
+              buttonClassName={`inline-flex items-center justify-center px-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm sm:text-base`}
+              menuClassName={`absolute top-full right-0 mt-2 w-48 rounded-md shadow-lg ${bgPrimary} ring-1 ring-black ring-opacity-5 z-50`}
+              menuItemClassName={`block w-full text-left px-4 py-2 text-sm ${textPrimary} hover:bg-gray-100 dark:hover:bg-gray-700`}
+            />
           </div>
         </div>
       </div>
