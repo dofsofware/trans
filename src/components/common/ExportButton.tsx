@@ -152,9 +152,12 @@ const ExportButton: React.FC<ExportButtonProps> = ({
       const pageWidth = doc.internal.pageSize.width;
       const pageHeight = doc.internal.pageSize.height;
 
+      // Variable pour stocker le logo en base64 (accessible dans tout le scope de la fonction)
+      let logoBase64: string | null = null;
+      
       // Essayer d'ajouter le logo
       try {
-        const logoBase64 = await getImageBase64(logo);
+        logoBase64 = await getImageBase64(logo);
         // Ajuster la taille du logo (largeur: 30, hauteur: auto)
         const logoWidth = 3072/40;
         const logoHeight = 849/40;
@@ -208,38 +211,48 @@ const ExportButton: React.FC<ExportButtonProps> = ({
         columnStyles: {
           // Vous pouvez personnaliser des colonnes spécifiques ici
         },
-        margin: { top: 55, left: 15, right: 15 },
+        // Marge pour la première page uniquement, les pages suivantes utilisent didDrawPage
+        margin: { top: 55, left: 15, right: 15, bottom: 15 },
         theme: 'striped',
-        // Correction pour la marge des pages suivantes
+        // Configuration des en-têtes et sauts de page
         showHead: 'everyPage',
         pageBreak: 'auto',
-        pageBreakBefore: (data: any) => {
-          return data.pageNumber > 1 ? 40 : false; // Marge réduite pour les pages suivantes
+        // Gestion des en-têtes et du logo sur chaque page
+        // Cette fonction est appelée après le dessin de chaque page et permet de personnaliser l'apparence
+        // Elle est utilisée ici pour éliminer l'espace vide en haut des pages suivantes
+        didDrawPage: (data: any) => {
+          // Pour les pages suivantes, ajuster la position Y pour éviter l'espace vide
+          if (data.pageNumber > 1) {
+            // Réinitialiser la position Y pour éviter l'espace vide
+            data.cursor.y = 15; // Marge minimale en haut
+            
+            // Ajouter le logo sur les pages suivantes si disponible
+            if (logoBase64) {
+              try {
+                const logoWidth = 3072/40;
+                const logoHeight = 849/40;
+                const logoX = pageWidth - logoWidth - 15;
+                const logoY = 10;
+                
+                // Utiliser le logo en base64 stocké précédemment
+                doc.addImage(logoBase64, 'PNG', logoX, logoY, logoWidth, logoHeight);
+                
+                // Ajouter un titre ou en-tête de page si nécessaire
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(107, 114, 128); // Gray color
+                doc.text(`${title} - Page ${data.pageNumber}`, 15, 10);
+              } catch (error) {
+                console.warn('Erreur lors de l\'ajout du logo sur la page:', error);
+              }
+            }
+          }
         },
         ...customPdfConfig
       };
 
-      // Gestion personnalisée des nouvelles pages
-      const originalAddPage = doc.addPage;
-      doc.addPage = function(format?: any, orientation?: any) {
-        const result = originalAddPage.call(this, format, orientation);
-        
-        // Ajouter le logo sur chaque nouvelle page
-        try {
-          const logoBase64 = logo; // Utiliser le logo déjà chargé
-          const logoWidth = 3072/40;
-          const logoHeight = 849/40;
-          const logoX = pageWidth - logoWidth - 15;
-          const logoY = 10;
-          
-          // Note: Dans un contexte réel, vous devriez avoir le base64 du logo disponible
-          // doc.addImage(logoBase64, 'PNG', logoX, logoY, logoWidth, logoHeight);
-        } catch (error) {
-          console.warn('Impossible d\'ajouter le logo sur la nouvelle page:', error);
-        }
-        
-        return result;
-      };
+      // Nous n'avons plus besoin de surcharger addPage car didDrawPage gère déjà le positionnement
+      // Le logo sera ajouté via la configuration didDrawPage dans autoTable
 
       autoTable(doc, tableConfig);
 
