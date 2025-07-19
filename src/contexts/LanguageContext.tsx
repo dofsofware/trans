@@ -27,6 +27,11 @@ const translations = {
     client_not_found: 'Client not found',
     client_not_found_desc: 'The client you are looking for does not exist or has been deleted.',
     backToClients: 'Back to clients',
+    client_updated: 'Client updated',
+    client_updated_desc: 'The client information has been successfully updated.',
+    viewClient: 'View client',
+    edit_client: 'Edit client',
+    edit_client_desc: 'Edit client information',
     contact_client: 'Contact client',
     modify_client: 'Modify client',
     basic_information: 'Basic information',
@@ -331,6 +336,9 @@ const translations = {
     systemInfo: 'System Information',
     assignedAgent: 'Assigned Agent',
     status: 'Status',
+    avatar_modal_title:'Update your avatar',
+    update_avatar:'Update avatar',
+
 
     // Agent Management
     agent_in_charge: 'Agent in Charge',
@@ -883,6 +891,11 @@ const translations = {
     client_not_found: 'Client non trouvé',
     client_not_found_desc: 'Le client que vous recherchez n\'existe pas ou a été supprimé.',
     backToClients: 'Retour aux clients',
+    client_updated: 'Client mis à jour',
+    client_updated_desc: 'Les informations du client ont été mises à jour avec succès.',
+    viewClient: 'Voir le client',
+    edit_client: 'Modifier le client',
+    edit_client_desc: 'Modifier les informations du client',
     invalidEmail: 'Format d\'email invalide',
     clientCreated: 'Client créé',
     clientCreatedDesc: 'Votre client a été créé avec succès.',
@@ -1056,7 +1069,8 @@ const translations = {
     complete_previous_step_placeholder: 'Complétez l\'étape précédente d\'abord',
     click_edit_to_modify: 'Cliquez sur éditer pour modifier',
     click_edit_icon_to_modify: 'Cliquez sur l\'icône d\'édition pour modifier',
-
+    avatar_modal_title:'Modifier votre avatar',
+    update_avatar:'Modifier l\'avatar',
     // Export Events
     export_pregate: 'Prégate export (Réception documents)',
     warehouse_reception: 'Réception colis dans l\'entrepôt',

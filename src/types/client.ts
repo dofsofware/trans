@@ -14,4 +14,11 @@ export interface Client {
   avatar?: string;
   clientId?: string;
   assignedAgentId?: string;
+  // Nouveaux champs pour les entreprises
+  isCompany?: boolean;
+  ninea?: string;
+  raisonSociale?: string;
+  companyAddress?: string;
+  companyPhone?: string;
+  companyEmail?: string;
 }

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { getMockClientById } from '../../services/clientService';
+import { getMockClientById, updateMockClient } from '../../services/clientService';
 import { Client } from '../../types/client';
 import AvatarUploader from '../../components/common/AvatarUploader';
 import LoadingScreen from '../../components/common/LoadingScreen';
@@ -15,6 +15,7 @@ import {
   Phone,
   Building,
   MapPin,
+  Globe,
   Hash,
   UserCheck,
   Calendar,
@@ -30,6 +31,12 @@ interface ClientFormData {
   lastName: string;
   email: string;
   phone: string;
+  isCompany: boolean;
+  ninea?: string;
+  raisonSociale?: string;
+  companyAddress?: string;
+  companyPhone?: string;
+  companyEmail?: string;
   company: string;
   address: string;
   city: string;
@@ -43,6 +50,11 @@ interface FormErrors {
   lastName?: string;
   email?: string;
   phone?: string;
+  ninea?: string;
+  raisonSociale?: string;
+  companyAddress?: string;
+  companyPhone?: string;
+  companyEmail?: string;
   company?: string;
   address?: string;
   city?: string;
@@ -63,6 +75,12 @@ const EditClientPage = () => {
     lastName: '',
     email: '',
     phone: '',
+    isCompany: false,
+    ninea: '',
+    raisonSociale: '',
+    companyAddress: '',
+    companyPhone: '',
+    companyEmail: '',
     company: '',
     address: '',
     city: '',
@@ -105,12 +123,18 @@ const EditClientPage = () => {
             lastName,
             email: clientData.email,
             phone: clientData.phone || '',
-            company: clientData.company,
+            isCompany: clientData.isCompany || false,
+            ninea: clientData.ninea || '',
+            raisonSociale: clientData.raisonSociale || '',
+            companyAddress: clientData.companyAddress || '',
+            companyPhone: clientData.companyPhone || '',
+            companyEmail: clientData.companyEmail || '',
+            company: clientData.company || '',
             address: clientData.address || '',
             city: clientData.city || '',
             country: clientData.country || '',
             avatar: clientData.avatar,
-            status: clientData.status
+            status: clientData.status || 'active'
           });
         }
       } catch (error) {
@@ -141,8 +165,28 @@ const EditClientPage = () => {
       newErrors.email = t('invalidEmail');
     }
 
-    if (!formData.company.trim()) {
-      newErrors.company = t('required');
+    if (formData.isCompany) {
+      if (!formData.ninea?.trim()) {
+        newErrors.ninea = t('required');
+      }
+
+      if (!formData.raisonSociale?.trim()) {
+        newErrors.raisonSociale = t('required');
+      }
+
+      if (!formData.companyAddress?.trim()) {
+        newErrors.companyAddress = t('required');
+      }
+
+      if (!formData.companyPhone?.trim()) {
+        newErrors.companyPhone = t('required');
+      }
+
+      if (!formData.companyEmail?.trim()) {
+        newErrors.companyEmail = t('required');
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.companyEmail)) {
+        newErrors.companyEmail = t('invalidEmail');
+      }
     }
 
     if (!formData.city.trim()) {
@@ -157,12 +201,12 @@ const EditClientPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleInputChange = (field: keyof ClientFormData, value: string) => {
+  const handleInputChange = (field: keyof ClientFormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
     // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
+    if (errors[field as keyof FormErrors]) {
+      setErrors(prev => ({ ...prev, [field as keyof FormErrors]: undefined }));
     }
   };
 
@@ -180,8 +224,27 @@ const EditClientPage = () => {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call to update client
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Préparer les données du client pour la mise à jour
+      const clientData = {
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        phone: formData.phone,
+        isCompany: formData.isCompany,
+        ...(formData.isCompany && { ninea: formData.ninea }),
+        ...(formData.isCompany && { raisonSociale: formData.raisonSociale }),
+        ...(formData.isCompany && formData.companyAddress && { companyAddress: formData.companyAddress }),
+        ...(formData.isCompany && formData.companyPhone && { companyPhone: formData.companyPhone }),
+        ...(formData.isCompany && formData.companyEmail && { companyEmail: formData.companyEmail }),
+        company: formData.company,
+        address: formData.address,
+        city: formData.city,
+        country: formData.country,
+        avatar: formData.avatar,
+        status: formData.status
+      };
+
+      // Appel API pour mettre à jour le client
+      await updateMockClient(clientId as string, clientData);
       
       setShowSuccess(true);
       
@@ -497,25 +560,152 @@ const EditClientPage = () => {
             </h2>
           </div>
 
-          <div>
-            <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
-              {t('company')} <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={formData.company}
-              onChange={(e) => handleInputChange('company', e.target.value)}
-              placeholder={t('companyPlaceholder')}
-              className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
-                errors.company ? 'border-red-500' : borderColor
-              }`}
-            />
-            {errors.company && (
-              <p className="mt-1 text-sm text-red-500 flex items-center">
-                <AlertCircle size={14} className="mr-1" />
-                {errors.company}
-              </p>
+          <div className="space-y-6">
+            {/* Toggle button épuré pour indiquer si c'est une entreprise */}
+            <div className="flex items-center justify-between">
+              <label htmlFor="isCompany" className={`text-sm font-medium ${textSecondary}`}>
+                {t('isCompany')}
+              </label>
+              <button
+                type="button"
+                id="isCompany"
+                onClick={() => handleInputChange('isCompany', !formData.isCompany)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  formData.isCompany
+                    ? 'bg-blue-600'
+                    : 'bg-gray-200 dark:bg-gray-700'
+                  }`}
+                role="switch"
+                aria-checked={formData.isCompany}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform duration-200 ease-in-out ${
+                    formData.isCompany ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                />
+              </button>
+            </div>
+
+            {/* Informations de l'entreprise */}
+            {formData.isCompany && (
+              <div className="space-y-6 pt-2 border-t border-gray-200 dark:border-gray-700">
+                {/* NINEA */}
+                <div>
+                  <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                    {t('ninea')} <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.ninea}
+                    onChange={(e) => handleInputChange('ninea', e.target.value)}
+                    placeholder={t('ninea_placeholder')}
+                    className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                      errors.ninea ? 'border-red-500' : borderColor
+                      }`}
+                  />
+                  {errors.ninea && (
+                    <p className="mt-1 text-sm text-red-500 flex items-center">
+                      <AlertCircle size={14} className="mr-1" />
+                      {errors.ninea}
+                    </p>
+                  )}
+                </div>
+
+                {/* Raison Sociale */}
+                <div>
+                  <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                    {t('raisonSociale')} <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.raisonSociale}
+                    onChange={(e) => handleInputChange('raisonSociale', e.target.value)}
+                    placeholder={t('raisonSociale_placeholder')}
+                    className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                      errors.raisonSociale ? 'border-red-500' : borderColor
+                      }`}
+                  />
+                  {errors.raisonSociale && (
+                    <p className="mt-1 text-sm text-red-500 flex items-center">
+                      <AlertCircle size={14} className="mr-1" />
+                      {errors.raisonSociale}
+                    </p>
+                  )}
+                </div>
+
+                {/* Adresse de l'entreprise */}
+                <div>
+                  <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                    {t('companyAddress')} <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.companyAddress}
+                    onChange={(e) => handleInputChange('companyAddress', e.target.value)}
+                    placeholder={t('companyAddress_placeholder')}
+                    className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                      errors.companyAddress ? 'border-red-500' : borderColor
+                      }`}
+                  />
+                  {errors.companyAddress && (
+                    <p className="mt-1 text-sm text-red-500 flex items-center">
+                      <AlertCircle size={14} className="mr-1" />
+                      {errors.companyAddress}
+                    </p>
+                  )}
+                </div>
+
+                {/* Téléphone et Email de l'entreprise sur la même ligne */}
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Téléphone de l'entreprise */}
+                  <div>
+                    <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                      {t('companyPhone')} <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      value={formData.companyPhone}
+                      onChange={(e) => handleInputChange('companyPhone', e.target.value)}
+                      placeholder={t('companyPhone_placeholder')}
+                      className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                        errors.companyPhone ? 'border-red-500' : borderColor
+                        }`}
+                    />
+                    {errors.companyPhone && (
+                      <p className="mt-1 text-sm text-red-500 flex items-center">
+                        <AlertCircle size={14} className="mr-1" />
+                        {errors.companyPhone}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Email de l'entreprise */}
+                  <div>
+                    <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                      {t('companyEmail')} <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      value={formData.companyEmail}
+                      onChange={(e) => handleInputChange('companyEmail', e.target.value)}
+                      placeholder={t('companyEmail_placeholder')}
+                      className={`block w-full px-4 py-3 border rounded-lg ${bgPrimary} ${textPrimary} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                        errors.companyEmail ? 'border-red-500' : borderColor
+                        }`}
+                    />
+                    {errors.companyEmail && (
+                      <p className="mt-1 text-sm text-red-500 flex items-center">
+                        <AlertCircle size={14} className="mr-1" />
+                        {errors.companyEmail}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
             )}
+
+            {/* Nom de l'entreprise */}
+
           </div>
         </div>
 

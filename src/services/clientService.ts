@@ -90,8 +90,51 @@ export const createMockClient = async (clientData: Partial<Client>): Promise<Cli
     status: 'active',
     avatar: clientData.avatar,
     clientId,
-    assignedAgentId: '2' // Current agent ID
+    assignedAgentId: '2', // Current agent ID
+    // Nouveaux champs pour les entreprises
+    isCompany: clientData.isCompany,
+    ninea: clientData.ninea,
+    raisonSociale: clientData.raisonSociale,
+    companyAddress: clientData.companyAddress,
+    companyPhone: clientData.companyPhone,
+    companyEmail: clientData.companyEmail
   };
 
   return newClient;
+};
+
+export const updateMockClient = async (id: string, clientData: Partial<Client>): Promise<Client> => {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  // Simuler la récupération du client existant
+  const existingClient = await getMockClientById(id);
+  
+  if (!existingClient) {
+    throw new Error('Client not found');
+  }
+  
+  // Mettre à jour les données du client
+  const updatedClient: Client = {
+    ...existingClient,
+    name: clientData.name || existingClient.name,
+    email: clientData.email || existingClient.email,
+    phone: clientData.phone || existingClient.phone,
+    company: clientData.company || existingClient.company,
+    address: clientData.address || existingClient.address,
+    city: clientData.city || existingClient.city,
+    country: clientData.country || existingClient.country,
+    updatedAt: format(new Date(), "yyyy-MM-dd'T'HH:mm:ss"),
+    updatedBy: '2', // Current agent ID
+    status: clientData.status || existingClient.status,
+    avatar: clientData.avatar || existingClient.avatar,
+    // Nouveaux champs pour les entreprises
+    isCompany: clientData.isCompany !== undefined ? clientData.isCompany : existingClient.isCompany,
+    ninea: clientData.ninea || existingClient.ninea,
+    raisonSociale: clientData.raisonSociale || existingClient.raisonSociale,
+    companyAddress: clientData.companyAddress || existingClient.companyAddress,
+    companyPhone: clientData.companyPhone || existingClient.companyPhone,
+    companyEmail: clientData.companyEmail || existingClient.companyEmail
+  };
+
+  return updatedClient;
 };
