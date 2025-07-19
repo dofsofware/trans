@@ -4,6 +4,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
 import  logo  from '../../utils/ShipTrack_light_mode.png';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface ExportButtonProps {
   data: any[] | Record<string, any>[];
@@ -50,6 +51,7 @@ const ExportButton: React.FC<ExportButtonProps> = ({
   const [showExportOptions, setShowExportOptions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const exportMenuRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
 
   // Default styles améliorés
   const defaultButtonClassName = `
@@ -529,7 +531,7 @@ const ExportButton: React.FC<ExportButtonProps> = ({
         >
           <div className="py-2" role="menu" aria-orientation="vertical" style={{ zIndex: 9999 }}>
             <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700" style={{ zIndex: 9999 }}>
-              Formats d'export
+              {t('export_format')}
             </div>
             {exportOptions.map((option) => {
               const IconComponent = option.icon;

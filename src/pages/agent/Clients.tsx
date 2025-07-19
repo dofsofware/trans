@@ -550,7 +550,7 @@ const ClientsPage = () => {
       {/* Search and Filter Bar */}
       <div className={`${bgSecondary} rounded-lg ${shadowClass} p-4 mb-6 ${borderColor} border`}>
         <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-          <div className="flex-1 relative">
+          <div className="flex-1">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search size={18} className={textMuted} />
             </div>

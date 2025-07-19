@@ -771,7 +771,7 @@ const TransitFilesPage = () => {
       <div className={`${bgSecondary} rounded-lg ${shadowClass} p-4 mb-6 ${borderColor} border`}>
         <div className="flex flex-col lg:flex-row lg:items-center gap-4">
           {/* Search Input */}
-          <div className="flex-1 relative">
+          <div className="flex-1">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search size={18} className={textMuted} />
             </div>
@@ -788,7 +788,7 @@ const TransitFilesPage = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`inline-flex items-center px-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors relative text-sm sm:text-base`}
+              className={`inline-flex items-center px-4 py-2.5 border ${borderColor} rounded-lg ${bgPrimary} ${textPrimary} hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm sm:text-base`}
             >
               <Filter size={18} className="mr-2" />
               {t('filters')}
